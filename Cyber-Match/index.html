@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>КИБЕР-МАТЧ • ПИКСЕЛЬНЫЙ РЕТРО</title>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- НАЧАЛЬНЫЙ ЭКРАН -->
+    <div id="startScreen" class="start-screen">
+        <div class="start-container">
+            <div class="game-title">⚡КИБЕР-МАТЧ⚡</div>
+            <div class="game-subtitle">3-В-РЯД • МИРЫ • ЗАДАНИЯ</div>
+            
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="play">🎮 ИГРАТЬ</button>
+                <button class="tab-btn" data-tab="settings">⚙️ НАСТРОЙКИ</button>
+            </div>
+            
+            <div class="tab-content active" id="playTab">
+                <button id="playBtn" class="play-btn">▶ НАЧАТЬ ИГРУ</button>
+                <div class="info-text">🎮 4 мира | 32 уровня | Уникальные механики</div>
+            </div>
+            
+            <div class="tab-content" id="settingsTab">
+                <div class="sound-settings">
+                    <div class="sound-option">
+                        <label>🎵 МУЗЫКА</label>
+                        <div class="slider-container">
+                            <span>🔇</span>
+                            <input type="range" id="musicVolumeSlider" class="sound-slider" min="0" max="100" value="70">
+                            <span id="musicVolumeValue" class="volume-value">70%</span>
+                            <span>🔊</span>
+                        </div>
+                    </div>
+                    <div class="sound-option">
+                        <label>🔊 ЗВУКИ</label>
+                        <div class="slider-container">
+                            <span>🔇</span>
+                            <input type="range" id="soundsVolumeSlider" class="sound-slider" min="0" max="100" value="70">
+                            <span id="soundsVolumeValue" class="volume-value">70%</span>
+                            <span>🔊</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-text">🎧 Настройки сохраняются автоматически</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ОСНОВНОЙ КОНТЕЙНЕР ИГРЫ -->
+    <div id="gameWrapper" class="game-container-wrapper">
+        <div class="game-container">
+            <div class="currency-bar">
+                <div class="currency">💰 <span id="coinsAmount">0</span></div>
+                <div class="currency">💎 <span id="crystalsAmount">0</span></div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button id="openShopBtn" class="shop-btn">🛒 МАГАЗИН</button>
+                    <button id="resetProgressBtn" class="reset-progress-btn">🔄 СБРОС</button>
+                    <button id="exitToMenuBtn" class="exit-menu-btn">🚪 ВЫХОД</button>
+                    <button id="ultimaBtn" class="ultima-btn">💨 ПАРОВОЙ УДАР</button>
+                    <button id="helpBtn" class="help-btn">❔</button>
+                </div>
+            </div>
+
+            <div class="world-header">
+                <div class="world-nav">
+                    <button id="prevWorldBtn" class="world-nav-btn">◀</button>
+                    <div class="current-world-card">
+                        <div class="current-world-icon" id="currentWorldIcon">🌲</div>
+                        <div class="current-world-name" id="currentWorldName">ЛЕСНОЙ</div>
+                        <div class="world-property" id="worldProperty">✨ Прорастание + Рост</div>
+                    </div>
+                    <button id="nextWorldBtn" class="world-nav-btn">▶</button>
+                </div>
+            </div>
+            
+            <div class="level-selector" id="levelSelector"></div>
+            
+            <div class="quest-panel">
+                <div class="quest-target-display" id="questTargetDisplay">🎯 ЗАДАНИЕ</div>
+                <div class="stats-row">
+                    <span>💰 СЧЕТ: <span id="score">0</span></span>
+                    <span>🎲 ХОДЫ: <span id="moves">0</span></span>
+                    <span class="combo-indicator" id="comboDisplay">⚡ x1</span>
+                </div>
+                <div>📊 ПРОГРЕСС: <span id="questProgressDisplay">0 / 0</span></div>
+                <div class="progress-bar-bg"><div id="questFill" style="width:0%; height:100%; background: var(--world-primary);"></div></div>
+                <div id="worldExtraInfo"></div>
+            </div>
+
+            <div class="board-wrapper">
+                <div id="board" class="board"></div>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap;">
+                <button id="resetBtn" class="btn">🔄 РЕСТАРТ УРОВНЯ</button>
+                <button id="shuffleBtn" class="btn">🃏 ТАСОВАТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal">
+            <div id="modalIcon" style="font-size: 3rem;">🏆</div>
+            <div id="modalTitle" class="modal-title">ПОБЕДА!</div>
+            <div id="modalStats" style="margin: 15px 0;"></div>
+            <button id="nextLevelBtn" class="btn">▶ ДАЛЕЕ</button>
+            <button id="modalRestartBtn" class="btn" style="margin-top:10px;">🔄 ЗАНОВО</button>
+        </div>
+    </div>
+
+    <div id="victoryCelebration" class="victory-celebration">
+        <div class="victory-card">
+            <div class="victory-icon">🏆✨👑</div>
+            <div class="victory-title">КИБЕР-ЧЕМПИОН!</div>
+            <div class="victory-stats">
+                <p>🌟 ВЫ ПРОШЛИ ВСЕ МИРЫ! 🌟</p>
+                <p id="victoryTotalScore">💰 Итоговый счёт: 0</p>
+            </div>
+            <button id="victoryRestartBtn" class="btn" style="background: gold; color: #000; border-color: gold;">✨ ИГРАТЬ ЗАНОВО ✨</button>
+        </div>
+    </div>
+
+    <div id="shopModal" class="shop-modal">
+        <div class="shop-container">
+            <div class="victory-title">🛒 КИБЕР-МАГАЗИН</div>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 15px;">
+                <div class="currency">💰 <span id="shopCoins">0</span></div>
+                <div class="currency">💎 <span id="shopCrystals">0</span></div>
+            </div>
+            <div id="shopItemsList"></div>
+            <button id="closeShopBtn" class="shop-close">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <div id="tutorialModal" class="tutorial-overlay">
+        <div class="tutorial-container">
+            <div class="victory-title">📖 УЧЕБНИК ЛОКАЦИЙ</div>
+            <div id="tutorialItemsList"></div>
+            <button class="tutorial-close" id="closeTutorialBtn">ПОНЯТНО!</button>
+        </div>
+    </div>
+
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+   <script src="js/config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

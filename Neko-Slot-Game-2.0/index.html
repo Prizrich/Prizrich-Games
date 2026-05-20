@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>НЕКО СЛОТ | ХАРДКОР-РЕЖИМ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="main-menu" id="mainMenu">
+    <div class="menu-content">
+        <div class="menu-title">🐱 НЕКО-СЛОТ 🎰</div>
+        <button class="menu-btn" id="playBtn">▶ ИГРАТЬ</button>
+        <button class="menu-btn" id="achievementsBtn">🏆 ДОСТИЖЕНИЯ</button>
+        <button class="menu-btn" id="settingsBtn">⚙ НАСТРОЙКИ</button>
+        
+        <div id="modifiersSelector" class="modifiers-selector">
+            <h4>⚙️ ВЫБЕРИ МОДИФИКАТОРЫ ⚙️</h4>
+            <div id="modifiersLimitInfo" class="modifiers-limit-info"></div>
+            <div id="modifiersList"></div>
+            <button id="applyModifiersBtn" class="menu-btn apply-modifiers-btn">✅ ПРИМЕНИТЬ И НАЧАТЬ ЗАНОВО</button>
+        </div>
+        
+        <div id="achievementsPanel" class="achievements-list"></div>
+        <div id="settingsPanel" class="settings-panel">
+            <label>🎵 Музыка: <input type="range" id="musicVol" min="0" max="100" value="30"></label>
+            <label>🔊 Звуки: <input type="range" id="sfxVol" min="0" max="100" value="70"></label>
+            <label>🎨 Анимация слотов: <input type="checkbox" id="slotAnimation" checked></label>
+        </div>
+    </div>
+</div>
+
+<div class="game-container" id="gameContainer" style="display:none;">
+    <div class="job-background bar" id="jobBg"></div>
+    <div class="bg-effects" id="bgEffects"></div>
+    <div class="neco">🐱🎲</div>
+
+    <div class="game-wrapper">
+        <div class="header-actions">
+            <div>
+                <button class="exit-btn" id="exitBtn">🏠 ВЫХОД</button>
+                <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
+            </div>
+        </div>
+        
+        <div class="modifiers-panel" id="modifiersPanel">
+            ⚙️ МОДИФИКАТОРЫ НЕ АКТИВНЫ<br>Победите босса, чтобы открыть
+        </div>
+        
+        <div class="theme-bar" id="themeBar">
+            <div class="theme-btn active" data-theme="forest">🌲 Лес (x1)</div>
+            <div class="theme-btn" data-theme="cyberpunk">💜 Киберпанк (x2) 🔒</div>
+            <div class="theme-btn" data-theme="space">🚀 Космос (x3) 🔒</div>
+            <div class="theme-btn" data-theme="church">⛪ Церковь (x5) 🔒</div>
+        </div>
+
+        <div class="top-panel">
+            <div class="cash-panel">💰 <span id="money">200</span>$</div>
+            <div class="bet-panel">🎲 СТАВКА <span id="betAmount">20</span>$</div>
+            <div class="level-with-tooltip" id="levelContainer">
+                📊 УР.<span id="level">1</span>
+                <span class="tooltip-text" id="tooltipText">📊 0 / 100 XP</span>
+            </div>
+        </div>
+
+        <div id="jailPanel" class="jail-banner" style="display:none;">
+            🔒 В ТЮРЬМЕ! Нужно собрать <span id="bailAmount">120</span>$ для выхода 🔒
+            <button id="payBailBtn" style="background:#aa4433; margin-top:8px; padding:4px 12px;">💸 ЗАПЛАТИТЬ ЗАЛОГ</button>
+        </div>
+
+        <div class="slot-row">
+            <div class="slot-cell" id="s0">🍒</div>
+            <div class="slot-cell" id="s1">🍋</div>
+            <div class="slot-cell" id="s2">🍊</div>
+        </div>
+
+        <div style="display: flex; gap: 15px; justify-content: center; margin: 10px 0;">
+            <button id="spinBtn">🎰 КРУТИТЬ (<span id="spinBet">20</span>$)</button>
+            <button id="jobBtn" style="background:#4f7a3b; color:white;">🍺 ПОДРАБОТАТЬ</button>
+        </div>
+
+        <div class="result-banner" id="msg">🌲 Лес • Работай сколько хочешь, опыт только в казино!</div>
+
+        <div class="job-panel" id="jobPanel">
+            <div class="job-header" id="jobHeader">🍺 ЖМИ ПОДРАБОТАТЬ</div>
+            <div class="job-question" id="jobQuestion">Нет денег? Иди работай!</div>
+            <div class="job-choices" id="jobChoices"></div>
+            <button id="jobExitBtn" class="job-exit" style="display:none;">◀ ВЕРНУТЬСЯ</button>
+        </div>
+        <div class="save-info" id="saveInfo">💾 Сохранено</div>
+    </div>
+</div>
+
+<div id="storyModal" class="modal" style="display:none;">
+    <div class="modal-content" id="modalContent">
+        <h2>📜 СОБЫТИЕ</h2>
+        <div id="modalText"></div>
+        <div id="modalChoices" class="choice-buttons"></div>
+    </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
