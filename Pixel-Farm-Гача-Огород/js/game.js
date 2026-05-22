@@ -11,59 +11,17 @@ const FIREBASE_DB_URL = "https://games-farm-default-rtdb.firebaseio.com/";
 let onlineMarketOrders = [];
 let playerName = "Фермер";
 
-// ========== СИСТЕМА ОГРАНИЧЕНИЯ СМЕНЫ НИКА (РАЗ В МЕСЯЦ) ==========
+// ========== СИСТЕМА ОГРАНИЧЕНИЯ СМЕНЫ НИКА (ВРЕМЕННО ОТКЛЮЧЕНА) ==========
 function canChangeNickname() {
-    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
-    if (!lastChange) return true;
-    
-    const lastChangeDate = new Date(parseInt(lastChange));
-    const now = new Date();
-    
-    const monthLater = new Date(lastChangeDate);
-    monthLater.setMonth(monthLater.getMonth() + 1);
-    
-    return now >= monthLater;
+    return true; // ВРЕМЕННО ВСЕГДА РАЗРЕШАЕМ
 }
 
 function getDaysUntilNicknameChange() {
-    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
-    if (!lastChange) return 0;
-    
-    const lastChangeDate = new Date(parseInt(lastChange));
-    const nextChangeDate = new Date(lastChangeDate);
-    nextChangeDate.setMonth(nextChangeDate.getMonth() + 1);
-    
-    const now = new Date();
-    const diffMs = nextChangeDate - now;
-    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-    
-    return diffDays > 0 ? diffDays : 0;
+    return 0;
 }
 
 function getFormattedTimeUntilNicknameChange() {
-    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
-    if (!lastChange) return null;
-    
-    const lastChangeDate = new Date(parseInt(lastChange));
-    const nextChangeDate = new Date(lastChangeDate);
-    nextChangeDate.setMonth(nextChangeDate.getMonth() + 1);
-    
-    const now = new Date();
-    const diffMs = nextChangeDate - now;
-    
-    if (diffMs <= 0) return null;
-    
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (diffDays > 0) {
-        return `${diffDays} ${getDeclension(diffDays, ['день', 'дня', 'дней'])}`;
-    } else if (diffHours > 0) {
-        return `${diffHours} ${getDeclension(diffHours, ['час', 'часа', 'часов'])}`;
-    } else {
-        return `${diffMinutes} ${getDeclension(diffMinutes, ['минуту', 'минуты', 'минут'])}`;
-    }
+    return null;
 }
 
 function getDeclension(number, titles) {
@@ -72,6 +30,7 @@ function getDeclension(number, titles) {
 }
 
 function setNicknameChangeDate() {
+    // Временно ничего не делаем
     localStorage.setItem("pixel_farm_last_nick_change", Date.now().toString());
 }
 
@@ -117,39 +76,26 @@ function setupCleanState() {
     console.log("✅ Чистый профиль создан, грядок:", state.plots.length);
 }
 
-// ========== ЗАГРУЗКА НИКА ==========
+// ========== ЗАГРУЗКА НИКА (ВРЕМЕННО БЕЗ БЛОКИРОВКИ) ==========
 function loadPlayerName() {
-    const savedName = localStorage.getItem("pixel_farm_player_name");
-    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
+    const nameInput = document.getElementById("ui-player-name");
     
-    if (savedName && savedName !== "Фермер") {
-        // Если есть сохранённый ник (не дефолтный) и есть дата смены - блокируем
-        playerName = savedName;
-        
-        // Проверяем, можно ли менять ник
-        if (lastChange && !canChangeNickname()) {
-            // Ник уже меняли и месяц не прошёл - блокируем поле
-            const nameInput = document.getElementById("ui-player-name");
-            if (nameInput) {
-                nameInput.value = playerName;
-                nameInput.readOnly = true;
-            }
-        } else {
-            const nameInput = document.getElementById("ui-player-name");
-            if (nameInput) {
-                nameInput.value = playerName;
-                nameInput.readOnly = false;
-            }
-        }
-    } else {
-        // Первый запуск или дефолтный ник - можно менять свободно
-        playerName = "Фермер_" + Math.floor(Math.random() * 1000);
-        localStorage.setItem("pixel_farm_player_name", playerName);
-        
-        const nameInput = document.getElementById("ui-player-name");
+    if (localStorage.getItem("pixel_farm_player_name")) {
+        playerName = localStorage.getItem("pixel_farm_player_name");
         if (nameInput) {
             nameInput.value = playerName;
-            nameInput.readOnly = false;
+            nameInput.disabled = false; // ВСЕГДА ОТКРЫТО
+            nameInput.style.backgroundColor = "#fff";
+            nameInput.style.cursor = "text";
+        }
+    } else {
+        playerName = "Фермер_" + Math.floor(Math.random() * 1000);
+        localStorage.setItem("pixel_farm_player_name", playerName);
+        if (nameInput) {
+            nameInput.value = playerName;
+            nameInput.disabled = false;
+            nameInput.style.backgroundColor = "#fff";
+            nameInput.style.cursor = "text";
         }
     }
     
@@ -162,45 +108,17 @@ function updateNicknameStatus() {
     
     if (!nameInput || !saveBtn) return;
     
-    // Проверяем, есть ли дата смены и можно ли менять
-    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
+    // ВРЕМЕННО ВСЕГДА РАЗБЛОКИРОВАНО
+    nameInput.disabled = false;
+    nameInput.style.backgroundColor = "#fff";
+    nameInput.style.color = "#4a2f15";
+    saveBtn.disabled = false;
+    saveBtn.style.opacity = "1";
+    saveBtn.style.cursor = "pointer";
+    saveBtn.title = "Сохранить новое имя";
     
-    if (lastChange && !canChangeNickname()) {
-        const timeLeft = getFormattedTimeUntilNicknameChange();
-        nameInput.readOnly = true;
-        nameInput.style.backgroundColor = "#e0d4c0";
-        nameInput.style.color = "#888";
-        saveBtn.disabled = true;
-        saveBtn.style.opacity = "0.5";
-        saveBtn.style.cursor = "not-allowed";
-        saveBtn.title = `Сменить ник можно будет через ${timeLeft}`;
-        
-        let hint = document.getElementById("nickname-hint");
-        if (!hint) {
-            hint = document.createElement("div");
-            hint.id = "nickname-hint";
-            hint.style.fontSize = "11px";
-            hint.style.color = "#ffaa66";
-            hint.style.marginTop = "6px";
-            hint.style.padding = "4px 8px";
-            hint.style.background = "rgba(0,0,0,0.5)";
-            hint.style.borderRadius = "8px";
-            hint.style.display = "inline-block";
-            nameInput.parentNode.appendChild(hint);
-        }
-        hint.innerHTML = `⏰ Сменить ник можно будет через ${timeLeft}`;
-    } else {
-        nameInput.readOnly = false;
-        nameInput.style.backgroundColor = "#fff";
-        nameInput.style.color = "#4a2f15";
-        saveBtn.disabled = false;
-        saveBtn.style.opacity = "1";
-        saveBtn.style.cursor = "pointer";
-        saveBtn.title = "Сохранить новое имя";
-        
-        const hint = document.getElementById("nickname-hint");
-        if (hint) hint.remove();
-    }
+    const hint = document.getElementById("nickname-hint");
+    if (hint) hint.remove();
 }
 
 // ОБНОВЛЕНИЕ UI
@@ -435,7 +353,17 @@ function initFarmGame() {
         setupCleanState();
     }
     
-    loadPlayerName();
+    // ВРЕМЕННЫЙ СБРОС ЗАМОРОЗКИ ПРИ СТАРТЕ
+    const nameInput = document.getElementById("ui-player-name");
+    if (localStorage.getItem("pixel_farm_player_name")) {
+        playerName = localStorage.getItem("pixel_farm_player_name");
+        if (nameInput) {
+            nameInput.value = playerName;
+            nameInput.disabled = false; // ВСЕГДА ОТКРЫТО
+            nameInput.style.backgroundColor = "#fff";
+            nameInput.style.cursor = "text";
+        }
+    }
     
     generateFarmGridUI();
     updateFarmUI();
@@ -482,64 +410,28 @@ function initFarmGame() {
     showNotification("", "Добро пожаловать на ферму! 🌾");
 }
 
-// ДЕЙСТВИЯ
+// ========== ВРЕМЕННЫЙ СВОБОДНЫЙ РЕЖИМ СМЕНЫ НИКА ==========
 window.savePlayerName = function() {
-    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
-    
-    // Если уже меняли ник и месяц не прошёл
-    if (lastChange && !canChangeNickname()) {
-        const timeLeft = getFormattedTimeUntilNicknameChange();
-        alert(`🔒 Сменить имя можно только 1 раз в месяц!\n\n⏰ Следующая смена доступна через: ${timeLeft}\n\nТвой текущий ник: "${playerName}"`);
-        const nameInput = document.getElementById("ui-player-name");
-        if (nameInput) nameInput.value = playerName;
+    const input = document.getElementById("ui-player-name");
+    if (!input) return;
+
+    let finalName = input.value.trim();
+    if (!finalName || finalName === "Фермер") {
+        alert("Введите уникальный никнейм!");
         return;
     }
+
+    // ВРЕМЕННО ОТКЛЮЧИЛИ ВСЕ ЗАМКИ И ПОДТВЕРЖДЕНИЯ!
+    playerName = finalName;
+    localStorage.setItem("pixel_farm_player_name", playerName);
+    localStorage.setItem("pixel_farm_name_changed_at", Date.now().toString());
     
-    const input = document.getElementById("ui-player-name");
-    if (input) {
-        const newName = input.value.trim();
-        
-        if (!newName) {
-            alert("❌ Имя не может быть пустым!");
-            input.value = playerName;
-            return;
-        }
-        
-        if (newName.length < 2) {
-            alert("❌ Имя должно содержать минимум 2 символа!");
-            input.value = playerName;
-            return;
-        }
-        
-        if (newName.length > 20) {
-            alert("❌ Имя не должно превышать 20 символов!");
-            input.value = playerName;
-            return;
-        }
-        
-        const invalidChars = /[<>{}[\]\\|]/;
-        if (invalidChars.test(newName)) {
-            alert("❌ Имя содержит недопустимые символы!");
-            input.value = playerName;
-            return;
-        }
-        
-        if (newName === playerName) {
-            alert("ℹ️ Имя не изменилось");
-            return;
-        }
-        
-        const oldName = playerName;
-        playerName = newName;
-        localStorage.setItem("pixel_farm_player_name", playerName);
-        setNicknameChangeDate(); // Запоминаем дату смены
-        
-        alert(`✅ Имя успешно изменено!\n\nБыл: "${oldName}"\nСтал: "${playerName}"\n\n📅 Следующая смена будет доступна через 30 дней.`);
-        
-        showNotification("", `Имя изменено на: ${playerName}`);
-        updateNicknameStatus();
-        fetchOnlineMarketOrders();
-    }
+    // Оставляем поле открытым, чтобы ты мог его редактировать!
+    input.disabled = false;
+    input.style.backgroundColor = "#fff";
+    input.style.cursor = "text";
+    
+    showNotification("", `Никнейм [${playerName}] успешно изменён!`);
 };
 
 window.toggleWateringTool = function() {
