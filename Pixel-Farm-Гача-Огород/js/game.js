@@ -1,11 +1,11 @@
 // ===================================================================
-// ОСНОВНАЯ ЛОГИКА ИГРЫ PIXEL FARM
+// ОСНОВНАЯ ЛОГИКА ИГРЫ PIXEL FARM (МОНОЛИТ)
 // ===================================================================
 
 let state = null;
 let wateringToolActive = false;
 let activeSeedToPlant = null;
-let marketMultipliers = { carrot: 1.0, cabbage: 1.0, strawberry: 1.0, golden_apple: 1.0 };
+let marketMultipliers = { carrot: 1.0, cabbage: 1.0, corn: 1.0, grapes: 1.0, strawberry: 1.0, pineapple: 1.0, golden_apple: 1.0, ancient_fruit: 1.0 };
 
 const FIREBASE_DB_URL = "https://games-farm-default-rtdb.firebaseio.com/";
 let onlineMarketOrders = [];
@@ -88,8 +88,8 @@ function setupCleanState() {
         autoSeedsCount: 0,
         fertilizerLevel: 1,
         inventory: {
-            seeds: { carrot: 3, cabbage: 2, strawberry: 1, golden_apple: 0 },
-            barn: { carrot: 0, cabbage: 0, strawberry: 0, golden_apple: 0 }
+            seeds: { carrot: 3, cabbage: 2, corn: 1, grapes: 1, strawberry: 0, pineapple: 0, golden_apple: 0, ancient_fruit: 0 },
+            barn: { carrot: 0, cabbage: 0, corn: 0, grapes: 0, strawberry: 0, pineapple: 0, golden_apple: 0, ancient_fruit: 0 }
         },
         plots: []
     };
@@ -117,63 +117,43 @@ function setupCleanState() {
     console.log("✅ Чистый профиль создан, грядок:", state.plots.length);
 }
 
-// Загрузка ника из localStorage при старте
+// ========== ЗАГРУЗКА НИКА ==========
 function loadPlayerName() {
     const savedName = localStorage.getItem("pixel_farm_player_name");
-    if (savedName) {
+    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
+    
+    if (savedName && savedName !== "Фермер") {
+        // Если есть сохранённый ник (не дефолтный) и есть дата смены - блокируем
         playerName = savedName;
+        
+        // Проверяем, можно ли менять ник
+        if (lastChange && !canChangeNickname()) {
+            // Ник уже меняли и месяц не прошёл - блокируем поле
+            const nameInput = document.getElementById("ui-player-name");
+            if (nameInput) {
+                nameInput.value = playerName;
+                nameInput.readOnly = true;
+            }
+        } else {
+            const nameInput = document.getElementById("ui-player-name");
+            if (nameInput) {
+                nameInput.value = playerName;
+                nameInput.readOnly = false;
+            }
+        }
     } else {
+        // Первый запуск или дефолтный ник - можно менять свободно
         playerName = "Фермер_" + Math.floor(Math.random() * 1000);
         localStorage.setItem("pixel_farm_player_name", playerName);
-        setNicknameChangeDate();
-    }
-    
-    const nameInput = document.getElementById("ui-player-name");
-    if (nameInput) {
-        nameInput.value = playerName;
-        if (!canChangeNickname()) {
-            nameInput.readOnly = true;
-        } else {
+        
+        const nameInput = document.getElementById("ui-player-name");
+        if (nameInput) {
+            nameInput.value = playerName;
             nameInput.readOnly = false;
         }
     }
     
     updateNicknameStatus();
-}
-
-// ОБНОВЛЕНИЕ UI
-function updateFarmUI() {
-    if (!state) return;
-    
-    const coinElem = document.getElementById("ui-coins");
-    const lvlElem = document.getElementById("ui-farm-lvl");
-    const autoStatusElem = document.getElementById("ui-auto-status");
-    const harvesterStatusElem = document.getElementById("ui-harvester-status");
-    const fertStatusElem = document.getElementById("ui-fert-status");
-    
-    if (coinElem) coinElem.innerText = state.coins;
-    if (lvlElem) lvlElem.innerText = state.farmLevel;
-    if (autoStatusElem) autoStatusElem.innerText = state.autoWaterOwned ? "💧 Автополив: Вкл" : "💧 Автополив: Выкл";
-    if (harvesterStatusElem) harvesterStatusElem.innerText = state.autoHarvestOwned ? "🤖 Автосбор: Вкл" : "🤖 Автосбор: Выкл";
-    
-    // ОТОБРАЖЕНИЕ АВТОПОСАДКИ
-    const planterStatus = document.getElementById("ui-planter-status");
-    const autoSeedsCount = document.getElementById("ui-auto-seeds-count");
-    
-    if (planterStatus) {
-        planterStatus.innerText = state.autoPlantOwned ? "🤖 Автопосадка: Вкл" : "🤖 Автопосадка: Выкл";
-        planterStatus.style.color = state.autoPlantOwned ? "#9333ea" : "#5c5c5c";
-    }
-    if (autoSeedsCount) {
-        autoSeedsCount.innerText = state.autoSeedsCount || 0;
-    }
-    
-    const fertNames = ["", "х1 (Обычное)", "х2 (Азотное) 🧪", "х3 (Био-гумус) ✨"];
-    if (fertStatusElem) fertStatusElem.innerText = `⚡ Удобрение: ${fertNames[state.fertilizerLevel] || "х1"}`;
-    
-    updateShopUI();
-    updateSeedsUI();
-    updateBarnUI();
 }
 
 function updateNicknameStatus() {
@@ -182,7 +162,10 @@ function updateNicknameStatus() {
     
     if (!nameInput || !saveBtn) return;
     
-    if (!canChangeNickname()) {
+    // Проверяем, есть ли дата смены и можно ли менять
+    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
+    
+    if (lastChange && !canChangeNickname()) {
         const timeLeft = getFormattedTimeUntilNicknameChange();
         nameInput.readOnly = true;
         nameInput.style.backgroundColor = "#e0d4c0";
@@ -220,7 +203,39 @@ function updateNicknameStatus() {
     }
 }
 
-// ========== МАГАЗИН ==========
+// ОБНОВЛЕНИЕ UI
+function updateFarmUI() {
+    if (!state) return;
+    
+    const coinElem = document.getElementById("ui-coins");
+    const lvlElem = document.getElementById("ui-farm-lvl");
+    const autoStatusElem = document.getElementById("ui-auto-status");
+    const harvesterStatusElem = document.getElementById("ui-harvester-status");
+    const fertStatusElem = document.getElementById("ui-fert-status");
+    const planterStatus = document.getElementById("ui-planter-status");
+    const autoSeedsCount = document.getElementById("ui-auto-seeds-count");
+    
+    if (coinElem) coinElem.innerText = state.coins;
+    if (lvlElem) lvlElem.innerText = state.farmLevel;
+    if (autoStatusElem) autoStatusElem.innerText = state.autoWaterOwned ? "💧 Автополив: Вкл" : "💧 Автополив: Выкл";
+    if (harvesterStatusElem) harvesterStatusElem.innerText = state.autoHarvestOwned ? "🤖 Автосбор: Вкл" : "🤖 Автосбор: Выкл";
+    
+    if (planterStatus) {
+        planterStatus.innerText = state.autoPlantOwned ? "🤖 Автопосадка: Вкл" : "🤖 Автопосадка: Выкл";
+        planterStatus.style.color = state.autoPlantOwned ? "#9333ea" : "#5c5c5c";
+    }
+    if (autoSeedsCount) {
+        autoSeedsCount.innerText = `📦 Семян для сеятеля: ${state.autoSeedsCount || 0}`;
+    }
+    
+    const fertNames = ["", "х1 (Обычное)", "х2 (Азотное) 🧪", "х3 (Био-гумус) ✨"];
+    if (fertStatusElem) fertStatusElem.innerText = `⚡ Удобрение: ${fertNames[state.fertilizerLevel] || "х1"}`;
+    
+    updateShopUI();
+    updateSeedsUI();
+    updateBarnUI();
+}
+
 function updateShopUI() {
     const shopBox = document.getElementById("ui-shop-list");
     if (!shopBox) return; shopBox.innerHTML = "";
@@ -284,7 +299,7 @@ function updateBarnUI() {
     }
 }
 
-// ========== ГЕНЕРАЦИЯ СЕТКИ ПОЛЯ ==========
+// ГЕНЕРАЦИЯ СЕТКИ ПОЛЯ
 function generateFarmGridUI() {
     if (!state || !state.plots) return;
     
@@ -343,14 +358,13 @@ function updateFarmGridValues() {
     });
 }
 
-// ========== МАССОВАЯ ПОСАДКА ==========
+// МАССОВАЯ ПОСАДКА
 window.triggerMassPlanting = function() {
     if (!state) return;
     
-    // Получаем выбранную культуру из дропдауна
     const cropSelect = document.getElementById("mass-plant-crop-select");
     if (!cropSelect) {
-        alert("Элемент mass-plant-crop-select не найден!");
+        alert("Выберите культуру для посадки!");
         return;
     }
     
@@ -369,7 +383,6 @@ window.triggerMassPlanting = function() {
         return;
     }
     
-    // Находим все пустые открытые грядки
     const emptyPlots = state.plots.filter(plot => plot.opened && !plot.planted);
     
     if (emptyPlots.length === 0) {
@@ -379,7 +392,6 @@ window.triggerMassPlanting = function() {
     
     let plantedCount = 0;
     
-    // Сажаем, пока есть семена и пустые грядки
     for (let plot of emptyPlots) {
         if (availableSeeds <= plantedCount) break;
         
@@ -390,7 +402,6 @@ window.triggerMassPlanting = function() {
         plantedCount++;
     }
     
-    // Списываем использованные семена
     state.inventory.seeds[cropId] -= plantedCount;
     
     saveGame();
@@ -400,9 +411,9 @@ window.triggerMassPlanting = function() {
     showNotification("🌱 Массовая посадка", `Посажено ${plantedCount} шт ${cropInfo.name}! Осталось семян: ${state.inventory.seeds[cropId]}`);
 };
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
+// ИНИЦИАЛИЗАЦИЯ
 function initFarmGame() {
-    console.log("🚀 Инициализация игры...");
+    console.log("🚀 Инициализация Pixel Farm...");
     
     const saved = localStorage.getItem("pixel_farm_state_v11");
     
@@ -435,24 +446,20 @@ function initFarmGame() {
         if (!state) return;
         
         state.plots.forEach(plot => {
-            // АВТОПОЛИВ
             if (state.autoWaterOwned && plot.opened && plot.planted && plot.growTimeLeft > 0) {
                 plot.watered = true;
             }
             
-            // РОСТ
             if (plot.opened && plot.planted && plot.growTimeLeft > 0 && plot.watered) {
                 const boost = state.fertilizerLevel || 1;
                 plot.growTimeLeft = Math.max(0, plot.growTimeLeft - boost);
                 if (plot.growTimeLeft === 0) plot.stage = 2;
             }
             
-            // АВТОСБОР
             if (state.autoHarvestOwned && plot.opened && plot.planted && plot.stage === 2) {
                 triggerAutoHarvest(plot);
             }
             
-            // АВТОПОСАДКА
             if (state.autoPlantOwned && state.autoSeedsCount > 0 && plot.opened && !plot.planted) {
                 state.autoSeedsCount--;
                 plot.planted = "carrot";
@@ -471,13 +478,16 @@ function initFarmGame() {
     setInterval(simulateMarketTrends, 15000);
     setInterval(fetchOnlineMarketOrders, 5000);
     
-    console.log("✅ Игра готова! Ник игрока:", playerName);
+    console.log("✅ Pixel Farm готова!");
     showNotification("", "Добро пожаловать на ферму! 🌾");
 }
 
-// ========== ОСНОВНЫЕ ДЕЙСТВИЯ ==========
+// ДЕЙСТВИЯ
 window.savePlayerName = function() {
-    if (!canChangeNickname()) {
+    const lastChange = localStorage.getItem("pixel_farm_last_nick_change");
+    
+    // Если уже меняли ник и месяц не прошёл
+    if (lastChange && !canChangeNickname()) {
         const timeLeft = getFormattedTimeUntilNicknameChange();
         alert(`🔒 Сменить имя можно только 1 раз в месяц!\n\n⏰ Следующая смена доступна через: ${timeLeft}\n\nТвой текущий ник: "${playerName}"`);
         const nameInput = document.getElementById("ui-player-name");
@@ -522,7 +532,7 @@ window.savePlayerName = function() {
         const oldName = playerName;
         playerName = newName;
         localStorage.setItem("pixel_farm_player_name", playerName);
-        setNicknameChangeDate();
+        setNicknameChangeDate(); // Запоминаем дату смены
         
         alert(`✅ Имя успешно изменено!\n\nБыл: "${oldName}"\nСтал: "${playerName}"\n\n📅 Следующая смена будет доступна через 30 дней.`);
         
@@ -632,7 +642,6 @@ function triggerAutoHarvest(plot) {
     updateFarmUI();
 }
 
-// ========== ПОКУПКА ==========
 window.buyShopItem = function(itemId) {
     if (!state) return; 
     const item = FARM_CONFIG.shopItems[itemId]; 
@@ -701,11 +710,6 @@ window.triggerGachaRoll = function() {
         
         if (resultEl) {
             resultEl.style.display = "block";
-            resultEl.style.background = "#d4af37";
-            resultEl.style.padding = "8px";
-            resultEl.style.borderRadius = "10px";
-            resultEl.style.marginTop = "10px";
-            resultEl.style.textAlign = "center";
             resultEl.innerHTML = `✨ Получено: ${info.name} (${info.rarity}★)! ✨`;
             setTimeout(() => { resultEl.style.display = "none"; }, 3000);
         }
@@ -734,7 +738,7 @@ function simulateMarketTrends() {
         
         const line = document.createElement("div"); 
         line.className = "market-price-line";
-        line.innerHTML = `<span>${crop.name}</span><span style="color:${color};">${currentPrice} Золота (${arrow} ${Math.abs(changePercent)}%)</span>`;
+        line.innerHTML = `<span>${crop.name}</span><span style="color:${color};">${currentPrice}💰 ${arrow} ${Math.abs(changePercent)}%</span>`;
         pricesBox.appendChild(line);
     }
 }
@@ -750,7 +754,7 @@ function showNotification(cropName, text) {
     setTimeout(() => toast.remove(), 2500);
 }
 
-// ========== FIREBASE РЫНОК ==========
+// FIREBASE ФУНКЦИИ
 function fetchOnlineMarketOrders() {
     fetch(`${FIREBASE_DB_URL}/market.json`)
         .then(res => res.json())
@@ -777,7 +781,7 @@ function renderMarketBoardUI() {
     if (!board) return; board.innerHTML = "";
     
     if (onlineMarketOrders.length === 0) { 
-        board.innerHTML = `<div style="font-size:0.75rem; color:#8a6529; text-align:center; padding-top:15px;">На рынке пока нет товаров.<br>Будь первым, выстави урожай!</div>`; 
+        board.innerHTML = `<div style="padding:20px; text-align:center;">📭 На рынке пока нет товаров</div>`; 
         return; 
     }
     
@@ -787,23 +791,14 @@ function renderMarketBoardUI() {
         
         const line = document.createElement("div"); 
         line.className = "market-price-line"; 
-        line.style.fontSize = "0.75rem"; 
-        line.style.alignItems = "center";
         
         let isMyOrder = order.seller === playerName; 
         let btnText = isMyOrder ? "Снять" : "Купить"; 
         let btnColor = isMyOrder ? "#ba2929" : "#a3723b";
         
-        let orderAmount = order.amount || 1;
-        
         line.innerHTML = `
-            <div style="display:flex; flex-direction:column; text-align:left; max-width:60%;">
-                <span style="font-weight:bold; color:${isMyOrder ? '#ba2929' : '#4a2f15'};">[${order.seller}]</span>
-                <span>${cropInfo.name} (x${orderAmount})</span>
-            </div>
-            <button class="mini-plant-btn" style="background-color:${btnColor}; padding:3px 6px;" onclick="window.handleMarketOrderClick('${order.id}')">
-                ${btnText} (${order.price})
-            </button>
+            <span><b>${order.seller}</b>: ${cropInfo.name} x${order.amount}</span>
+            <button class="mini-plant-btn" style="background:${btnColor};" onclick="window.handleMarketOrderClick('${order.id}')">${btnText} (${order.price})</button>
         `;
         board.appendChild(line);
     });
@@ -886,12 +881,12 @@ window.submitPlayerMarketOrder = function() {
     const price = parseInt(priceInput.value);
 
     if (isNaN(amount) || amount <= 0) {
-        alert("Введите корректное количество (целое число > 0)!");
+        alert("Введите корректное количество!");
         return;
     }
     
     if (isNaN(price) || price <= 0) {
-        alert("Введите корректную цену (целое число > 0)!");
+        alert("Введите корректную цену!");
         return;
     }
 
@@ -901,9 +896,7 @@ window.submitPlayerMarketOrder = function() {
         
         fetch(`${FIREBASE_DB_URL}/market.json`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 seller: playerName, 
                 crop: cropId, 
@@ -916,16 +909,15 @@ window.submitPlayerMarketOrder = function() {
             saveGame();
             updateFarmUI();
             fetchOnlineMarketOrders();
-            showNotification("", `Товар (${amount} шт) выставлен на рынок за ${price}💰!`);
+            showNotification("", `Товар (${amount} шт) выставлен за ${price}💰!`);
         }).catch(err => {
-            console.error("Ошибка при отправке:", err);
             alert("Ошибка подключения к рынку!");
             state.inventory.barn[cropId] = (state.inventory.barn[cropId] || 0) + amount;
             saveGame();
             updateFarmUI();
         });
     } else {
-        alert(`В амбаре нет столько плодов!\n\n📦 У тебя всего: ${currentStock} шт.\n🌾 Запрошено: ${amount} шт.`);
+        alert(`В амбаре нет столько плодов!\n📦 У тебя всего: ${currentStock} шт.`);
     }
 };
 
