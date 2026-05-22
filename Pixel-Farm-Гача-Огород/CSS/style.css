@@ -6,13 +6,15 @@
 
 body {
     min-height: 100vh;
-    background: linear-gradient(135deg, #1a5c3a 0%, #0a3a1a 50%, #1a5c3a 100%);
-    font-family: 'Segoe UI', 'Courier New', monospace;
+    background: #2b5a2a;
+    background-image: radial-gradient(circle at 10% 20%, rgba(60, 100, 40, 0.4) 2px, transparent 2px);
+    background-size: 32px 32px;
+    font-family: 'Segoe UI', 'Roboto', 'Georgia', serif;
     padding: 20px;
     position: relative;
 }
 
-/* Анимированные облака */
+/* ДЕРЕВЕНСКИЙ ТЕКСТУРНЫЙ ФОН */
 body::before {
     content: '';
     position: fixed;
@@ -20,37 +22,30 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200"><path fill="rgba(255,255,255,0.1)" d="M0,100 Q100,60 200,100 Q300,140 400,100 Q500,60 600,100 Q700,140 800,100 Q900,60 1000,100 L1000,0 L0,0 Z"/></svg>') repeat-x;
-    background-size: 200px 60px;
-    opacity: 0.4;
+    background-image: repeating-linear-gradient(45deg, rgba(80, 50, 20, 0.08) 0px, rgba(80, 50, 20, 0.08) 2px, transparent 2px, transparent 8px);
     pointer-events: none;
-    animation: clouds 60s linear infinite;
-}
-
-@keyframes clouds {
-    from { background-position: 0 0; }
-    to { background-position: 200px 0; }
+    z-index: 0;
 }
 
 /* ========== ОСНОВНОЙ ЛЕЙАУТ ========== */
 .farm-layout {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
     position: relative;
     z-index: 1;
 }
 
-/* ПАНЕЛИ - ГИБКИЕ, НО С МИНИМАЛЬНОЙ ШИРИНОЙ */
+/* ПАНЕЛИ - ДЕРЕВЯННЫЙ СТИЛЬ */
 .panel {
-    background: rgba(30, 25, 18, 0.92);
-    backdrop-filter: blur(10px);
-    border-radius: 28px;
+    background: #ecd9b4;
+    background-image: repeating-linear-gradient(90deg, rgba(100, 60, 20, 0.05) 0px, rgba(100, 60, 20, 0.05) 2px, transparent 2px, transparent 8px);
+    border-radius: 20px;
     padding: 18px;
-    border: 2px solid #d4a55a;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 3px solid #8b5a2b;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,200,0.5);
 }
 
 .side-panel {
@@ -74,148 +69,182 @@ body::before {
     gap: 10px;
 }
 
-/* ЗАГОЛОВКИ */
+/* ЗАГОЛОВКИ - РУБЛЕНЫЙ ДЕРЕВЕНСКИЙ ШРИФТ */
 h2 {
-    color: #ffd966;
-    font-size: 1.3rem;
-    text-shadow: 2px 2px 0 #3a2a10;
+    color: #3d2a1a;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 0 #e8d5a8;
     margin-bottom: 12px;
+    border-left: 5px solid #8b5a2b;
+    padding-left: 12px;
+    letter-spacing: 1px;
 }
 
 h3 {
-    color: #ffd966;
-    font-size: 1rem;
+    color: #4a3520;
+    font-size: 1.1rem;
+    font-weight: 700;
     margin: 12px 0 8px 0;
+    border-bottom: 2px solid #c9a87b;
+    padding-bottom: 4px;
+    display: inline-block;
 }
 
-/* СТАТИСТИКА */
+/* СТАТИСТИКА - ДЕРЕВЯННАЯ ТАБЛИЧКА */
 .stats-box {
-    background: #1e1a10;
-    padding: 12px;
+    background: #f5e6c8;
+    padding: 12px 15px;
     border-radius: 16px;
     margin-bottom: 15px;
     font-size: 14px;
-    color: #ffefb9;
+    color: #3d2a1a;
+    border: 1px solid #c9a87b;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.1);
+    font-weight: 600;
 }
 
 .stats-box div {
-    margin: 5px 0;
+    margin: 6px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* ========== СЕТКА ГРЯДОК - ЦЕНТРОВКА ========== */
+.stats-box b {
+    color: #6b3a1a;
+    font-size: 1.1em;
+}
+
+/* ========== СЕТКА ГРЯДОК ========== */
 .farm-grid {
-    background: #3d2a1a;
-    border-radius: 20px;
+    background: #5a3a1a;
+    border-radius: 24px;
     padding: 20px;
-    border: 3px solid #b8863c;
+    border: 4px solid #8b5a2b;
+    box-shadow: inset 0 0 0 2px #c9a87b, 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .plots-grid {
     display: grid;
     grid-template-columns: repeat(6, minmax(70px, 90px));
-    gap: 10px;
+    gap: 12px;
     justify-content: center;
     align-items: center;
     margin: 0 auto;
     width: 100%;
 }
 
-/* ГРЯДКА */
+/* ГРЯДКА - ЗЕМЛИСТАЯ ТЕКСТУРА */
 .plot-block {
     aspect-ratio: 1 / 1;
     background: #8B5E3C;
-    border: 2px solid #D4A55A;
-    border-radius: 12px;
+    background-image: radial-gradient(circle at 30% 40%, rgba(60, 30, 10, 0.2) 2px, transparent 2px);
+    background-size: 12px 12px;
+    border: 3px solid #6b3a1a;
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: 0.05s linear;
-    box-shadow: inset -2px -2px 0px #5a3a1a, inset 2px 2px 0px #b8763a;
+    transition: all 0.1s ease;
+    box-shadow: inset -3px -3px 0px #4a2a10, inset 2px 2px 0px #b8763a;
     width: 100%;
     min-width: 0;
 }
 
+.plot-block:hover {
+    transform: scale(1.02);
+    border-color: #d4a55a;
+}
+
 .plot-block.watered {
-    background: #4a7a3a;
-    box-shadow: inset 0 0 12px #88ff88;
+    background: #5a8a3a;
+    background-image: radial-gradient(circle at 30% 40%, rgba(80, 120, 40, 0.3) 2px, transparent 2px);
+    box-shadow: inset 0 0 15px #aaffaa;
 }
 
 /* КОНТЕНТ ВНУТРИ ГРЯДКИ */
 .crop-stage {
-    font-size: clamp(24px, 5vw, 40px);
-    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
+    font-size: clamp(28px, 6vw, 44px);
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
 }
 
 .crop-timer {
-    font-size: clamp(9px, 2vw, 11px);
-    background: rgba(0,0,0,0.7);
-    padding: 2px 6px;
-    border-radius: 20px;
-    margin-top: 4px;
-    color: #ffdd88;
+    font-size: clamp(10px, 2.5vw, 12px);
+    background: rgba(0,0,0,0.75);
+    padding: 3px 8px;
+    border-radius: 25px;
+    margin-top: 5px;
+    color: #fff0a0;
+    font-weight: bold;
     white-space: nowrap;
 }
 
 .ready-tag {
-    background: gold;
-    color: #2c2c2c;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: clamp(9px, 2vw, 11px);
+    background: #ffcc44;
+    color: #3d2a1a;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: clamp(10px, 2.5vw, 11px);
     font-weight: bold;
     white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .soil-empty {
-    font-size: clamp(10px, 2vw, 12px);
-    color: #ddd;
-    background: rgba(0,0,0,0.5);
-    padding: 3px 8px;
-    border-radius: 20px;
+    font-size: clamp(11px, 2.5vw, 13px);
+    color: #f0e0c0;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 10px;
+    border-radius: 25px;
     text-align: center;
     white-space: nowrap;
+    font-weight: 600;
 }
 
-/* ИНВЕНТАРНЫЕ СПИСКИ */
+/* ИНВЕНТАРНЫЕ СПИСКИ - ДЕРЕВЕНСКИЙ СТИЛЬ */
 .inventory-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     max-height: 200px;
     overflow-y: auto;
+    padding-right: 5px;
 }
 
 .inventory-item, .seed-item, .barn-item {
-    background: #fef0cf;
-    color: #3e2a1c;
+    background: #fef5e0;
+    color: #4a3520;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-radius: 30px;
-    font-size: 12px;
-    font-weight: bold;
-    flex-wrap: wrap;
-    gap: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #d4a55a;
+    box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* КНОПКИ */
+/* КНОПКИ - ДЕРЕВЕНСКИЕ, ТЁПЛЫЕ */
 .mini-plant-btn {
-    background: #6b8c42;
+    background: #7a5a3a;
     border: none;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
+    color: #ffefcf;
+    font-weight: bold;
+    padding: 5px 14px;
+    border-radius: 30px;
     cursor: pointer;
     font-size: 11px;
     transition: 0.1s;
+    box-shadow: inset 0 1px 0 rgba(255,255,200,0.3), 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .mini-plant-btn:hover {
+    background: #9a7a5a;
     transform: scale(1.02);
-    background: #7a9c52;
 }
 
 .mini-plant-btn:disabled {
@@ -226,87 +255,97 @@ h3 {
 
 .farm-btn {
     width: 100%;
-    background: linear-gradient(135deg, #d4a55a, #b8863c);
+    background: #8b5a2b;
+    background: linear-gradient(135deg, #9a6a3a, #7a4a1a);
     border: none;
-    color: white;
+    color: #fff5e0;
     font-weight: bold;
-    padding: 10px;
+    padding: 12px;
     border-radius: 40px;
-    font-size: 14px;
+    font-size: 15px;
     cursor: pointer;
     margin-top: 10px;
     transition: 0.1s;
+    box-shadow: inset 0 1px 0 rgba(255,255,200,0.3), 0 3px 6px rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
 }
 
 .farm-btn:hover {
-    transform: scale(1.02);
-    background: linear-gradient(135deg, #e0b060, #c8964a);
+    background: linear-gradient(135deg, #aa7a4a, #8a5a2a);
+    transform: scale(1.01);
 }
 
 .sell-all-btn {
-    background: linear-gradient(135deg, #d4a55a, #b8863c);
-    margin-bottom: 10px;
+    background: linear-gradient(135deg, #c9a87b, #a8865a);
 }
 
 .gacha-btn {
     background: linear-gradient(135deg, #d4af37, #b8860b);
-    margin-top: 0;
+    color: #3d2a1a;
+    text-shadow: none;
 }
 
 .tool-btn {
-    background: #5c3e1f;
+    background: #7a5a3a;
     border: none;
-    color: #ffefb9;
-    padding: 6px 14px;
-    border-radius: 30px;
+    color: #fff0cf;
+    padding: 8px 16px;
+    border-radius: 35px;
     cursor: pointer;
     font-weight: bold;
     transition: 0.1s;
+    font-size: 13px;
+    box-shadow: inset 0 1px 0 rgba(255,255,200,0.2), 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .tool-btn:hover {
-    background: #7a532a;
+    background: #9a7a5a;
     transform: scale(1.02);
 }
 
-/* РЫНОЧНЫЕ ЛИНИИ */
+/* РЫНОЧНЫЕ ЛИНИИ - ПЕРГАМЕНТ */
 .market-price-line {
-    background: #2c2416;
-    margin: 4px 0;
-    padding: 6px 10px;
-    border-radius: 25px;
+    background: #f0e4c8;
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-radius: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 11px;
+    font-size: 12px;
     flex-wrap: wrap;
     gap: 8px;
+    border: 1px solid #c9a87b;
+    font-weight: 600;
+    color: #4a3520;
 }
 
 .market-status-box {
-    background: #1e1a10;
-    border-radius: 16px;
-    padding: 8px;
+    background: #f5e6c8;
+    border-radius: 20px;
+    padding: 10px;
+    border: 1px solid #c9a87b;
 }
 
-/* УВЕДОМЛЕНИЯ */
+/* УВЕДОМЛЕНИЯ - НАТУРАЛЬНЫЕ */
 .farm-toast {
     position: fixed;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    background: #1a3a1aee;
-    border-left: 5px solid #ffcc44;
-    padding: 10px 20px;
-    border-radius: 40px;
-    color: #ffefb9;
+    background: #2d4a2a;
+    border-left: 6px solid #ffcc66;
+    padding: 12px 25px;
+    border-radius: 50px;
+    color: #fff5d0;
     z-index: 9999;
     font-weight: bold;
     font-size: 14px;
     white-space: nowrap;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
     animation: slideUp 0.3s ease forwards;
     pointer-events: none;
+    font-family: monospace;
 }
 
 @keyframes slideUp {
@@ -338,12 +377,13 @@ h3 {
 .gacha-result-alert {
     display: none;
     background: #d4af37;
-    color: #2a2a1a;
-    padding: 8px;
-    border-radius: 12px;
+    color: #3d2a1a;
+    padding: 12px;
+    border-radius: 20px;
     margin-top: 10px;
     text-align: center;
     font-weight: bold;
+    font-size: 14px;
     animation: pulse 0.5s ease;
 }
 
@@ -354,12 +394,19 @@ h3 {
 
 /* ФОРМЫ */
 select, input {
-    background: #fff0d0;
-    border: 2px solid #4a2f15;
-    border-radius: 20px;
-    padding: 6px 10px;
-    font-weight: bold;
-    color: #4a2f15;
+    background: #fff5e0;
+    border: 2px solid #a87a4a;
+    border-radius: 30px;
+    padding: 8px 12px;
+    font-weight: 600;
+    color: #4a3520;
+    font-size: 13px;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: #d4a55a;
+    box-shadow: 0 0 5px rgba(180, 130, 60, 0.5);
 }
 
 button {
@@ -368,22 +415,22 @@ button {
 
 /* СКРОЛЛБАРЫ */
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #3a2a1a;
+    background: #d4c8a8;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #d4a55a;
+    background: #a87a4a;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #e0b060;
+    background: #8a5a2a;
 }
 
 /* ========== АДАПТИВНОСТЬ ========== */
@@ -403,20 +450,24 @@ button {
     
     .plots-grid {
         grid-template-columns: repeat(6, minmax(65px, 80px));
-        gap: 8px;
+        gap: 10px;
     }
 }
 
 @media (max-width: 700px) {
     .plots-grid {
-        grid-template-columns: repeat(4, minmax(70px, 85px));
-        gap: 8px;
+        grid-template-columns: repeat(4, minmax(75px, 90px));
+        gap: 10px;
+    }
+    
+    .stats-box div {
+        font-size: 13px;
     }
 }
 
 @media (max-width: 550px) {
     .plots-grid {
-        grid-template-columns: repeat(3, minmax(75px, 90px));
+        grid-template-columns: repeat(3, minmax(80px, 95px));
         gap: 8px;
     }
     
@@ -431,7 +482,7 @@ button {
     }
     
     h2 {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
     
     .panel {
@@ -445,45 +496,54 @@ button {
 
 @media (max-width: 400px) {
     .plots-grid {
-        grid-template-columns: repeat(2, minmax(70px, 85px));
-        gap: 6px;
+        grid-template-columns: repeat(2, minmax(75px, 90px));
+        gap: 8px;
+    }
+    
+    .crop-stage {
+        font-size: 30px;
+    }
+    
+    .inventory-item {
+        font-size: 11px;
+    }
+    
+    .mini-plant-btn {
+        font-size: 10px;
+        padding: 3px 10px;
+    }
+}
+
+/* ПРИ ЗУМЕ */
+@media (min-width: 901px) and (max-width: 1100px) {
+    .plots-grid {
+        grid-template-columns: repeat(6, minmax(65px, 80px));
+        gap: 8px;
+        justify-content: center;
     }
     
     .crop-stage {
         font-size: 28px;
     }
     
-    .inventory-item {
-        font-size: 10px;
-    }
-    
-    .mini-plant-btn {
-        font-size: 9px;
-        padding: 3px 8px;
-    }
-}
-
-/* ПРИ ЗУМЕ - ПРОСТО ЦЕНТРИРУЕМ И УМЕНЬШАЕМ */
-@media (min-width: 901px) and (max-width: 1100px) {
-    .plots-grid {
-        grid-template-columns: repeat(6, minmax(60px, 75px));
-        gap: 6px;
-        justify-content: center;
-    }
-    
-    .crop-stage {
-        font-size: 26px;
-    }
-    
     .crop-timer {
-        font-size: 8px;
+        font-size: 9px;
     }
 }
 
 @media (min-width: 901px) and (max-width: 950px) {
     .plots-grid {
-        grid-template-columns: repeat(4, minmax(70px, 85px));
-        gap: 8px;
+        grid-template-columns: repeat(4, minmax(75px, 90px));
+        gap: 10px;
         justify-content: center;
     }
+}
+
+/* УЛУЧШЕННАЯ ЧИТАЕМОСТЬ ТЕКСТА */
+.stats-box, .inventory-item, .market-price-line, .crop-timer {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+}
+
+h1, h2, h3, .farm-btn, .tool-btn {
+    font-family: 'Segoe UI', 'Georgia', serif;
 }
