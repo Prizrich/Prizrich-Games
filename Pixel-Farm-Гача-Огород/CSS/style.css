@@ -1,286 +1,490 @@
-/* ===================================================================
-   1. СТИЛЬНЫЙ МОНОЛИТНЫЙ ИЗУМРУДНО-ЗЕЛЁНЫЙ ЗАДНИК С ОТЛИВАМИ
-   =================================================================== */
-body {
-    margin: 0; 
+* {
+    margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    
-    /* Дорогой многослойный градиент: глубокий зелёный с мягкими мятными отливами */
-    background: radial-gradient(circle at 50% 30%, #3d6a29 0%, #294c1a 60%, #152b0c 100%);
-    
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    box-sizing: border-box;
+}
+
+body {
     min-height: 100vh;
-    box-sizing: border-box;
+    background: linear-gradient(135deg, #1a5c3a 0%, #0a3a1a 50%, #1a5c3a 100%);
+    font-family: 'Segoe UI', 'Courier New', monospace;
     padding: 20px;
-    overflow-x: hidden;
-}
-
-/* Полностью очистили старые смайлики домиков и плывущих облаков */
-body::before, body::after, .farm-layout::before, .farm-layout::after {
-    display: none !important;
-    content: "" !important;
-}
-
-/* ===================================================================
-   2. ТРЕХКОЛОННЫЙ ИГРОВОЙ МАКЕТ ФЕРМЫ (СТАБИЛЬНЫЙ ОНЛАЙН-ФОРМАТ)
-   =================================================================== */
-.farm-layout {
-    display: grid;
-    grid-template-columns: 320px 1fr 340px;
-    gap: 20px;
-    max-width: 1450px; 
-    width: 100%;
-    height: 90vh; /* Жёсткая высота макета для фиксации прокрутки внутри панелей */
-    min-height: 650px;
     position: relative;
-    z-index: 10;
-    align-items: stretch; /* Все три панели растягиваются на одинаковую высоту */
 }
 
-/* Плотные деревянные панели инвентаря и магазинов */
-.panel {
-    background-color: #f7ebd3; 
-    border: 4px solid #4a2f15;  
-    border-radius: 4px;
-    padding: 18px;
-    box-shadow: inset -4px -4px 0px #c2a672, inset 4px 4px 0px #ffffff, 0 12px 35px rgba(15, 30, 8, 0.5);
+/* Анимированные облака */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 200"><path fill="rgba(255,255,255,0.1)" d="M0,100 Q100,60 200,100 Q300,140 400,100 Q500,60 600,100 Q700,140 800,100 Q900,60 1000,100 L1000,0 L0,0 Z"/></svg>') repeat-x;
+    background-size: 200px 60px;
+    opacity: 0.4;
+    pointer-events: none;
+    animation: clouds 60s linear infinite;
+}
+
+@keyframes clouds {
+    from { background-position: 0 0; }
+    to { background-position: 200px 0; }
+}
+
+/* ========== ОСНОВНОЙ ЛЕЙАУТ ========== */
+.farm-layout {
     display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    height: 100%; /* Панели строго держат высоту родительского макета */
+    flex-wrap: wrap;
+    gap: 15px;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
-h2, h3 { 
-    margin-top: 0; 
-    color: #4a2f15; 
-    border-bottom: 2px solid #4a2f15; 
-    padding-bottom: 6px; 
-    margin-bottom: 10px;
+/* ПАНЕЛИ - ГИБКИЕ, НО С МИНИМАЛЬНОЙ ШИРИНОЙ */
+.panel {
+    background: rgba(30, 25, 18, 0.92);
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+    padding: 18px;
+    border: 2px solid #d4a55a;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
-.stats-box, .market-status-box, .gacha-banner {
-    background-color: #e6d3af; 
-    border: 2px solid #4a2f15;
-    padding: 10px;
-    font-weight: bold;
-    margin-bottom: 12px;
+.side-panel {
+    flex: 1 1 260px;
+    min-width: 240px;
+    max-width: 320px;
 }
 
-.inventory-list {
-    flex: 1;
-    overflow-y: auto;
-    margin-bottom: 10px;
-    padding-right: 4px;
+.center-panel {
+    flex: 3 1 500px;
+    min-width: 280px;
+    overflow-x: auto;
 }
 
-.inventory-item, .shop-item, .seed-item, .barn-item, .market-line, .market-price-line {
-    background: #fffdf5;
-    border: 2px solid #4a2f15;
-    padding: 10px 12px; 
-    margin-bottom: 8px;
+/* ХЕДЕР ЦЕНТРАЛЬНОЙ ПАНЕЛИ */
+.center-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-weight: bold;
-    min-height: 48px; 
-    box-sizing: border-box; 
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-/* ===================================================================
-   3. ЦЕНТРАЛЬНАЯ КОЛОНКА СЕТКИ ГРЯДОК (УЛЬТРА-РЕЗИНОВЫЙ ЗУМ)
-   =================================================================== */
-.center-panel { 
-    background-color: #fffdf5; 
-    overflow-y: auto;  /* Включаем вертикальный скроллбар, когда грядок много */
-    padding: 18px 12px; /* Мягкие внутренние отступы */
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* ИДЕАЛЬНО ЦЕНТРИРУЕМ ВСЁ СОДЕРЖИМОЕ ПАНЕЛИ ПО ГОРИЗОНТАЛИ */
-    min-width: 0; /* ВАЖНЕЙШИЙ ХАК: Запрещает панели ломать сетку при сжатии и зуме */
-    box-sizing: border-box;
+/* ЗАГОЛОВКИ */
+h2 {
+    color: #ffd966;
+    font-size: 1.3rem;
+    text-shadow: 2px 2px 0 #3a2a10;
+    margin-bottom: 12px;
 }
 
-.center-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 15px; 
-    border-bottom: 3px solid #4a2f15; 
-    padding-bottom: 8px;
-    position: sticky; /* Шапка огорода всегда зафиксирована сверху при прокрутке */
-    top: 0;
-    background-color: #fffdf5;
-    z-index: 20;
-    width: 100%; /* Шапка занимает всю ширину панели */
-    box-sizing: border-box;
-}
-.center-header h2 { border: none; margin: 0; font-size: 1.4rem; }
-
-/* СЕТКА ГРЯДОК — ИДЕАЛЬНОРЕЗИНОВАЯ И ОТЦЕНТРОВАННАЯ */
-.farm-grid, .farm-plots-grid, #farm-plots-grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important; /* Всегда 3 колонки, грядки растут строго вниз */
-    gap: 12px;
-    width: 100%; /* Занимает всю ширину на маленьком масштабе */
-    max-width: 95%; /* Оставляем аккуратные микро-зазоры по бокам при раздувании */
-    margin: 0 auto 10px auto; /* Центрируем саму сетку грядок по центру экрана */
-    box-sizing: border-box;
+h3 {
+    color: #ffd966;
+    font-size: 1rem;
+    margin: 12px 0 8px 0;
 }
 
-/* Клетка грядки (кучка земли) — КОМПАКТНАЯ И ГИБКАЯ ДЛЯ ЛЮБОГО ЗУМА */
-.plot-cell, .plot-block {
-    background-color: #704722; 
-    border: 3px solid #301e0e;
-    box-shadow: inset -4px -4px 0px #4a2f15, inset 4px 4px 0px #946132;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; 
-    align-items: center;
-    user-select: none;
-    transition: transform 0.05s ease;
-    padding: 8px 4px; /* Компактные отступы, чтобы текст не раздувал грядку */
-    box-sizing: border-box;
-    aspect-ratio: 1 / 1; /* ЖЁСТКИЙ ФИКС: Клетки ВСЕГДА остаются идеальными квадратами при любом масштабе! */
+/* СТАТИСТИКА */
+.stats-box {
+    background: #1e1a10;
+    padding: 12px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    color: #ffefb9;
+}
+
+.stats-box div {
+    margin: 5px 0;
+}
+
+/* ========== СЕТКА ГРЯДОК ========== */
+.farm-grid {
+    background: #3d2a1a;
+    border-radius: 20px;
+    padding: 20px;
+    border: 3px solid #b8863c;
+    overflow-x: auto;
+}
+
+.plots-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(70px, 1fr));
+    gap: 10px;
+    justify-content: center;
     width: 100%;
 }
-.plot-cell:hover, .plot-block:hover { transform: scale(1.02); }
 
-/* Кучка влажной политой земли */
-.plot-block.watered, .plot-cell.watered {
-    background-color: #3d240e; 
-    box-shadow: inset -4px -4px 0px #211305, inset 4px 4px 0px #5c3919;
-    border-color: #0088cc;
-}
-
-/* Красивая пустая земля */
-.soil-empty { 
-    font-size: 0.95rem; 
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.4);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-    margin-top: auto;
-    margin-bottom: auto;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Иконка созревания (овощ / ягода) */
-.crop-stage { 
-    font-size: 2.8rem; 
-    line-height: 1; 
-    flex: 1;
+/* ГРЯДКА */
+.plot-block {
+    aspect-ratio: 1 / 1;
+    background: #8B5E3C;
+    border: 2px solid #D4A55A;
+    border-radius: 12px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.25)); 
-}
-
-/* УЛЬТРА-КОНТРАСТНАЯ И ОГРОМНАЯ ПЛАШКА ТАЙМЕРА И ПОЛИВА */
-.crop-timer { 
-    background: rgba(18, 12, 8, 0.9) !important; 
-    color: #ffffff !important; 
-    padding: 4px 10px !important; 
-    font-size: 0.85rem !important; 
-    font-weight: 900 !important;   
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    border-radius: 6px; 
-    margin-top: auto; 
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
-    white-space: nowrap;
-    letter-spacing: 0.5px;
-}
-
-.crop-timer span {
-    font-size: 0.85rem !important;
-    font-weight: 900 !important;
-}
-
-/* НАДПИСЬ ПОЛИВА (НЕОНОВО-ГОЛУБАЯ) */
-.crop-timer span[style*="color: #00aaff"],
-.crop-timer span[style*="color:#00aaff"] {
-    color: #38bdf8 !important; 
-    text-shadow: 0 0 8px rgba(56, 189, 248, 0.6), 1px 1px 1px rgba(0, 0, 0, 0.9) !important;
-}
-
-/* НАДПИСЬ ГОТОВОГО УРОЖАЯ (СБОР) */
-.ready-tag { 
-    color: #4ade80 !important; 
-    font-weight: 900 !important; 
-    font-size: 0.85rem !important;
-    text-shadow: 0 0 8px rgba(74, 222, 128, 0.6), 1px 1px 1px rgba(0, 0, 0, 0.9);
-}
-
-/* ===================================================================
-   4. ДЕРЕВЕНСКИЕ ИНДИ-КНОПКИ И АНИМАЦИЯ МЕНЮ
-   =================================================================== */
-.farm-btn, .tool-btn, .mini-plant-btn {
-    background-color: #a3723b; 
-    color: #fff;
-    border: 2px solid #4a2f15;
-    padding: 10px;
-    font-weight: bold;
     cursor: pointer;
-    text-shadow: 1px 1px 0px #4a2f15;
-    box-shadow: inset -2px -2px 0px #6e4922, inset 2px 2px 0px #c79a63;
-}
-.farm-btn:hover, .tool-btn:hover, .mini-plant-btn:hover { 
-    background-color: #5c8a36; 
-    box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58;
+    transition: 0.05s linear;
+    box-shadow: inset -2px -2px 0px #5a3a1a, inset 2px 2px 0px #b8763a;
+    min-width: 0;
+    overflow: hidden;
 }
 
-.mini-plant-btn { padding: 4px 10px; font-size: 0.8rem; }
-.tool-btn { background-color: #5c5c5c; box-shadow: inset -2px -2px 0px #333, inset 2px 2px 0px #888; text-shadow: 1px 1px 0px #000; border-color: #222; }
-.sell-all-btn { width: 100%; margin-top: 0px; margin-bottom: 15px; padding: 12px; font-size: 0.95rem; }
-.gacha-btn { width: 100%; }
-
-.banner-preview { font-size: 0.75rem; color: #4a2f15; font-weight: bold; margin-bottom: 8px; text-align: center; }
-.gacha-result-alert { border: 2px solid #4a2f15; background: #26170a; color: #fff; text-align: center; padding: 10px; margin-top: 10px; font-weight: bold; display: none; }
-
-#farm-toast-container { position: fixed; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 10000000; }
-.farm-toast { background-color: #4a2f15; color: #fff; border: 2px solid #141414; padding: 10px 15px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-
-/* АНИМАЦИЯ ПУЛЬСАЦИИ КНОПКИ СТАРТА */
-@keyframes menuPulse {
-    0% { transform: scale(1); box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58; }
-    50% { transform: scale(1.03); box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58, 0 0 15px rgba(92, 138, 54, 0.6); }
-    100% { transform: scale(1); box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58; }
+.plot-block.watered {
+    background: #4a7a3a;
+    box-shadow: inset 0 0 12px #88ff88;
 }
 
-/* ===================================================================
-   5. ВСПЛЫВАЮЩИЕ ОКНА (МОДАЛКИ) И КАСТОМНЫЕ СЕЛЕКТЫ
-   =================================================================== */
+/* КОНТЕНТ ВНУТРИ ГРЯДКИ */
+.crop-stage {
+    font-size: clamp(24px, 6vw, 42px);
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
+}
+
+.crop-timer {
+    font-size: clamp(9px, 2.5vw, 12px);
+    background: rgba(0,0,0,0.7);
+    padding: 2px 6px;
+    border-radius: 20px;
+    margin-top: 4px;
+    color: #ffdd88;
+    white-space: nowrap;
+}
+
+.ready-tag {
+    background: gold;
+    color: #2c2c2c;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: clamp(9px, 2.5vw, 11px);
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.soil-empty {
+    font-size: clamp(10px, 2.5vw, 12px);
+    color: #ddd;
+    background: rgba(0,0,0,0.5);
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ИНВЕНТАРНЫЕ СПИСКИ */
+.inventory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.inventory-item, .seed-item, .barn-item {
+    background: #fef0cf;
+    color: #3e2a1c;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: bold;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* КНОПКИ */
+.mini-plant-btn {
+    background: #6b8c42;
+    border: none;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: 0.1s;
+}
+
+.mini-plant-btn:hover {
+    transform: scale(1.02);
+    background: #7a9c52;
+}
+
+.mini-plant-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.farm-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #d4a55a, #b8863c);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 40px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.1s;
+}
+
+.farm-btn:hover {
+    transform: scale(1.02);
+    background: linear-gradient(135deg, #e0b060, #c8964a);
+}
+
+.sell-all-btn {
+    background: linear-gradient(135deg, #d4a55a, #b8863c);
+    margin-bottom: 10px;
+}
+
+.gacha-btn {
+    background: linear-gradient(135deg, #d4af37, #b8860b);
+    margin-top: 0;
+}
+
+.tool-btn {
+    background: #5c3e1f;
+    border: none;
+    color: #ffefb9;
+    padding: 6px 14px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.1s;
+}
+
+.tool-btn:hover {
+    background: #7a532a;
+    transform: scale(1.02);
+}
+
+/* РЫНОЧНЫЕ ЛИНИИ */
+.market-price-line {
+    background: #2c2416;
+    margin: 4px 0;
+    padding: 6px 10px;
+    border-radius: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.market-status-box {
+    background: #1e1a10;
+    border-radius: 16px;
+    padding: 8px;
+}
+
+/* УВЕДОМЛЕНИЯ */
+.farm-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a3a1aee;
+    border-left: 5px solid #ffcc44;
+    padding: 10px 20px;
+    border-radius: 40px;
+    color: #ffefb9;
+    z-index: 9999;
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* МОДАЛЬНОЕ ОКНО */
 .modal-overlay {
-    position: fixed !important;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.7); 
-    display: none; 
-    justify-content: center; align-items: center;
-    z-index: 999999 !important; 
-    backdrop-filter: blur(4px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
 }
 
-.select-custom, select {
-    background-color: #fffdf5 !important;
-    border: 2px solid #4a2f15 !important;
-    padding: 6px !important;
-    font-weight: bold !important;
-    color: #4a2f15 !important;
-    font-family: inherit; width: 100%; box-sizing: border-box;
+/* РЕЗУЛЬТАТ ГАЧИ */
+.gacha-result-alert {
+    display: none;
+    background: #d4af37;
+    color: #2a2a1a;
+    padding: 8px;
+    border-radius: 12px;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    animation: pulse 0.5s ease;
 }
 
-.panel input[type="number"] {
-    background-color: #fffdf5 !important;
-    border: 2px solid #4a2f15 !important;
-    padding: 6px !important;
-    font-weight: bold !important;
-    color: #4a2f15 !important;
+@keyframes pulse {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-::-webkit-scrollbar { width: 6px; }
+/* ФОРМЫ */
+select, input {
+    background: #fff0d0;
+    border: 2px solid #4a2f15;
+    border-radius: 20px;
+    padding: 6px 10px;
+    font-weight: bold;
+    color: #4a2f15;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* СКРОЛЛБАРЫ */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #3a2a1a;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d4a55a;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e0b060;
+}
+
+/* ========== АДАПТИВНОСТЬ ПРИ ЗУМЕ И МОБИЛЬНЫХ ========== */
+@media (max-width: 900px) {
+    .farm-layout {
+        flex-direction: column;
+    }
+    
+    .side-panel {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .center-panel {
+        width: 100%;
+    }
+    
+    .plots-grid {
+        gap: 8px;
+    }
+}
+
+@media (max-width: 600px) {
+    .plots-grid {
+        grid-template-columns: repeat(3, minmax(80px, 1fr));
+        gap: 8px;
+    }
+    
+    .center-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .tool-btn, .farm-btn {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    h2 {
+        font-size: 1.1rem;
+    }
+    
+    .panel {
+        padding: 12px;
+    }
+    
+    body {
+        padding: 10px;
+    }
+}
+
+/* ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
+@media (max-width: 400px) {
+    .plots-grid {
+        grid-template-columns: repeat(2, minmax(70px, 1fr));
+        gap: 6px;
+    }
+    
+    .crop-stage {
+        font-size: 28px;
+    }
+    
+    .inventory-item {
+        font-size: 10px;
+    }
+    
+    .mini-plant-btn {
+        font-size: 9px;
+        padding: 3px 8px;
+    }
+}
+
+/* ПРИ ЗУМЕ 110-120% - ГРИД АВТОМАТИЧЕСКИ ПОДСТРАИВАЕТСЯ */
+@media (min-width: 901px) and (max-width: 1100px) {
+    .plots-grid {
+        grid-template-columns: repeat(6, minmax(65px, 1fr));
+        gap: 6px;
+    }
+    
+    .crop-stage {
+        font-size: 28px;
+    }
+    
+    .crop-timer {
+        font-size: 9px;
+    }
+}
+
+/* ПРИ СИЛЬНОМ ЗУМЕ (130-150%) - ПЕРЕХОД НА МЕНЬШЕЕ КОЛИЧЕСТВО КОЛОНОК */
+@media (min-width: 901px) and (max-width: 950px) {
+    .plots-grid {
+        grid-template-columns: repeat(4, minmax(80px, 1fr));
+        gap: 8px;
+    }
+}
+
+/* ОТМЕНА ВСЯКИХ ЖЁСТКИХ MAX-WIDTH */
+.farm-grid {
+    max-width: none;
+}
+
+.plots-grid {
+    max-width: none;
+}
