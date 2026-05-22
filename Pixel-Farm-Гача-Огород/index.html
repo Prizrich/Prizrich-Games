@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Pixel Farm: Гача Огород</title>
-    <link rel="stylesheet" href="CSS/style.css">
+    <!-- ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ СТИЛЕЙ: версия 3 -->
+    <link rel="stylesheet" href="CSS/style.css?v=3">
     <style>
-        /* Дополнительные стили для меню */
         @keyframes menuPulse {
             0% { transform: scale(1); opacity: 0.9; }
             50% { transform: scale(1.02); opacity: 1; }
@@ -19,76 +19,62 @@
 </head>
 <body>
 
-    <!-- ГЛАВНОЕ МЕНЮ ИГРЫ (ЭКРАН-ЗАСТАВКА ПРИ СТАРТЕ) -->
+    <!-- ГЛАВНОЕ МЕНЮ ИГРЫ -->
     <div id="ui-main-menu-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 30%, #3d6a29 0%, #294c1a 60%, #152b0c 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999999; backdrop-filter: blur(5px);">
         <div class="panel" style="max-width: 450px; width: 90%; text-align: center; padding: 30px; gap: 15px; background-color: #f7ebd3; border: 4px solid #4a2f15; box-shadow: inset -4px -4px 0px #c2a672, inset 4px 4px 0px #ffffff, 0 15px 40px rgba(0,0,0,0.6);">
-            <h1 style="margin: 0; font-size: 2.8rem; color: #4a2f15; text-shadow: 2px 2px 0px #fff; font-family: 'Segoe UI', sans-serif; font-weight: 900; letter-spacing: 1px;">PIXEL FARM</h1>
-            <div style="font-size: 1rem; font-weight: bold; color: #5c8a36; margin-bottom: 10px; text-shadow: 1px 1px 0px #fff;">🌾 ГАЧА ОГОРОД ОНЛАЙН 🔮</div>
-            
-            <p style="font-size: 0.85rem; color: #6e4922; font-weight: bold; line-height: 1.4; margin: 0 0 15px 0;">
-                Добро пожаловать на кибер-плантацию! Выращивай 8 редких культур, крути Гачу семян, автоматизируй полив и торгуй на поштучном онлайн-рынке в реальном времени!
+            <h1 style="margin: 0; font-size: 2.8rem; color: #4a2f15; text-shadow: 2px 2px 0px #fff;">PIXEL FARM</h1>
+            <div style="font-size: 1rem; font-weight: bold; color: #5c8a36;">🌾 ГАЧА ОГОРОД ОНЛАЙН 🔮</div>
+            <p style="font-size: 0.85rem; color: #6e4922; font-weight: bold; margin: 0 0 15px 0;">
+                Выращивай 8 редких культур, крути Гачу, автоматизируй полив и торгуй на онлайн-рынке!
             </p>
-
             <button class="farm-btn" style="width: 100%; padding: 15px; font-size: 1.3rem; background-color: #5c8a36; animation: menuPulse 1.5s infinite ease-in-out;" onclick="window.startFarmGameFromMenu()">
                 🚜 ПОЕХАЛИ!
             </button>
         </div>
     </div>
 
-    <!-- УВЕДОМЛЕНИЯ О СБОРЕ УРОЖАЯ -->
     <div id="farm-toast-container"></div>
 
     <div class="farm-layout" style="display: none;" id="game-container">
-        <!-- ЛЕВАЯ ПАНЕЛЬ: АМБАР, КНОПКА ПРОДАЖИ И ИНВЕНТАРЬ -->
-        <div class="panel side-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <h2>📦 Твой Амбар</h2>
-                
-                <!-- БЛОК ВВОДА НИКНЕЙМА (СТАРТОВО ПУСТОЙ) -->
-                <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.8rem; font-weight: bold; color: #4a2f15;">Твой ник на рынке:</label>
-                    <input type="text" id="ui-player-name" value="" placeholder="Впиши ник и жми Enter..." style="background:#fff; border:2px solid #4a2f15; padding:4px; font-weight:bold; color:#4a2f15;" onchange="window.savePlayerName()" onkeydown="if(event.key==='Enter') window.savePlayerName()">
-                </div>
-
-                <!-- БЛОК БАЛАНСА И СТАТУСОВ АВТОМАТИЗАЦИИ -->
-                <div class="stats-box" style="margin-bottom: 10px;">
-                    <div>Монеты: <b id="ui-coins">0</b> Золота</div>
-                    <div>Уровень поля: <b id="ui-farm-lvl">1</b> / 12</div>
-                    <div style="font-size: 0.8rem; margin-top: 4px; color: #0088cc;" id="ui-auto-status">💧 Автополив: Выкл</div>
-                    <div style="font-size: 0.8rem; color: #ba2929;" id="ui-harvester-status">🤖 Автосбор: Выкл</div>
-                    <div style="font-size: 0.8rem; color: #9333ea;" id="ui-planter-status">🤖 Автопосадка: Выкл</div>
-                    <div style="font-size: 0.8rem; color: #ffaa00;" id="ui-fert-status">⚡ Удобрение: х1 (Обычное)</div>
-                    <div style="font-size: 0.8rem; color: #5c8a36;" id="ui-auto-seeds-count">📦 Семян для сеятеля: 0</div>
-                </div>
-
-                <!-- КНОПКА ПРОДАЖИ ВСЕГО УРОЖАЯ -->
-                <button class="farm-btn sell-all-btn" onclick="window.sellAllCrops()">
-                    💰 Продать весь урожай
-                </button>
-
-                <!-- СЕЛЬСКИЙ МАГАЗИН -->
-                <h3>🛒 Сельский Магазин</h3>
-                <div class="inventory-list" id="ui-shop-list" style="max-height: 140px; margin-bottom: 10px; border-bottom: 2px solid #4a2f15;"></div>
-
-                <h3>🎒 Запасы семян</h3>
-                <div class="inventory-list" id="ui-seeds-list" style="max-height: 100px; margin-bottom: 10px;"></div>
-
-                <h3>🌾 Собранный урожай</h3>
-                <div class="inventory-list" id="ui-barn-list" style="max-height: 100px; margin-bottom: 10px;"></div>
+        <!-- ЛЕВАЯ ПАНЕЛЬ -->
+        <div class="panel side-panel">
+            <h2>📦 Твой Амбар</h2>
+            
+            <div style="margin-bottom: 10px;">
+                <label style="font-size: 0.8rem; font-weight: bold; color: #4a2f15;">Твой ник на рынке:</label>
+                <input type="text" id="ui-player-name" value="" placeholder="Впиши ник и жми Enter..." style="width:100%; margin-top:4px; background:#fff; border:2px solid #4a2f15; padding:6px; font-weight:bold;" onchange="window.savePlayerName()" onkeydown="if(event.key==='Enter') window.savePlayerName()">
             </div>
 
-            <!-- КНОПКА ПОЛНОГО СБРОСА ПРОГРЕССА -->
-            <button class="farm-btn" id="ui-reset-progress-btn" style="width: 100%; padding: 8px; font-size: 0.8rem; background-color: #ba2929; margin-top: 10px;" onclick="window.resetEntireGameProgress()">
-                💥 Сбросить прогресс
-            </button>
+            <div class="stats-box">
+                <div>💰 Монеты: <b id="ui-coins">0</b></div>
+                <div>🌾 Уровень: <b id="ui-farm-lvl">1</b> / 12</div>
+                <div id="ui-auto-status">💧 Автополив: Выкл</div>
+                <div id="ui-harvester-status">🤖 Автосбор: Выкл</div>
+                <div id="ui-planter-status">🤖 Автопосадка: Выкл</div>
+                <div id="ui-fert-status">⚡ Удобрение: х1</div>
+                <div id="ui-auto-seeds-count">📦 Семян для сеятеля: 0</div>
+            </div>
+
+            <button class="farm-btn sell-all-btn" onclick="window.sellAllCrops()">💰 Продать весь урожай</button>
+
+            <h3>🛒 Магазин</h3>
+            <div class="inventory-list" id="ui-shop-list" style="max-height: 140px;"></div>
+
+            <h3>🌱 Семена</h3>
+            <div class="inventory-list" id="ui-seeds-list" style="max-height: 100px;"></div>
+
+            <h3>🏚️ Амбар</h3>
+            <div class="inventory-list" id="ui-barn-list" style="max-height: 100px;"></div>
+
+            <button class="farm-btn" style="background-color: #ba2929; margin-top: 10px;" onclick="window.resetEntireGameProgress()">💥 Сбросить прогресс</button>
         </div>
 
-        <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ИНТЕРАКТИВНЫЙ ОГОРОД -->
+        <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ОГОРОД -->
         <div class="panel center-panel">
             <div class="center-header">
                 <h2>🟫 Твой Огород</h2>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <select id="mass-plant-crop-select" style="background:#efe0c9; border:2px solid #4a2f15; border-radius:20px; padding:5px 10px; font-weight:bold;">
+                    <select id="mass-plant-crop-select" style="background:#efe0c9; border:2px solid #4a2f15; border-radius:20px; padding:5px 10px;">
                         <option value="carrot">🥕 Морковь</option>
                         <option value="cabbage">🥬 Капуста</option>
                         <option value="corn">🌽 Кукуруза</option>
@@ -107,65 +93,45 @@
             </div>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ: ОНЛАЙН-РЫНОК -->
+        <!-- ПРАВАЯ ПАНЕЛЬ: РЫНОК -->
         <div class="panel side-panel">
-            <h2>✨ Сбор семян (Гача)</h2>
-            <div class="gacha-banner">
-                <div class="banner-preview">🌟 Шансы: Миф(1%) | Лега(5%) | Ред(14%) | Необ(25%) | Обыч(55%)</div>
-                <button class="farm-btn gacha-btn" onclick="window.triggerGachaRoll()">✨ Получить семена (100 Золота)</button>
-            </div>
+            <h2>✨ Гача</h2>
+            <button class="farm-btn gacha-btn" onclick="window.triggerGachaRoll()">🎲 Получить семена (100💰)</button>
             <div class="gacha-result-alert" id="ui-gacha-result"></div>
 
-            <h2>📊 Мониторинг рынка</h2>
-            <div class="market-status-box" style="margin-bottom: 10px; padding: 8px;">
-                <div id="ui-market-prices"></div>
-            </div>
+            <h2>📊 Рынок</h2>
+            <div class="market-status-box" id="ui-market-prices"></div>
 
             <h2>🛒 Онлайн Рынок</h2>
-            <button class="farm-btn" style="width: 100%; font-size: 0.9rem; padding: 10px; background-color: #a3723b; margin-bottom: 10px;" onclick="window.openCreateOrderModal()">
-                📦 Выставить свой товар
-            </button>
+            <button class="farm-btn" style="background-color:#a3723b; margin-bottom:10px;" onclick="window.openCreateOrderModal()">📦 Выставить товар</button>
+            <div class="market-status-box" style="max-height: 250px; overflow-y: auto;" id="ui-market-board"></div>
+        </div>
+    </div>
 
-            <div class="market-status-box" style="flex: 1; overflow-y: auto; max-height: 250px;" id="ui-market-board">
-                <div style="font-size:0.8rem; color:#666; text-align:center; padding-top:20px;">Подключение...</div>
+    <!-- МОДАЛКА РЫНКА -->
+    <div class="modal-overlay" id="farm-market-modal">
+        <div class="panel" style="max-width: 320px; text-align: center; background:#f7ebd3;">
+            <h3>📦 Выставить урожай</h3>
+            <select id="modal-sell-crop-select" style="width:100%; margin:10px 0;">
+                <option value="carrot">🥕 Морковь</option>
+                <option value="cabbage">🥬 Капуста</option>
+                <option value="corn">🌽 Кукуруза</option>
+                <option value="grapes">🍇 Виноград</option>
+                <option value="strawberry">🍓 Клубника</option>
+                <option value="pineapple">🍍 Ананас</option>
+                <option value="golden_apple">🍎 Золотое яблоко</option>
+                <option value="ancient_fruit">🔮 Древний плод</option>
+            </select>
+            <div id="modal-stock-count" style="font-size:12px; margin-bottom:10px;">В амбаре: 0 шт.</div>
+            <input type="number" id="modal-sell-amount-input" placeholder="Количество" value="1" min="1" style="width:100%; margin:5px 0;">
+            <input type="number" id="modal-sell-price-input" placeholder="Цена" value="30" min="1" style="width:100%; margin:5px 0;">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="window.submitPlayerMarketOrder()" style="flex:1; background:#5c8a36; color:white; border:none; padding:8px; border-radius:40px;">✅ Выставить</button>
+                <button onclick="window.closeCreateOrderModal()" style="flex:1; background:#ba2929; color:white; border:none; padding:8px; border-radius:40px;">❌ Отмена</button>
             </div>
         </div>
     </div>
 
-    <!-- ВСПЛЫВАЮЩЕЕ ОКНО РЫНКА -->
-    <div class="modal-overlay" id="farm-market-modal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 99999; backdrop-filter: blur(3px);">
-        <div class="panel" style="max-width: 320px; width: 90%; text-align: center; gap: 10px; background-color: #f7ebd3; border: 4px solid #4a2f15;">
-            <h3 style="margin: 0; color: #4a2f15;">Выставить урожай</h3>
-            <div style="text-align: left; display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-weight: bold; font-size: 0.85rem; color: #4a2f15;">Что продаём:</label>
-                <select id="modal-sell-crop-select" class="select-custom" style="background:#fff; border:2px solid #4a2f15; padding:5px; font-weight:bold;" onchange="window.updateModalStockCount()">
-                    <option value="carrot">🥕 Морковь</option>
-                    <option value="cabbage">🥬 Капуста</option>
-                    <option value="corn">🌽 Кукуруза</option>
-                    <option value="grapes">🍇 Виноград</option>
-                    <option value="strawberry">🍓 Клубника</option>
-                    <option value="pineapple">🍍 Ананас</option>
-                    <option value="golden_apple">🍎 Золотое Яблоко</option>
-                    <option value="ancient_fruit">🔮 Древний плод</option>
-                </select>
-                <div style="font-size: 0.8rem; font-weight: bold; color: #7a5a3a; margin-top: 2px;" id="modal-stock-count">В амбаре: 0 шт.</div>
-            </div>
-            <div style="text-align: left; display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-weight: bold; font-size: 0.85rem; color: #4a2f15;">Сколько выставляем (шт):</label>
-                <input type="number" id="modal-sell-amount-input" value="1" min="1" style="background:#fff; border:2px solid #4a2f15; padding:5px; font-weight:bold; width: 100%; box-sizing: border-box; color: #4a2f15;">
-            </div>
-            <div style="text-align: left; display: flex; flex-direction: column; gap: 5px;">
-                <label style="font-weight: bold; font-size: 0.85rem; color: #4a2f15;">Ваша цена за ВСЁ (Золота):</label>
-                <input type="number" id="modal-sell-price-input" value="30" min="1" style="background:#fff; border:2px solid #4a2f15; padding:5px; font-weight:bold; width: 100%; box-sizing: border-box; color: #4a2f15;">
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="farm-btn" style="flex: 1; background-color: #5c8a36;" onclick="window.submitPlayerMarketOrder()">✅ Выставить</button>
-                <button class="farm-btn" style="flex: 1; background-color: #ba2929;" onclick="window.closeCreateOrderModal()">❌ Отмена</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- СКРИПТЫ -->
     <script src="js/config.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/game.js"></script>
