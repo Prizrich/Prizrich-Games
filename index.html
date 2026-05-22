@@ -7,145 +7,97 @@
     <style>
         body {
             margin: 0; padding: 0;
-            font-family: 'Courier New', Courier, monospace; /* Пиксельный шрифт */
-            
-            /* КУЛЬТОВЫЙ КОРИЧНЕВЫЙ ФОН ЗЕМЛИ ИЗ MINECRAFT */
+            font-family: 'Courier New', Courier, monospace;
             background-color: #573d26;
             background-image: 
                 linear-gradient(#422e1b 4px, transparent 4px),
                 linear-gradient(90deg, #422e1b 4px, transparent 4px);
             background-size: 32px 32px;
-            box-shadow: inset 0 0 150px rgba(0,0,0,0.85); /* Затемнение по краям */
-            
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.85);
             color: #f7ebd3;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; box-sizing: border-box; padding: 40px 20px;
         }
-        
         h1 {
-            color: #ffaa00; 
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 4px 4px 0px #000;
-            border-bottom: 6px solid #1e1e1e; 
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px 30px;
-            margin-bottom: 40px;
-            font-size: 2.5rem; text-align: center;
-            border: 4px solid #1e1e1e;
+            color: #ffaa00; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+            text-shadow: 4px 4px 0px #000; border-bottom: 6px solid #1e1e1e; 
+            background: rgba(0, 0, 0, 0.4); padding: 15px 30px; margin-bottom: 40px;
+            font-size: 2.5rem; text-align: center; border: 4px solid #1e1e1e;
             box-shadow: inset -4px -4px 0px #111, inset 4px 4px 0px #555;
         }
-        
         .arcade-container {
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px; 
-            max-width: 1200px; 
-            width: 100%;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px; max-width: 1200px; width: 100%;
         }
-        
-        /* КАРТОЧКИ В СТИЛЕ ТЁМНОГО ИНТЕРФЕЙСА MINECRAFT */
         .game-card {
-            background-color: rgba(33, 33, 33, 0.95); 
-            border: 4px solid #000000;
-            padding: 25px 20px; 
-            text-align: center; 
-            color: #fff;
+            background-color: rgba(33, 33, 33, 0.95); border: 4px solid #000000;
+            padding: 25px 20px; text-align: center; color: #fff;
             box-shadow: inset -4px -4px 0px #111111, inset 4px 4px 0px #555555, 0 15px 30px rgba(0,0,0,0.7);
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between;
+            display: flex; flex-direction: column; justify-content: space-between;
             transition: transform 0.1s ease;
         }
-        .game-card:hover { 
-            transform: scale(1.03); 
-            border-color: #ffaa00; 
-        }
-        
+        .game-card:hover { transform: scale(1.03); border-color: #ffaa00; }
         .game-card h2 { 
-            margin: 0 0 15px 0; 
-            font-size: 1.5rem;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 0px #000;
-            border-bottom: 4px solid #000; 
-            padding-bottom: 10px; 
-            color: #ffff55; 
+            margin: 0 0 15px 0; font-size: 1.5rem; text-transform: uppercase;
+            text-shadow: 2px 2px 0px #000; border-bottom: 4px solid #000; 
+            padding-bottom: 10px; color: #ffff55; 
         }
-        
         .game-card p { 
-            font-weight: bold; 
-            font-size: 0.85rem; 
-            color: #bfbfbf; 
-            margin-bottom: 30px; 
-            line-height: 1.6;
-            text-shadow: 2px 2px 0px #000;
-            text-align: left;
+            font-weight: bold; font-size: 0.85rem; color: #bfbfbf; 
+            margin-bottom: 30px; line-height: 1.6; text-shadow: 2px 2px 0px #000; text-align: left;
         }
-        
-        /* СЕРЫЕ ОБЪЁМНЫЕ КНОПКИ MINECRAFT */
         .play-btn {
-            background-color: #6c6c6c; 
-            color: #e0e0e0; 
-            border: 3px solid #000000;
-            padding: 14px; 
-            font-size: 1.1rem;
-            font-weight: bold; 
-            font-family: 'Courier New', Courier, monospace;
-            text-transform: uppercase;
-            cursor: pointer; 
-            text-decoration: none;
-            text-shadow: 2px 2px 0px #000000; 
+            background-color: #6c6c6c; color: #e0e0e0; border: 3px solid #000000;
+            padding: 14px; font-size: 1.1rem; font-weight: bold; 
+            font-family: 'Courier New', Courier, monospace; text-transform: uppercase;
+            cursor: pointer; text-decoration: none; text-shadow: 2px 2px 0px #000000; 
             box-shadow: inset -3px -3px 0px #404040, inset 3px 3px 0px #a1a1a1;
-            display: block; 
-            box-sizing: border-box;
+            display: block; box-sizing: border-box;
         }
-        
         .play-btn:hover { 
-            background-color: #5c8a36; 
-            color: #fff;
+            background-color: #5c8a36; color: #fff;
             box-shadow: inset -3px -3px 0px #3d5c24, inset 3px 3px 0px #8fcc58; 
         }
     </style>
 </head>
 <body>
 
-    <h1>🎮 PRIZRICH ARCADE v2.7</h1>
+    <h1>🎮 PRIZRICH ARCADE v2.8</h1>
 
     <div class="arcade-container">
-        <!-- ТВОЯ НОВАЯ ОНЛАЙН ФЕРМА -->
+        <!-- ФЕРМА -->
         <div class="game-card">
             <h2>🚜 Pixel Farm</h2>
-            <p>Гача Огород онлайн! Выращивай 8 редких культур, крути Гачу семян, автоматизируй полив и торгуй на поштучном онлайн-рынке в реальном времени с другими игроками.</p>
-            <a href="Pixel-Farm-Гача-Огород/index.html" class="play-btn">Играть</a>
+            <p>Гача Огород онлайн! Выращивай 8 редких культур, крути Гачу семян, автоматизируй полив и торгуй на поштучном онлайн-рынке реального времени с другими игроками.</p>
+            <a href="./Pixel-Farm-Гача-Огород/index.html" class="play-btn">Играть</a>
         </div>
 
-        <!-- ИГРА УСАТЫЙ ПЧЕЛ (ИСПРАВЛЕННЫЙ ПУТЬ СОГЛАСНО СКРИНШОТУ) -->
+        <!-- ИГРА УСАТЫЙ ПЧЕЛ (ЖЁСТКИЙ ФИКС РЕГИСТРА И ТОЧКИ) -->
         <div class="game-card">
             <h2>🐝 Усатый Пчел</h2>
             <p>Улётный аркадный симулятор пчелы. Собирай нектар, обходи препятствия и стань королём улья!</p>
-            <a href="Игра-Усатый-пчел/index.html" class="play-btn">Запустить</a>
+            <a href="./Игра-Усатый-пчел/index.html" class="play-btn">Запустить</a>
         </div>
 
         <!-- КИБЕР МАТЧ -->
         <div class="game-card">
             <h2>⚡ Cyber-Match</h2>
             <p>Динамичная головоломка «три-в-ряд» в неоновом киберпанк стиле с быстрыми комбо.</p>
-            <a href="Cyber-Match/index.html" class="play-btn">Запустить</a>
+            <a href="./Cyber-Match/index.html" class="play-btn">Запустить</a>
         </div>
 
         <!-- НЕКО СЛОТЫ -->
         <div class="game-card">
             <h2>🎰 Neko Slot</h2>
             <p>Кавайный пиксельный симулятор игрового автомата с милыми аниме-котиками и бонусами.</p>
-            <a href="Neko-Slot-Game-2.0/index.html" class="play-btn">Запустить</a>
+            <a href="./Neko-Slot-Game-2.0/index.html" class="play-btn">Запустить</a>
         </div>
         
         <!-- БИ КЛИКЕР -->
         <div class="game-card">
             <h2>🍯 Bee Clicker</h2>
             <p>Бесконечный кликер мёда. Покупай апгрейды, нанимай шмелей и автоматизируй производство.</p>
-            <a href="Bee-Clicker/index.html" class="play-btn">Запустить</a>
+            <a href="./Bee-Clicker/index.html" class="play-btn">Запустить</a>
         </div>
     </div>
 
