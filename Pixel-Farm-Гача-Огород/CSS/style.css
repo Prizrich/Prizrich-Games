@@ -62,7 +62,6 @@ body::before {
 .center-panel {
     flex: 3 1 500px;
     min-width: 280px;
-    overflow-x: auto;
 }
 
 /* ХЕДЕР ЦЕНТРАЛЬНОЙ ПАНЕЛИ */
@@ -103,20 +102,21 @@ h3 {
     margin: 5px 0;
 }
 
-/* ========== СЕТКА ГРЯДОК ========== */
+/* ========== СЕТКА ГРЯДОК - ЦЕНТРОВКА ========== */
 .farm-grid {
     background: #3d2a1a;
     border-radius: 20px;
     padding: 20px;
     border: 3px solid #b8863c;
-    overflow-x: auto;
 }
 
 .plots-grid {
     display: grid;
-    grid-template-columns: repeat(6, minmax(70px, 1fr));
+    grid-template-columns: repeat(6, minmax(70px, 90px));
     gap: 10px;
     justify-content: center;
+    align-items: center;
+    margin: 0 auto;
     width: 100%;
 }
 
@@ -133,8 +133,8 @@ h3 {
     cursor: pointer;
     transition: 0.05s linear;
     box-shadow: inset -2px -2px 0px #5a3a1a, inset 2px 2px 0px #b8763a;
+    width: 100%;
     min-width: 0;
-    overflow: hidden;
 }
 
 .plot-block.watered {
@@ -144,12 +144,12 @@ h3 {
 
 /* КОНТЕНТ ВНУТРИ ГРЯДКИ */
 .crop-stage {
-    font-size: clamp(24px, 6vw, 42px);
+    font-size: clamp(24px, 5vw, 40px);
     filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
 }
 
 .crop-timer {
-    font-size: clamp(9px, 2.5vw, 12px);
+    font-size: clamp(9px, 2vw, 11px);
     background: rgba(0,0,0,0.7);
     padding: 2px 6px;
     border-radius: 20px;
@@ -163,13 +163,13 @@ h3 {
     color: #2c2c2c;
     padding: 2px 6px;
     border-radius: 10px;
-    font-size: clamp(9px, 2.5vw, 11px);
+    font-size: clamp(9px, 2vw, 11px);
     font-weight: bold;
     white-space: nowrap;
 }
 
 .soil-empty {
-    font-size: clamp(10px, 2.5vw, 12px);
+    font-size: clamp(10px, 2vw, 12px);
     color: #ddd;
     background: rgba(0,0,0,0.5);
     padding: 3px 8px;
@@ -386,7 +386,7 @@ button {
     background: #e0b060;
 }
 
-/* ========== АДАПТИВНОСТЬ ПРИ ЗУМЕ И МОБИЛЬНЫХ ========== */
+/* ========== АДАПТИВНОСТЬ ========== */
 @media (max-width: 900px) {
     .farm-layout {
         flex-direction: column;
@@ -402,13 +402,21 @@ button {
     }
     
     .plots-grid {
+        grid-template-columns: repeat(6, minmax(65px, 80px));
         gap: 8px;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .plots-grid {
-        grid-template-columns: repeat(3, minmax(80px, 1fr));
+        grid-template-columns: repeat(4, minmax(70px, 85px));
+        gap: 8px;
+    }
+}
+
+@media (max-width: 550px) {
+    .plots-grid {
+        grid-template-columns: repeat(3, minmax(75px, 90px));
         gap: 8px;
     }
     
@@ -435,10 +443,9 @@ button {
     }
 }
 
-/* ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
 @media (max-width: 400px) {
     .plots-grid {
-        grid-template-columns: repeat(2, minmax(70px, 1fr));
+        grid-template-columns: repeat(2, minmax(70px, 85px));
         gap: 6px;
     }
     
@@ -456,35 +463,27 @@ button {
     }
 }
 
-/* ПРИ ЗУМЕ 110-120% - ГРИД АВТОМАТИЧЕСКИ ПОДСТРАИВАЕТСЯ */
+/* ПРИ ЗУМЕ - ПРОСТО ЦЕНТРИРУЕМ И УМЕНЬШАЕМ */
 @media (min-width: 901px) and (max-width: 1100px) {
     .plots-grid {
-        grid-template-columns: repeat(6, minmax(65px, 1fr));
+        grid-template-columns: repeat(6, minmax(60px, 75px));
         gap: 6px;
+        justify-content: center;
     }
     
     .crop-stage {
-        font-size: 28px;
+        font-size: 26px;
     }
     
     .crop-timer {
-        font-size: 9px;
+        font-size: 8px;
     }
 }
 
-/* ПРИ СИЛЬНОМ ЗУМЕ (130-150%) - ПЕРЕХОД НА МЕНЬШЕЕ КОЛИЧЕСТВО КОЛОНОК */
 @media (min-width: 901px) and (max-width: 950px) {
     .plots-grid {
-        grid-template-columns: repeat(4, minmax(80px, 1fr));
+        grid-template-columns: repeat(4, minmax(70px, 85px));
         gap: 8px;
+        justify-content: center;
     }
-}
-
-/* ОТМЕНА ВСЯКИХ ЖЁСТКИХ MAX-WIDTH */
-.farm-grid {
-    max-width: none;
-}
-
-.plots-grid {
-    max-width: none;
 }
