@@ -38,7 +38,7 @@ const FARM_CONFIG = {
         grapes: { name: "🍇 Виноград", rarity: "Необычный", rarityColor: "#1e90ff", growTime: 30, sellPrice: 55, minSeedsDrop: 1, maxSeedsDrop: 3, stagesVisual: ["🌱", "🍇", "✨"] },
         strawberry: { name: "🍓 Клубника", rarity: "Необычный", rarityColor: "#1e90ff", growTime: 40, sellPrice: 75, minSeedsDrop: 1, maxSeedsDrop: 3, stagesVisual: ["🌱", "☘️", "🍓✨"] },
         pineapple: { name: "🍍 Ананас", rarity: "Редкий", rarityColor: "#a335ee", growTime: 60, sellPrice: 120, minSeedsDrop: 1, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌵", "🍍👑"] },
-        golden_apple: { name: "🍏 Золотое яблоко", rarity: "Легендарный", rarityColor: "#ff8000", growTime: 120, sellPrice: 350, minSeedsDrop: 0, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌳", "🍏👑"] },
+        golden_apple: { name: "🍎 Золотое яблоко", rarity: "Легендарный", rarityColor: "#ff8000", growTime: 120, sellPrice: 350, minSeedsDrop: 0, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌳", "🍎👑"] },
         ancient_fruit: { name: "🔮 Древний плод", rarity: "Мифический", rarityColor: "#ff0077", growTime: 240, sellPrice: 999, minSeedsDrop: 0, maxSeedsDrop: 1, stagesVisual: ["🌱", "✨", "🔮💎"] }
     },
 
@@ -54,19 +54,3 @@ const FARM_CONFIG = {
         return commons[Math.floor(Math.random() * commons.length)];
     }
 };
-
-// Функция создания 36 грядок
-function initPlots() {
-    const plots = [];
-    for (let i = 0; i < 36; i++) {
-        plots.push({
-            id: i,
-            opened: i < 3,
-            planted: null,
-            stage: 0,
-            watered: false,
-            growTimeLeft: 0
-        });
-    }
-    return plots;
-}
