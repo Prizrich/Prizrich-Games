@@ -9,30 +9,7 @@ let marketMultipliers = { carrot: 1.0, cabbage: 1.0, corn: 1.0, grapes: 1.0, str
 
 const FIREBASE_DB_URL = "https://games-farm-default-rtdb.firebaseio.com/";
 let onlineMarketOrders = [];
-let playerName = "Фермер";
-
-// ========== СИСТЕМА ОГРАНИЧЕНИЯ СМЕНЫ НИКА (ВРЕМЕННО ОТКЛЮЧЕНА) ==========
-function canChangeNickname() {
-    return true; // ВРЕМЕННО ВСЕГДА РАЗРЕШАЕМ
-}
-
-function getDaysUntilNicknameChange() {
-    return 0;
-}
-
-function getFormattedTimeUntilNicknameChange() {
-    return null;
-}
-
-function getDeclension(number, titles) {
-    const cases = [2, 0, 1, 1, 1, 2];
-    return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
-}
-
-function setNicknameChangeDate() {
-    // Временно ничего не делаем
-    localStorage.setItem("pixel_farm_last_nick_change", Date.now().toString());
-}
+let playerName = "";
 
 // ========== ЧИСТЫЙ СТАРТ ДЛЯ НОВОГО ИГРОКА ==========
 function setupCleanState() {
@@ -74,51 +51,6 @@ function setupCleanState() {
     }
     
     console.log("✅ Чистый профиль создан, грядок:", state.plots.length);
-}
-
-// ========== ЗАГРУЗКА НИКА (ВРЕМЕННО БЕЗ БЛОКИРОВКИ) ==========
-function loadPlayerName() {
-    const nameInput = document.getElementById("ui-player-name");
-    
-    if (localStorage.getItem("pixel_farm_player_name")) {
-        playerName = localStorage.getItem("pixel_farm_player_name");
-        if (nameInput) {
-            nameInput.value = playerName;
-            nameInput.disabled = false; // ВСЕГДА ОТКРЫТО
-            nameInput.style.backgroundColor = "#fff";
-            nameInput.style.cursor = "text";
-        }
-    } else {
-        playerName = "Фермер_" + Math.floor(Math.random() * 1000);
-        localStorage.setItem("pixel_farm_player_name", playerName);
-        if (nameInput) {
-            nameInput.value = playerName;
-            nameInput.disabled = false;
-            nameInput.style.backgroundColor = "#fff";
-            nameInput.style.cursor = "text";
-        }
-    }
-    
-    updateNicknameStatus();
-}
-
-function updateNicknameStatus() {
-    const nameInput = document.getElementById("ui-player-name");
-    const saveBtn = document.querySelector("button[onclick='window.savePlayerName()']");
-    
-    if (!nameInput || !saveBtn) return;
-    
-    // ВРЕМЕННО ВСЕГДА РАЗБЛОКИРОВАНО
-    nameInput.disabled = false;
-    nameInput.style.backgroundColor = "#fff";
-    nameInput.style.color = "#4a2f15";
-    saveBtn.disabled = false;
-    saveBtn.style.opacity = "1";
-    saveBtn.style.cursor = "pointer";
-    saveBtn.title = "Сохранить новое имя";
-    
-    const hint = document.getElementById("nickname-hint");
-    if (hint) hint.remove();
 }
 
 // ОБНОВЛЕНИЕ UI
@@ -280,6 +212,12 @@ function updateFarmGridValues() {
 window.triggerMassPlanting = function() {
     if (!state) return;
     
+    // ЗАЩИТА: Не даём сажать, пока поле ника пустое!
+    if (!playerName || playerName === "" || playerName === "Фермер" || playerName.startsWith("Фермер_")) {
+        alert("⚠️ СТОП! Сначала зарегистрируйте уникальный никнейм в левой панели!");
+        return;
+    }
+    
     const cropSelect = document.getElementById("mass-plant-crop-select");
     if (!cropSelect) {
         alert("Выберите культуру для посадки!");
@@ -353,15 +291,39 @@ function initFarmGame() {
         setupCleanState();
     }
     
-    // ВРЕМЕННЫЙ СБРОС ЗАМОРОЗКИ ПРИ СТАРТЕ
+    // ========== ТАМОЖНЯ 3.0: ПОЛНЫЙ КОНТРОЛЬ НИКА ==========
     const nameInput = document.getElementById("ui-player-name");
-    if (localStorage.getItem("pixel_farm_player_name")) {
-        playerName = localStorage.getItem("pixel_farm_player_name");
+    const savedName = localStorage.getItem("pixel_farm_player_name");
+
+    if (savedName && savedName !== "Фермер" && !savedName.startsWith("Фермер_")) {
+        playerName = savedName;
         if (nameInput) {
             nameInput.value = playerName;
-            nameInput.disabled = false; // ВСЕГДА ОТКРЫТО
+            
+            // Проверка 30-дневного железного замка для легальных игроков
+            const lastChangeTime = parseInt(localStorage.getItem("pixel_farm_name_changed_at") || "0");
+            const currentTime = Date.now();
+            const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+            
+            if (currentTime - lastChangeTime < thirtyDaysInMs) {
+                const msLeft = thirtyDaysInMs - (currentTime - lastChangeTime);
+                const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+                nameInput.disabled = true;
+                nameInput.style.backgroundColor = "#e6d3af";
+                nameInput.style.cursor = "not-allowed";
+                nameInput.title = `Ник заблокирован! Смена станет доступна через ${daysLeft} дн.`;
+            }
+        }
+    } else {
+        // Если игрок зашёл впервые — поле АБСОЛЮТНО ПУСТОЕ, белое и ждёт ввода
+        playerName = ""; 
+        localStorage.removeItem("pixel_farm_player_name");
+        if (nameInput) {
+            nameInput.value = "";
+            nameInput.disabled = false;
             nameInput.style.backgroundColor = "#fff";
             nameInput.style.cursor = "text";
+            nameInput.placeholder = "ПАСПОРТ ОБЯЗАТЕЛЕН! ⚠️";
         }
     }
     
@@ -407,31 +369,43 @@ function initFarmGame() {
     setInterval(fetchOnlineMarketOrders, 5000);
     
     console.log("✅ Pixel Farm готова!");
-    showNotification("", "Добро пожаловать на ферму! 🌾");
+    if (!playerName || playerName === "") {
+        showNotification("", "⚠️ Введите ваш уникальный никнейм в левой панели!");
+    } else {
+        showNotification("", `Добро пожаловать, ${playerName}! 🌾`);
+    }
 }
 
-// ========== ВРЕМЕННЫЙ СВОБОДНЫЙ РЕЖИМ СМЕНЫ НИКА ==========
+// ========== СОХРАНЕНИЕ НИКА С 30-ДНЕВНОЙ БЛОКИРОВКОЙ ==========
 window.savePlayerName = function() {
-    const input = document.getElementById("ui-player-name");
+    const input = document.getElementById("ui-player-name"); 
     if (!input) return;
-
     let finalName = input.value.trim();
-    if (!finalName || finalName === "Фермер") {
-        alert("Введите уникальный никнейм!");
+    
+    // Жёсткий блок: никаких пустых строк, пробелов или дефолтных "Фермер"
+    if (!finalName || finalName === "Фермер" || finalName.startsWith("Фермер_") || finalName.length < 2) {
+        alert("Ошибка! Никнейм не может быть пустым, коротким или содержать слово 'Фермер'!");
+        input.value = "";
+        input.focus();
         return;
     }
 
-    // ВРЕМЕННО ОТКЛЮЧИЛИ ВСЕ ЗАМКИ И ПОДТВЕРЖДЕНИЯ!
-    playerName = finalName;
-    localStorage.setItem("pixel_farm_player_name", playerName);
-    localStorage.setItem("pixel_farm_name_changed_at", Date.now().toString());
-    
-    // Оставляем поле открытым, чтобы ты мог его редактировать!
-    input.disabled = false;
-    input.style.backgroundColor = "#fff";
-    input.style.cursor = "text";
-    
-    showNotification("", `Никнейм [${playerName}] успешно изменён!`);
+    const confirmChange = confirm(`Вы уверены? Ник [${finalName}] нельзя будет изменить следующие 30 дней!`);
+    if (confirmChange) {
+        playerName = finalName;
+        localStorage.setItem("pixel_farm_player_name", playerName);
+        localStorage.setItem("pixel_farm_name_changed_at", Date.now().toString());
+        input.disabled = true;
+        input.style.backgroundColor = "#e6d3af";
+        input.style.cursor = "not-allowed";
+        input.title = "Ник заблокирован! Смена станет доступна через 30 дн.";
+        showNotification("", `Никнейм [${playerName}] успешно зафиксирован! 🔒`);
+        // Принудительно обновляем UI рынка, чтобы подхватить новый ник
+        fetchOnlineMarketOrders();
+    } else { 
+        input.value = "";
+        input.focus();
+    }
 };
 
 window.toggleWateringTool = function() {
@@ -445,6 +419,12 @@ window.toggleWateringTool = function() {
 };
 
 window.selectSeedForPlanting = function(cropId) {
+    // ЗАЩИТА: Не даём выбирать семена, пока поле ника пустое!
+    if (!playerName || playerName === "" || playerName === "Фермер" || playerName.startsWith("Фермер_")) {
+        alert("⚠️ СТОП! Сначала зарегистрируйте уникальный никнейм в левой панели!");
+        return;
+    }
+    
     if (!state || state.inventory.seeds[cropId] <= 0) return;
     wateringToolActive = false;
     activeSeedToPlant = cropId;
@@ -458,7 +438,16 @@ window.selectSeedForPlanting = function(cropId) {
     showNotification("", `Выбрано: ${FARM_CONFIG.cropsData[cropId].name}`);
 };
 
+// ========== КЛИК ПО ГРЯДКЕ С ЗАЩИТОЙ ОТ АНОНИМОВ ==========
 window.handlePlotClick = function(plotId) {
+    // ЗАЩИТА: Не даём кликать по огороду, пока поле ника пустое!
+    if (!playerName || playerName === "" || playerName === "Фермер" || playerName.startsWith("Фермер_")) {
+        alert("⚠️ СТОП! Введите ваш уникальный никнейм в левой панели и нажмите кнопку Сохранить, чтобы открыть ворота фермы!");
+        const nameInput = document.getElementById("ui-player-name");
+        if (nameInput) nameInput.focus();
+        return;
+    }
+    
     if (!state) return;
     const plot = state.plots.find(p => p.id === plotId);
     if (!plot || !plot.opened) return;
@@ -818,6 +807,27 @@ function saveGame() {
         localStorage.setItem("pixel_farm_state_v11", JSON.stringify(state));
     }
 }
+
+// ===================================================================
+// УЛЬТРА-СБРОС: КНОПКА ПОЛНОГО УНИЧТОЖЕНИЯ СЕЙВА И КЭША ИГРЫ
+// ===================================================================
+window.resetEntireGameProgress = function() {
+    const doubleCheck = confirm("🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс? Вы потеряете монеты, купленных роботов, инвентарь и замок на никнейм! Это действие нельзя отменить!");
+    if (doubleCheck) {
+        console.log("💥 ЯДЕРНЫЙ УДАР: Полное обнуление сессии игрока...");
+        
+        // Сносим абсолютно все ключи фермы из памяти
+        localStorage.removeItem("pixel_farm_state_v11");
+        localStorage.removeItem("pixel_farm_player_name");
+        localStorage.removeItem("pixel_farm_name_changed_at");
+        localStorage.removeItem("pixel_farm_player_name_v11");
+        localStorage.removeItem("pixel_farm_last_nick_change");
+        
+        alert("Прогресс стёрт! Паспортная база очищена. Игра перезапускается! 🔄");
+        // Перезагружаем страницу — игра запустится как в первый раз!
+        location.reload();
+    }
+};
 
 // АВТОЗАПУСК
 if (document.readyState === "loading") {
