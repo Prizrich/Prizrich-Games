@@ -5,10 +5,7 @@ body {
     margin: 0; 
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    
-    /* Дорогой многослойный градиент: глубокий зелёный с мягкими мятными отливами */
     background: radial-gradient(circle at 50% 30%, #3d6a29 0%, #294c1a 60%, #152b0c 100%);
-    
     position: relative;
     display: flex;
     justify-content: center;
@@ -19,14 +16,13 @@ body {
     overflow-x: hidden;
 }
 
-/* Полностью очистили старые смайлики домиков и плывущих облаков */
 body::before, body::after, .farm-layout::before, .farm-layout::after {
     display: none !important;
     content: "" !important;
 }
 
 /* ===================================================================
-   2. ТРЕХКОЛОННЫЙ ИГРОВОЙ МАКЕТ ФЕРМЫ (СТАБИЛЬНЫЙ ОНЛАЙН-ФОРМАТ)
+   2. ТРЕХКОЛОННЫЙ ИГРОВОЙ МАКЕТ ФЕРМЫ
    =================================================================== */
 .farm-layout {
     display: grid;
@@ -34,14 +30,13 @@ body::before, body::after, .farm-layout::before, .farm-layout::after {
     gap: 20px;
     max-width: 1450px; 
     width: 100%;
-    height: 90vh; /* Жёсткая высота макета для фиксации прокрутки внутри панелей */
+    height: 90vh; 
     min-height: 650px;
     position: relative;
     z-index: 10;
-    align-items: stretch; /* Все три панели растягиваются на одинаковую высоту */
+    align-items: stretch; 
 }
 
-/* Плотные деревянные панели инвентаря и магазинов */
 .panel {
     background-color: #f7ebd3; 
     border: 4px solid #4a2f15;  
@@ -51,7 +46,7 @@ body::before, body::after, .farm-layout::before, .farm-layout::after {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    height: 100%; /* Панели строго держат высоту родительского макета */
+    height: 100%; 
 }
 
 h2, h3 { 
@@ -95,8 +90,8 @@ h2, h3 {
    =================================================================== */
 .center-panel { 
     background-color: #fffdf5; 
-    overflow-y: auto;  /* Включаем вертикальный скроллбар, когда грядок много */
-    padding-right: 8px; /* Отступ справа для красивого скроллбара */
+    overflow-y: auto;  
+    padding-right: 8px; 
 }
 
 .center-header { 
@@ -106,7 +101,7 @@ h2, h3 {
     margin-bottom: 15px; 
     border-bottom: 3px solid #4a2f15; 
     padding-bottom: 8px;
-    position: sticky; /* Шапка огорода всегда зафиксирована сверху при прокрутке */
+    position: sticky; 
     top: 0;
     background-color: #fffdf5;
     z-index: 20;
@@ -115,13 +110,12 @@ h2, h3 {
 
 .farm-grid, .farm-plots-grid, #farm-plots-grid {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important; /* Всегда 3 колонки, грядки растут строго вниз */
+    grid-template-columns: repeat(3, 1fr) !important; 
     gap: 12px;
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Клетка грядки (кучка земли) */
 .plot-cell, .plot-block {
     background-color: #704722; 
     border: 3px solid #301e0e;
@@ -135,19 +129,17 @@ h2, h3 {
     transition: transform 0.05s ease;
     padding: 12px 8px; 
     box-sizing: border-box;
-    aspect-ratio: 1 / 1; /* Клетки снова идеальные ровные квадраты */
+    aspect-ratio: 1 / 1; 
     width: 100%;
 }
 .plot-cell:hover, .plot-block:hover { transform: scale(1.02); }
 
-/* Кучка влажной политой земли */
 .plot-block.watered, .plot-cell.watered {
     background-color: #3d240e; 
     box-shadow: inset -4px -4px 0px #211305, inset 4px 4px 0px #5c3919;
     border-color: #0088cc;
 }
 
-/* Красивая пустая земля */
 .soil-empty { 
     font-size: 1.1rem; 
     font-weight: 900;
@@ -157,7 +149,6 @@ h2, h3 {
     margin-bottom: auto;
 }
 
-/* Иконка созревания (овощ / ягода) */
 .crop-stage { 
     font-size: 3rem; 
     line-height: 1; 
@@ -168,7 +159,6 @@ h2, h3 {
     filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.25)); 
 }
 
-/* УЛЬТРА-КОНТРАСТНАЯ И ОГРОМНАЯ ПЛАШКА ТАЙМЕРА И ПОЛИВА */
 .crop-timer { 
     background: rgba(18, 12, 8, 0.9) !important; 
     color: #ffffff !important; 
@@ -185,19 +175,14 @@ h2, h3 {
     letter-spacing: 0.5px;
 }
 
-.crop-timer span {
-    font-size: 0.95rem !important;
-    font-weight: 900 !important;
-}
+.crop-timer span { font-size: 0.95rem !important; font-weight: 900 !important; }
 
-/* НАДПИСЬ ПОЛИВА (НЕОНОВО-ГОЛУБАЯ) */
 .crop-timer span[style*="color: #00aaff"],
 .crop-timer span[style*="color:#00aaff"] {
     color: #38bdf8 !important; 
     text-shadow: 0 0 8px rgba(56, 189, 248, 0.6), 1px 1px 1px rgba(0, 0, 0, 0.9) !important;
 }
 
-/* НАДПИСЬ ГОТОВОГО УРОЖАЯ (СБОР) */
 .ready-tag { 
     color: #4ade80 !important; 
     font-weight: 900 !important; 
@@ -206,7 +191,7 @@ h2, h3 {
 }
 
 /* ===================================================================
-   4. ДЕРЕВЕНСКИЕ ИНДИ-КНОПКИ
+   4. ДЕРЕВЕНСКИЕ ИНДИ-КНОПКИ И АНИМАЦИЯ МЕНЮ
    =================================================================== */
 .farm-btn, .tool-btn, .mini-plant-btn {
     background-color: #a3723b; 
@@ -234,41 +219,35 @@ h2, h3 {
 #farm-toast-container { position: fixed; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 10000000; }
 .farm-toast { background-color: #4a2f15; color: #fff; border: 2px solid #141414; padding: 10px 15px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-/* Кастомные янтарные скроллбары списков */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #e6d3af; }
-::-webkit-scrollbar-thumb { background: #a3723b; border: 1px solid #4a2f15; }
+/* АНИМАЦИЯ ПУЛЬСАЦИИ КНОПКИ СТАРТА */
+@keyframes menuPulse {
+    0% { transform: scale(1); box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58; }
+    50% { transform: scale(1.03); box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58, 0 0 15px rgba(92, 138, 54, 0.6); }
+    100% { transform: scale(1); box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58; }
+}
 
 /* ===================================================================
    5. ВСПЛЫВАЮЩИЕ ОКНА (МОДАЛКИ) И КАСТОМНЫЕ СЕЛЕКТЫ
    =================================================================== */
 .modal-overlay {
     position: fixed !important;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7); /* Тёмное размытие фона */
-    display: none; /* Управляется через JS */
-    justify-content: center;
-    align-items: center;
-    z-index: 999999 !important; /* Всегда поверх игры */
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.7); 
+    display: none; 
+    justify-content: center; align-items: center;
+    z-index: 999999 !important; 
     backdrop-filter: blur(4px);
 }
 
-/* Стилизуем выпадающие списки (селекты) внутри окон */
 .select-custom, select {
     background-color: #fffdf5 !important;
     border: 2px solid #4a2f15 !important;
     padding: 6px !important;
     font-weight: bold !important;
     color: #4a2f15 !important;
-    font-family: inherit;
-    width: 100%;
-    box-sizing: border-box;
+    font-family: inherit; width: 100%; box-sizing: border-box;
 }
 
-/* Фикс для числовых полей ввода в модалке */
 .panel input[type="number"] {
     background-color: #fffdf5 !important;
     border: 2px solid #4a2f15 !important;
@@ -277,6 +256,8 @@ h2, h3 {
     color: #4a2f15 !important;
 }
 
-@media (max-width: 1050px) {
-    .farm-layout { display: flex; flex-direction: column; height: auto; }
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #e6d3af; }
+::-webkit-scrollbar-thumb { background: #a3723b; border: 1px solid #4a2f15; }
+
+@media (max-width: 1050px) { .farm-layout { display: flex; flex-direction: column; height: auto; } }
