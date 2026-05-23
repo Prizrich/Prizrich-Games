@@ -513,3 +513,138 @@ body {
 @media (max-width: 1050px) {
     .game-wrapper { display: flex; flex-direction: column; height: auto; }
 }
+
+/* ===================================================================
+   УВЕДОМЛЕНИЕ ДОСТИЖЕНИЙ (ПО ЦЕНТРУ СВЕРХУ)
+   =================================================================== */
+.achievement-toast-container {
+    position: fixed;
+    top: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 999999;
+    pointer-events: none;
+}
+
+.achievement-toast {
+    background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+    color: #fff;
+    border: 3px solid #ffcc44;
+    border-radius: 12px;
+    padding: 14px 24px;
+    min-width: 320px;
+    max-width: 450px;
+    width: auto;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+    animation: achievementDrop 0.5s ease-out forwards, achievementFade 0.5s ease-in forwards 4s;
+    pointer-events: auto;
+    backdrop-filter: blur(4px);
+}
+
+@keyframes achievementDrop {
+    0% {
+        transform: translateY(-100px) scale(0.8);
+        opacity: 0;
+    }
+    60% {
+        transform: translateY(10px) scale(1.02);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes achievementFade {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+        visibility: hidden;
+    }
+}
+
+.achievement-toast-icon {
+    font-size: 1.8rem;
+    display: inline-block;
+    margin-right: 12px;
+    vertical-align: middle;
+    animation: achievementIconPulse 0.5s ease;
+}
+
+@keyframes achievementIconPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.achievement-toast-content {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.achievement-toast-title {
+    color: #ffcc44;
+    font-weight: bold;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.achievement-toast-name {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 2px;
+    color: #ffffff;
+}
+
+.achievement-toast-desc {
+    font-size: 0.7rem;
+    color: #ccccaa;
+}
+
+.achievement-toast-reward {
+    margin-top: 6px;
+    font-size: 0.7rem;
+    color: #55ff55;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.achievement-toast-reward::before {
+    content: "🍯";
+    font-size: 0.9rem;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 550px) {
+    .achievement-toast {
+        min-width: 280px;
+        max-width: 90%;
+        padding: 10px 18px;
+    }
+    
+    .achievement-toast-icon {
+        font-size: 1.4rem;
+        margin-right: 8px;
+    }
+    
+    .achievement-toast-name {
+        font-size: 0.85rem;
+    }
+    
+    .achievement-toast-desc {
+        font-size: 0.6rem;
+    }
+}
