@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Медовый Кликер: Эволюция Улья</title>
     <link rel="stylesheet" href="CSS/style.css">
     <style>
@@ -13,8 +13,8 @@
             width: 100vw; height: 100vh;
             background-color: rgba(92, 58, 0, 0.15);
             display: flex;
-            justify-content: center; /* СТРОГО ПО ЦЕНТРУ Х */
-            align-items: center;     /* СТРОГО ПО ЦЕНТРУ Y */
+            justify-content: center;
+            align-items: center;
             z-index: 999999;
             box-sizing: border-box;
         }
@@ -26,7 +26,7 @@
             border-radius: 6px;
             padding: 35px 30px;
             text-align: center;
-            max-width: 440px; /* Сделали шире, чтобы текст внутри не сжимался */
+            max-width: 440px;
             width: 90%;
             box-shadow: inset -4px -4px 0px #d9b236, inset 4px 4px 0px #ffffff, 0 12px 30px rgba(92, 58, 0, 0.3);
             display: flex;
@@ -97,21 +97,169 @@
         .game-interface-layout {
             display: none;
         }
+
+        /* ===================================================================
+           УВЕДОМЛЕНИЕ ДОСТИЖЕНИЙ (ВЫЛЕТ СВЕРХУ И ЗАЛЕТ ОБРАТНО)
+           =================================================================== */
+        .achievement-toast-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            z-index: 999999;
+            pointer-events: none;
+        }
+
+        .achievement-toast {
+            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+            color: #fff;
+            border: 3px solid #ffcc44;
+            border-radius: 12px;
+            padding: 14px 24px;
+            min-width: 320px;
+            max-width: 450px;
+            width: auto;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+            pointer-events: auto;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.3s ease;
+        }
+
+        .achievement-toast.show {
+            opacity: 1;
+            transform: translateY(20px) scale(1);
+        }
+
+        .achievement-toast.hide {
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19), opacity 0.3s ease;
+        }
+
+        @keyframes achievementDrop {
+            0% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            60% {
+                transform: translateY(25px) scale(1.02);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(20px) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes achievementRise {
+            0% {
+                transform: translateY(20px) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .achievement-toast-icon {
+            font-size: 1.8rem;
+            display: inline-block;
+            margin-right: 12px;
+            vertical-align: middle;
+            animation: achievementIconPulse 0.5s ease;
+        }
+
+        @keyframes achievementIconPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .achievement-toast-content {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: left;
+        }
+
+        .achievement-toast-title {
+            color: #ffcc44;
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .achievement-toast-name {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 2px;
+            color: #ffffff;
+        }
+
+        .achievement-toast-desc {
+            font-size: 0.7rem;
+            color: #ccccaa;
+        }
+
+        .achievement-toast-reward {
+            margin-top: 6px;
+            font-size: 0.7rem;
+            color: #55ff55;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .achievement-toast-reward::before {
+            content: "🍯";
+            font-size: 0.9rem;
+        }
+
+        /* Для мобильных устройств */
+        @media (max-width: 550px) {
+            .achievement-toast {
+                min-width: 280px;
+                max-width: 90%;
+                padding: 10px 18px;
+            }
+            
+            .achievement-toast-icon {
+                font-size: 1.4rem;
+                margin-right: 8px;
+            }
+            
+            .achievement-toast-name {
+                font-size: 0.85rem;
+            }
+            
+            .achievement-toast-desc {
+                font-size: 0.6rem;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- СЮДА ПРИЛЕТАЮТ ВСЕ ПЛАШКИ ОТКРЫТЫХ АЧИВОК -->
-    <div id="achievement-toast-container"></div>
+    <div id="achievement-toast-container" class="achievement-toast-container"></div>
 
-    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И НАСТРОЙКИ МУЗЫКИ (ОТЦЕНТРИРОВАНО И УВЕЛИЧЕНО) -->
+    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И НАСТРОЙКИ МУЗЫКИ -->
     <div class="menu-overlay-bg" id="app-main-menu">
         <div class="main-menu-screen">
             <div style="font-size: 4.5rem; line-height: 1; margin-bottom: -5px;">👑🐝</div>
             <h1 class="menu-main-title">МЕДОВЫЙ КЛИКЕР</h1>
-            <div class="menu-sub-title">Эволюция Unья • 500 Уровней Королевы</div>
+            <div class="menu-sub-title">Эволюция Улья • 500 Уровней Королевы</div>
 
-            <!-- БЛОК НАСТРОЕК РАДИОСТАНЦИИ -->
             <div class="settings-zone">
                 <h3>🎵 Настройка радиостанции</h3>
                 
@@ -128,7 +276,6 @@
                 </div>
             </div>
 
-            <!-- КНОПКА НАЧАЛА ИГРЫ -->
             <button class="buy-bee-btn start-play-btn" onclick="window.startGameplayLayout()">
                 В УЛЕЙ (ИГРАТЬ) 🚀
             </button>
