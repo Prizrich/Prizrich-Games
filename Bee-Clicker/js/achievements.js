@@ -5,7 +5,7 @@
 const CLICKER_ACHIEVEMENTS = {
     db: [],
     notificationQueue: [],
-    isShowingNotification: false,
+    currentToast: null,
 
     init() {
         this.db = [];
@@ -76,7 +76,6 @@ const CLICKER_ACHIEVEMENTS = {
         return num.toString();
     },
 
-    // Проверка ачивок
     checkAll(st) {
         if (!st.unlockedAchievements) st.unlockedAchievements = [];
         
@@ -93,22 +92,20 @@ const CLICKER_ACHIEVEMENTS = {
         });
     },
 
-    // Показ уведомления по центру сверху
     showNotification(title, desc, reward) {
         this.notificationQueue.push({ title, desc, reward });
         this.processNotificationQueue();
     },
 
     processNotificationQueue() {
-        if (this.isShowingNotification) return;
+        if (this.currentToast) return;
         if (this.notificationQueue.length === 0) return;
         
-        this.isShowingNotification = true;
         const notif = this.notificationQueue.shift();
-        
         const container = document.getElementById("achievement-toast-container");
+        
         if (!container) {
-            this.isShowingNotification = false;
+            this.currentToast = null;
             return;
         }
 
@@ -125,13 +122,30 @@ const CLICKER_ACHIEVEMENTS = {
         `;
         
         container.appendChild(toast);
+        this.currentToast = toast;
         
-        // Удаляем уведомление после анимации
+        // Принудительный рефлоу для запуска анимации
+        toast.offsetHeight;
+        
+        // Добавляем класс show для анимации вылета
+        toast.classList.add('show');
+        
+        // Через 4 секунды запускаем анимацию исчезновения
         setTimeout(() => {
-            toast.remove();
-            this.isShowingNotification = false;
-            this.processNotificationQueue();
-        }, 4500);
+            if (this.currentToast) {
+                this.currentToast.classList.remove('show');
+                this.currentToast.classList.add('hide');
+                
+                // Удаляем элемент после завершения анимации
+                setTimeout(() => {
+                    if (this.currentToast && this.currentToast.remove) {
+                        this.currentToast.remove();
+                    }
+                    this.currentToast = null;
+                    this.processNotificationQueue();
+                }, 400);
+            }
+        }, 4000);
     }
 };
 
