@@ -3,8 +3,9 @@
 // ===================================================================
 
 const CLICKER_ACHIEVEMENTS = {
-    // Список из 100 ачивок, разбитых по категориям для удобства
     db: [],
+    notificationQueue: [],
+    isShowingNotification: false,
 
     init() {
         this.db = [];
@@ -15,7 +16,7 @@ const CLICKER_ACHIEVEMENTS = {
             this.db.push({
                 id: `click_${m}`,
                 title: `🎯 Клик-мастер ступени ${idx + 1}`,
-                desc: `Кликнуть по заветному горшку руками ${m} раз.`,
+                desc: `Кликнуть по заветному горшку руками ${m.toLocaleString()} раз.`,
                 check: (st) => st.totalClicks >= m,
                 reward: 5 * (idx + 1)
             });
@@ -27,17 +28,20 @@ const CLICKER_ACHIEVEMENTS = {
             this.db.push({
                 id: `honey_${idx}`,
                 title: `🍯 Медовый магнат ступени ${idx + 1}`,
-                desc: `Накопить за всё время больше ${ClickerUtils.formatNumber(m)} литров мёда.`,
+                desc: `Накопить за всё время больше ${this.formatNumber(m)} литров мёда.`,
                 check: (st) => st.totalHoneyEarned >= m,
                 reward: 10 * (idx + 1)
             });
         });
 
         // 3. ВЕТКА КОРОЛЕВЫ (25 ачивок)
-        // Идём по уровням Королевы от 2 до 500 лвла
         const queenLevels = [];
-        for(let l=5; l<=500; l+=20) queenLevels.push(l); // Генерируем 25 шагов до 500 уровня
-        if(queenLevels.length < 25) { while(queenLevels.length < 25) { queenLevels.push(queenLevels[queenLevels.length-1] + 5); } }
+        for(let l=5; l<=500; l+=20) queenLevels.push(l);
+        if(queenLevels.length < 25) {
+            while(queenLevels.length < 25) {
+                queenLevels.push(queenLevels[queenLevels.length-1] + 5);
+            }
+        }
         queenLevels.forEach((lvl, idx) => {
             this.db.push({
                 id: `queen_${lvl}`,
@@ -49,7 +53,6 @@ const CLICKER_ACHIEVEMENTS = {
         });
 
         // 4. ВЕТКА ПОСТРОЕК / НАЙМА (25 ачивок)
-        // Проверяем общее количество нанятых пчелиных сил
         const beeMilestones = [1, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300, 400, 500, 750, 1000];
         beeMilestones.forEach((m, idx) => {
             this.db.push({
@@ -66,43 +69,71 @@ const CLICKER_ACHIEVEMENTS = {
         });
     },
 
-    // Функция проверки ачивок в реальном времени
+    formatNumber(num) {
+        if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+        if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+        if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+        return num.toString();
+    },
+
+    // Проверка ачивок
     checkAll(st) {
         if (!st.unlockedAchievements) st.unlockedAchievements = [];
         
         this.db.forEach(ach => {
-            // Если ачивка еще не открыта, но условия выполнены
             if (!st.unlockedAchievements.includes(ach.id) && ach.check(st)) {
                 st.unlockedAchievements.push(ach.id);
-                st.honey += ach.reward; // Выдаем бонусный мед за ачивку
+                st.honey += ach.reward;
                 
-                // Выводим красивую лесную плашку уведомления
-                this.showNotification(ach.title, ach.desc);
-                ClickerAudio.playLevelUp();
+                this.showNotification(ach.title, ach.desc, ach.reward);
+                if (typeof ClickerAudio !== 'undefined' && ClickerAudio.playLevelUp) {
+                    ClickerAudio.playLevelUp();
+                }
             }
         });
     },
 
-    showNotification(title, desc) {
+    // Показ уведомления по центру сверху
+    showNotification(title, desc, reward) {
+        this.notificationQueue.push({ title, desc, reward });
+        this.processNotificationQueue();
+    },
+
+    processNotificationQueue() {
+        if (this.isShowingNotification) return;
+        if (this.notificationQueue.length === 0) return;
+        
+        this.isShowingNotification = true;
+        const notif = this.notificationQueue.shift();
+        
         const container = document.getElementById("achievement-toast-container");
-        if (!container) return;
+        if (!container) {
+            this.isShowingNotification = false;
+            return;
+        }
 
         const toast = document.createElement("div");
         toast.className = "achievement-toast";
         toast.innerHTML = `
-            <div style="color: #ffff55; font-weight: bold; font-size: 0.9rem;">🏆 ДОСТИЖЕНИЕ ОТКРЫТО!</div>
-            <div style="font-weight: bold; margin: 3px 0;">${title}</div>
-            <div style="font-size: 0.75rem; color: #aaa;">${desc}</div>
+            <div class="achievement-toast-icon">🏆</div>
+            <div class="achievement-toast-content">
+                <div class="achievement-toast-title">✨ ДОСТИЖЕНИЕ ОТКРЫТО! ✨</div>
+                <div class="achievement-toast-name">${notif.title}</div>
+                <div class="achievement-toast-desc">${notif.desc}</div>
+                <div class="achievement-toast-reward">+${notif.reward} мёда</div>
+            </div>
         `;
+        
         container.appendChild(toast);
-
-        // Мягко удаляем плашку через 4 секунды
+        
+        // Удаляем уведомление после анимации
         setTimeout(() => {
-            toast.style.opacity = "0";
-            setTimeout(() => toast.remove(), 500);
-        }, 4000);
+            toast.remove();
+            this.isShowingNotification = false;
+            this.processNotificationQueue();
+        }, 4500);
     }
 };
 
-// Инициализируем базу данных при подключении скрипта
+// Инициализация
 CLICKER_ACHIEVEMENTS.init();
