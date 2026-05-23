@@ -24,7 +24,7 @@ const CLICKER_CONFIG = {
     upgradesData: {
         upgrade_click_1: { name: "🍀 Крепкий клевер", price: 250, desc: "Сила твоего клика навсегда увеличивается на +3 литра.", effect: (st) => {} },
         upgrade_click_2: { name: "🏺 Гладкая глина", price: 2500, desc: "Сила твоего клика навсегда увеличивается на +15 литров.", effect: (st) => {} },
-        upgrade_worker_1: { name: "🪵 Дубовые вёдра", price: 600, desc: "Пчёлы-новички работают в 2 раза эффективнее!", effect: (st) => {} },
+        upgrade_worker_1: { name: "🌳 Дубовые вёдра", price: 600, desc: "Пчёлы-новички работают в 2 раза эффективнее!", effect: (st) => {} },
         upgrade_forager_1: { name: "🗺️ Карта полей", price: 4000, desc: "Пчёлы-сборщики работают в 2 раза эффективнее!", effect: (st) => {} },
         upgrade_queen_1: { name: "🧬 Маточное молочко", price: 15000, desc: "Королева улья получает на 30% больше опыта со всех источников.", effect: (st) => {} }
     },
