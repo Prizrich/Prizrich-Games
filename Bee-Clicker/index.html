@@ -98,21 +98,7 @@
             display: none;
         }
 
-        /* ========== КОНТЕЙНЕР ДЛЯ ПЛАВАЮЩИХ УВЕДОМЛЕНИЙ ========== */
-        .floating-notification-container {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 999999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        /* ========== КОНТЕЙНЕР ДЛЯ ДОСТИЖЕНИЙ ========== */
+        /* ========== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ДОСТИЖЕНИЙ (СВЕРХУ ПО ЦЕНТРУ) ========== */
         .achievement-toast-container {
             position: fixed;
             top: 20px;
@@ -121,19 +107,138 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-start;
             gap: 10px;
-            z-index: 999998;
+            z-index: 999999;
             pointer-events: none;
+        }
+
+        /* Стиль для самой плашки достижения */
+        .achievement-toast {
+            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+            color: #fff;
+            border: 3px solid #ffcc44;
+            border-radius: 12px;
+            padding: 12px 20px;
+            min-width: 300px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+            pointer-events: auto;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+            transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+
+        .achievement-toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .achievement-toast.hide {
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+        }
+
+        .achievement-toast-icon {
+            font-size: 1.8rem;
+            display: inline-block;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        .achievement-toast-content {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: left;
+        }
+
+        .achievement-toast-title {
+            color: #ffcc44;
+            font-weight: bold;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .achievement-toast-name {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 2px;
+            color: #ffffff;
+        }
+
+        .achievement-toast-reward {
+            margin-top: 4px;
+            font-size: 0.7rem;
+            color: #55ff55;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .achievement-toast-reward::before {
+            content: "🍯";
+            font-size: 0.8rem;
+        }
+
+        /* ========== КОНТЕЙНЕР ДЛЯ ОБЫЧНЫХ УВЕДОМЛЕНИЙ ========== */
+        .floating-notification-container {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999998;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        @keyframes notificationSlideIn {
+            0% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            60% {
+                transform: translateY(10px) scale(1.02);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes notificationSlideOut {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        @keyframes notificationIconPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <!-- КОНТЕЙНЕР ДЛЯ ПЛАВАЮЩИХ УВЕДОМЛЕНИЙ (ПОВЫШЕНИЕ УРОВНЯ, ПОКУПКИ И Т.Д.) -->
-    <div id="floating-notification-container" class="floating-notification-container"></div>
-
-    <!-- КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ДОСТИЖЕНИЙ -->
+    <!-- КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ДОСТИЖЕНИЙ (ПОЯВЛЯЮТСЯ СВЕРХУ) -->
     <div id="achievement-toast-container" class="achievement-toast-container"></div>
+
+    <!-- КОНТЕЙНЕР ДЛЯ ОБЫЧНЫХ ПЛАВАЮЩИХ УВЕДОМЛЕНИЙ -->
+    <div id="floating-notification-container" class="floating-notification-container"></div>
 
     <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И НАСТРОЙКИ МУЗЫКИ -->
     <div class="menu-overlay-bg" id="app-main-menu">
