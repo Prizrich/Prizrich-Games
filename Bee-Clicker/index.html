@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Медовый Кликер: Эволюция Улья</title>
     <link rel="stylesheet" href="CSS/style.css">
     <style>
@@ -13,8 +13,8 @@
             width: 100vw; height: 100vh;
             background-color: rgba(92, 58, 0, 0.15);
             display: flex;
-            justify-content: center; /* СТРОГО ПО ЦЕНТРУ Х */
-            align-items: center;     /* СТРОГО ПО ЦЕНТРУ Y */
+            justify-content: center;
+            align-items: center;
             z-index: 999999;
             box-sizing: border-box;
         }
@@ -26,7 +26,7 @@
             border-radius: 6px;
             padding: 35px 30px;
             text-align: center;
-            max-width: 440px; /* Сделали шире, чтобы текст внутри не сжимался */
+            max-width: 440px;
             width: 90%;
             box-shadow: inset -4px -4px 0px #d9b236, inset 4px 4px 0px #ffffff, 0 12px 30px rgba(92, 58, 0, 0.3);
             display: flex;
@@ -97,19 +97,50 @@
         .game-interface-layout {
             display: none;
         }
+
+        /* ========== КОНТЕЙНЕР ДЛЯ ПЛАВАЮЩИХ УВЕДОМЛЕНИЙ ========== */
+        .floating-notification-container {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        /* ========== КОНТЕЙНЕР ДЛЯ ДОСТИЖЕНИЙ ========== */
+        .achievement-toast-container {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 999998;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-    <!-- СЮДА ПРИЛЕТАЮТ ВСЕ ПЛАШКИ ОТКРЫТЫХ АЧИВОК -->
-    <div id="achievement-toast-container"></div>
+    <!-- КОНТЕЙНЕР ДЛЯ ПЛАВАЮЩИХ УВЕДОМЛЕНИЙ (ПОВЫШЕНИЕ УРОВНЯ, ПОКУПКИ И Т.Д.) -->
+    <div id="floating-notification-container" class="floating-notification-container"></div>
 
-    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И НАСТРОЙКИ МУЗЫКИ (ОТЦЕНТРИРОВАНО И УВЕЛИЧЕНО) -->
+    <!-- КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ДОСТИЖЕНИЙ -->
+    <div id="achievement-toast-container" class="achievement-toast-container"></div>
+
+    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И НАСТРОЙКИ МУЗЫКИ -->
     <div class="menu-overlay-bg" id="app-main-menu">
         <div class="main-menu-screen">
             <div style="font-size: 4.5rem; line-height: 1; margin-bottom: -5px;">👑🐝</div>
             <h1 class="menu-main-title">МЕДОВЫЙ КЛИКЕР</h1>
-            <div class="menu-sub-title">Эволюция Unья • 500 Уровней Королевы</div>
+            <div class="menu-sub-title">Эволюция Улья • 500 Уровней Королевы</div>
 
             <!-- БЛОК НАСТРОЕК РАДИОСТАНЦИИ -->
             <div class="settings-zone">
