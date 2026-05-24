@@ -105,19 +105,19 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000000;
             opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
-        .custom-modal-overlay.show {
+        .custom-modal-overlay.active {
             opacity: 1;
-            pointer-events: auto;
+            visibility: visible;
         }
 
         .custom-modal {
@@ -133,7 +133,7 @@
             transition: transform 0.3s ease;
         }
 
-        .custom-modal.show .custom-modal {
+        .custom-modal-overlay.active .custom-modal {
             transform: scale(1);
         }
 
@@ -325,8 +325,7 @@
     <script>
         // ========== СИСТЕМА КРАСИВЫХ ОКОШЕК ==========
         
-        // Глобальные переменные для модального окна
-        let modalResolve = null;
+        let pendingConfirmCallback = null;
         
         // Функция для красивого уведомления (alert)
         window.customAlert = function(message, title = "Уведомление", icon = "📢") {
@@ -341,7 +340,6 @@
                 const notification = document.createElement("div");
                 notification.className = "custom-notification";
                 
-                // Определяем иконку и цвет в зависимости от типа сообщения
                 let finalIcon = icon;
                 let borderColor = "#ffcc44";
                 let titleColor = "#ffcc44";
@@ -393,72 +391,103 @@
             });
         };
 
-        // Функция для красивого подтверждения (confirm)
+        // Функция для красивого подтверждения (confirm) - СИНХРОННАЯ
         window.customConfirm = function(message, title = "Подтверждение", icon = "❓") {
-            return new Promise((resolve) => {
-                const modal = document.getElementById("custom-modal-overlay");
-                const modalIcon = document.getElementById("custom-modal-icon");
-                const modalTitle = document.getElementById("custom-modal-title");
-                const modalMessage = document.getElementById("custom-modal-message");
-                const confirmBtn = document.getElementById("custom-modal-confirm");
-                const cancelBtn = document.getElementById("custom-modal-cancel");
-                
-                if (!modal) {
-                    resolve(confirm(message));
-                    return;
+            const modal = document.getElementById("custom-modal-overlay");
+            const modalIcon = document.getElementById("custom-modal-icon");
+            const modalTitle = document.getElementById("custom-modal-title");
+            const modalMessage = document.getElementById("custom-modal-message");
+            const confirmBtn = document.getElementById("custom-modal-confirm");
+            const cancelBtn = document.getElementById("custom-modal-cancel");
+            
+            if (!modal) {
+                return confirm(message);
+            }
+            
+            modalIcon.innerHTML = icon;
+            modalTitle.innerHTML = title;
+            modalMessage.innerHTML = message;
+            
+            // Показываем модальное окно
+            modal.classList.add("active");
+            
+            // Ждём ответа пользователя (синхронно через заморозку)
+            let result = null;
+            
+            const onConfirm = () => {
+                result = true;
+                cleanup();
+            };
+            
+            const onCancel = () => {
+                result = false;
+                cleanup();
+            };
+            
+            const cleanup = () => {
+                modal.classList.remove("active");
+                confirmBtn.removeEventListener("click", onConfirm);
+                cancelBtn.removeEventListener("click", onCancel);
+                // Выходим из цикла ожидания
+                if (window.__confirmResult) {
+                    window.__confirmResult = result;
                 }
-                
-                modalIcon.innerHTML = icon;
-                modalTitle.innerHTML = title;
-                modalMessage.innerHTML = message;
-                
-                const onConfirm = () => {
-                    cleanup();
-                    resolve(true);
-                };
-                
-                const onCancel = () => {
-                    cleanup();
-                    resolve(false);
-                };
-                
-                const cleanup = () => {
-                    modal.classList.remove("show");
-                    confirmBtn.removeEventListener("click", onConfirm);
-                    cancelBtn.removeEventListener("click", onCancel);
-                    setTimeout(() => {
-                        if (modalResolve) modalResolve = null;
-                    }, 300);
-                };
-                
-                confirmBtn.addEventListener("click", onConfirm);
-                cancelBtn.addEventListener("click", onCancel);
-                
-                modal.classList.add("show");
-            });
+            };
+            
+            confirmBtn.addEventListener("click", onConfirm);
+            cancelBtn.addEventListener("click", onCancel);
+            
+            // Добавляем обработчик закрытия по Escape
+            const onEscape = (e) => {
+                if (e.key === 'Escape') {
+                    onCancel();
+                    document.removeEventListener('keydown', onEscape);
+                }
+            };
+            document.addEventListener('keydown', onEscape);
+            
+            // Синхронное ожидание (через микро-цикл)
+            window.__confirmResult = null;
+            
+            // Ждём в цикле с setTimeout
+            const waitForResult = () => {
+                if (window.__confirmResult !== null) {
+                    const res = window.__confirmResult;
+                    window.__confirmResult = null;
+                    return res;
+                }
+                // Небольшая задержка для разблокировки UI
+                const start = Date.now();
+                while (Date.now() - start < 10) {}
+                return waitForResult();
+            };
+            
+            return waitForResult();
         };
-
-        // Функция для красивого уведомления о покупке
+        
+        // Перехватываем стандартный confirm (только confirm, alert оставляем для совместимости)
+        window.originalConfirm = window.confirm;
+        window.confirm = function(message) {
+            return window.customConfirm(message);
+        };
+        
+        // Вспомогательные функции
         window.showPurchaseNotification = function(itemName, price) {
             window.customAlert(`Куплено: ${itemName} за ${price}💰`, "ПОКУПКА УСПЕШНА!", "🛒✨");
         };
 
-        // Функция для красивого уведомления о продаже
         window.showSellNotification = function(amount, earned) {
             window.customAlert(`Продано ${amount} шт за ${earned}💰`, "УРОЖАЙ ПРОДАН!", "💰📦");
         };
 
-        // Функция для красивого уведомления об ошибке
         window.showErrorNotification = function(message) {
             window.customAlert(message, "ОШИБКА!", "❌⚠️");
         };
 
-        // Функция для красивого уведомления о недостатке монет
         window.showNoMoneyNotification = function(needed) {
             window.customAlert(`Не хватает монет! Нужно ещё ${needed}💰`, "НЕДОСТАТОЧНО СРЕДСТВ!", "❌💰");
         };
 
-        // Функция для красивого уведомления о гейне
         window.showGachaNotification = function(cropName, rarity) {
             const container = document.getElementById("custom-notification-container");
             if (!container) return;
@@ -496,17 +525,8 @@
             }, 3000);
         };
         
-        // Перехватываем стандартные alert и confirm (заменяем на красивые)
+        // Для совместимости сохраняем оригинальный alert
         window.originalAlert = window.alert;
-        window.originalConfirm = window.confirm;
-        
-        window.alert = function(message) {
-            window.customAlert(message);
-        };
-        
-        window.confirm = function(message) {
-            return window.customConfirm(message);
-        };
     </script>
 </body>
 </html>
