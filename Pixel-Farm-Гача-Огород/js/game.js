@@ -11,6 +11,215 @@ const FIREBASE_DB_URL = "https://games-farm-default-rtdb.firebaseio.com/";
 let onlineMarketOrders = []; 
 let playerName = "";
 
+// ========== КАСТОМНЫЕ УВЕДОМЛЕНИЯ ==========
+function showCustomNotification(message, type = "info", duration = 2500) {
+    let container = document.getElementById("custom-notification-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "custom-notification-container";
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 999999;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+    }
+    
+    // Добавляем стили если их нет
+    if (!document.getElementById("notification-styles")) {
+        const style = document.createElement("style");
+        style.id = "notification-styles";
+        style.textContent = `
+            .custom-notification {
+                background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+                border-radius: 16px;
+                padding: 12px 24px;
+                min-width: 280px;
+                max-width: 400px;
+                text-align: center;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+                pointer-events: auto;
+                backdrop-filter: blur(8px);
+                opacity: 0;
+                transform: translateY(-100px) scale(0.8);
+                transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+            }
+            .custom-notification.show {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            .custom-notification.hide {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.8);
+                transition: all 0.3s ease;
+            }
+            .custom-notification-icon {
+                font-size: 1.8rem;
+                display: inline-block;
+                margin-right: 12px;
+                vertical-align: middle;
+                animation: customIconPulse 0.5s ease;
+            }
+            .custom-notification-content {
+                display: inline-block;
+                vertical-align: middle;
+                text-align: left;
+            }
+            .custom-notification-title {
+                font-weight: bold;
+                font-size: 0.85rem;
+                letter-spacing: 1px;
+                margin-bottom: 4px;
+            }
+            .custom-notification-message {
+                font-weight: bold;
+                font-size: 0.95rem;
+            }
+            @keyframes customIconPulse {
+                0% { transform: scale(0.5); opacity: 0; }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    let icon = "📢";
+    let title = "УВЕДОМЛЕНИЕ";
+    let borderColor = "#ffcc44";
+    let titleColor = "#ffcc44";
+    const lowerMsg = message.toLowerCase();
+    
+    if (type === "error" || lowerMsg.includes("не хватает") || lowerMsg.includes("ошибка") || lowerMsg.includes("стоп") || lowerMsg.includes("пуст")) {
+        icon = "❌⚠️";
+        borderColor = "#ff4444";
+        titleColor = "#ff8888";
+        title = lowerMsg.includes("стоп") ? "СТОП!" : "ОШИБКА!";
+    } else if (type === "success" || lowerMsg.includes("успешно") || lowerMsg.includes("куплено") || lowerMsg.includes("собран") || lowerMsg.includes("посажены")) {
+        icon = "✅✨";
+        borderColor = "#55ff55";
+        titleColor = "#55ff55";
+        title = "УСПЕХ!";
+    } else if (type === "warning") {
+        icon = "⚠️";
+        borderColor = "#ffaa44";
+        titleColor = "#ffaa44";
+        title = "ВНИМАНИЕ!";
+    }
+    
+    const notification = document.createElement("div");
+    notification.className = "custom-notification";
+    notification.style.border = `3px solid ${borderColor}`;
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="custom-notification-icon">${icon}</div>
+            <div class="custom-notification-content">
+                <div class="custom-notification-title" style="color:${titleColor};">${title}</div>
+                <div class="custom-notification-message" style="color:#ffffff;">${message}</div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(notification);
+    notification.offsetHeight;
+    notification.classList.add("show");
+    
+    setTimeout(() => {
+        notification.classList.add("hide");
+        setTimeout(() => notification.remove(), 300);
+    }, duration);
+}
+
+// Функция для подтверждения (модальное окно)
+function showCustomConfirm(message, onConfirm, onCancel) {
+    let modal = document.getElementById("custom-modal-overlay");
+    if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "custom-modal-overlay";
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        `;
+        modal.innerHTML = `
+            <div class="custom-modal" style="background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%); border: 3px solid #ffcc44; border-radius: 20px; padding: 25px; min-width: 320px; max-width: 400px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease;">
+                <div class="custom-modal-icon" id="custom-modal-icon" style="font-size: 3rem; margin-bottom: 15px;">❓</div>
+                <div class="custom-modal-title" id="custom-modal-title" style="color: #ffcc44; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;">Подтверждение</div>
+                <div class="custom-modal-message" id="custom-modal-message" style="color: #ffffff; font-size: 1rem; margin-bottom: 20px; line-height: 1.4; white-space: pre-line;">Вы уверены?</div>
+                <div class="custom-modal-buttons" style="display: flex; gap: 15px; justify-content: center;">
+                    <button class="custom-modal-btn confirm" id="custom-modal-confirm" style="padding: 10px 25px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; background: #5c8a36; color: white;">✅ Да</button>
+                    <button class="custom-modal-btn cancel" id="custom-modal-cancel" style="padding: 10px 25px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; background: #ba2929; color: white;">❌ Нет</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Добавляем стиль для модалки
+        const modalStyle = document.createElement("style");
+        modalStyle.textContent = `
+            .custom-modal-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            .custom-modal-overlay.active .custom-modal {
+                transform: scale(1);
+            }
+            .custom-modal-btn:hover {
+                transform: scale(1.05);
+            }
+        `;
+        document.head.appendChild(modalStyle);
+    }
+    
+    const modalIcon = document.getElementById("custom-modal-icon");
+    const modalTitle = document.getElementById("custom-modal-title");
+    const modalMessage = document.getElementById("custom-modal-message");
+    const confirmBtn = document.getElementById("custom-modal-confirm");
+    const cancelBtn = document.getElementById("custom-modal-cancel");
+    
+    modalIcon.innerHTML = "💣⚠️";
+    modalTitle.innerHTML = "⚠️ СБРОС ПРОГРЕССА";
+    modalMessage.innerHTML = message;
+    
+    const cleanup = () => {
+        modal.classList.remove("active");
+        confirmBtn.removeEventListener("click", onConfirmClick);
+        cancelBtn.removeEventListener("click", onCancelClick);
+    };
+    
+    const onConfirmClick = () => {
+        cleanup();
+        if (onConfirm) onConfirm();
+    };
+    
+    const onCancelClick = () => {
+        cleanup();
+        if (onCancel) onCancel();
+    };
+    
+    confirmBtn.addEventListener("click", onConfirmClick);
+    cancelBtn.addEventListener("click", onCancelClick);
+    
+    modal.classList.add("active");
+}
+
 // --- ЗАПУСК ИГРЫ ЧЕРЕЗ МЕНЮ ---
 window.startFarmGameFromMenu = function() {
     const menu = document.getElementById("ui-main-menu-overlay");
@@ -194,7 +403,6 @@ function initFarmGame() {
         setupCleanState(); 
     }
 
-    // ТАМОЖНЯ: Проверяем, есть ли имя в памяти
     const nameInput = document.getElementById("ui-player-name");
     const savedName = localStorage.getItem("pixel_farm_player_name");
 
@@ -202,8 +410,6 @@ function initFarmGame() {
         playerName = savedName;
         if (nameInput) {
             nameInput.value = playerName;
-            
-            // Проверяем 30-дневную блокировку
             const lastChangeTime = parseInt(localStorage.getItem("pixel_farm_name_changed_at") || "0");
             const currentTime = Date.now();
             const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
@@ -218,7 +424,6 @@ function initFarmGame() {
             }
         }
     } else {
-        // ПУСТОЕ ПОЛЕ ДЛЯ НОВЫХ ИГРОКОВ
         playerName = "";
         localStorage.removeItem("pixel_farm_player_name");
         if (nameInput) {
@@ -253,7 +458,6 @@ function initFarmGame() {
             }
             if (state.autoHarvestOwned && plot.opened && plot.planted && plot.stage === 2) triggerAutoHarvestForPlot(plot);
             
-            // АВТОПОСАДКА
             if (state.autoPlantOwned && state.autoSeedsCount > 0 && plot.opened && !plot.planted) {
                 state.autoSeedsCount--;
                 plot.planted = "carrot";
@@ -279,15 +483,15 @@ window.savePlayerName = function() {
     let finalName = input.value.trim();
     
     if (!finalName || finalName === "Фермер" || finalName.startsWith("Фермер_") || finalName.length < 2) {
-        alert("Ошибка! Никнейм не может быть пустым, коротким или содержать слово 'Фермер'!");
+        showCustomNotification("Никнейм не может быть пустым, коротким или содержать слово 'Фермер'!", "error");
         input.value = playerName || ""; 
         return;
     }
     
     if (finalName === localStorage.getItem("pixel_farm_player_name")) return;
     
-    const confirmChange = confirm(`Вы уверены? Ник [${finalName}] нельзя будет изменить следующие 30 дней!`);
-    if (confirmChange) {
+    const confirmed = confirm(`Вы уверены? Ник [${finalName}] нельзя будет изменить следующие 30 дней!`);
+    if (confirmed) {
         playerName = finalName;
         localStorage.setItem("pixel_farm_player_name", playerName);
         localStorage.setItem("pixel_farm_name_changed_at", Date.now().toString());
@@ -315,7 +519,7 @@ window.toggleWateringTool = function() {
 
 window.selectSeedForPlanting = function(cropId) {
     if (!playerName || playerName === "") {
-        alert("⚠️ СТОП! Сначала введите ваш уникальный никнейм в левой панели!");
+        showCustomNotification("СТОП! Сначала введите ваш уникальный никнейм в левой панели!", "error");
         return;
     }
     if (!state || state.inventory.seeds[cropId] <= 0) return;
@@ -331,7 +535,7 @@ window.selectSeedForPlanting = function(cropId) {
 
 window.triggerMassPlanting = function() {
     if (!playerName || playerName === "") {
-        alert("⚠️ СТОП! Сначала введите ваш уникальный никнейм в левой панели!");
+        showCustomNotification("СТОП! Сначала введите ваш уникальный никнейм в левой панели!", "error");
         return;
     }
     if (!state) return;
@@ -344,13 +548,13 @@ window.triggerMassPlanting = function() {
     const availableSeeds = state.inventory.seeds[cropId] || 0;
     
     if (availableSeeds <= 0) {
-        alert(`У вас нет семян ${cropInfo.name} для посадки!`);
+        showCustomNotification(`У вас нет семян ${cropInfo.name} для посадки!`, "error");
         return;
     }
     
     const emptyPlots = state.plots.filter(plot => plot.opened && !plot.planted);
     if (emptyPlots.length === 0) {
-        alert("Нет свободных открытых грядок для посадки!");
+        showCustomNotification("Нет свободных открытых грядок для посадки!", "error");
         return;
     }
     
@@ -372,9 +576,8 @@ window.triggerMassPlanting = function() {
 };
 
 window.handlePlotClick = function(plotId) {
-    // АНТИ-АНОНИМ: Пока ник пустой — грядки ЗАБЛОКИРОВАНЫ
     if (!playerName || playerName === "") {
-        alert("⚠️ СТОП! Сначала введите ваш уникальный никнейм в левой панели и нажмите Enter!");
+        showCustomNotification("СТОП! Сначала введите ваш уникальный никнейм в левой панели!", "error");
         const nameInput = document.getElementById("ui-player-name"); 
         if (nameInput) nameInput.focus();
         return;
@@ -467,12 +670,12 @@ window.buyShopItem = function(itemId) {
         else if (item.type === "fert2") { state.fertilizerLevel = 2; } 
         else if (item.type === "fert3") { state.fertilizerLevel = 3; }
         
-        alert(`Куплено: ${item.name}!`);
+        showCustomNotification(`Куплено: ${item.name}!`, "success");
         saveGameProgress(); 
         updateFarmUI(); 
         updateFarmGridValues();
     } else { 
-        alert("Не хватает золота!"); 
+        showCustomNotification("Не хватает золота!", "error");
     }
 };
 
@@ -488,11 +691,11 @@ window.sellAllCrops = function() {
     }
     if (earnedTotal > 0) {
         state.coins += earnedTotal;
-        alert(`Урожай продан за ${earnedTotal} монет!`);
+        showCustomNotification(`Урожай продан за ${earnedTotal} монет!`, "success");
         saveGameProgress();
         updateFarmUI();
     } else {
-        alert("Амбар пуст!");
+        showCustomNotification("Амбар пуст!", "error");
     }
 };
 
@@ -519,7 +722,7 @@ window.triggerGachaRoll = function() {
         updateFarmUI();
         updateSeedsUI();
     } else {
-        alert("Не хватает монет!");
+        showCustomNotification("Не хватает монет!", "error");
     }
 };
 
@@ -610,9 +813,9 @@ window.handleMarketOrderClick = function(orderId) {
                 fetchOnlineMarketOrders();
                 showFarmNotification("", `Куплено за ${order.price} монет!`);
             })
-            .catch(() => alert("Товар уже купили!"));
+            .catch(() => showCustomNotification("Товар уже купили!", "error"));
     } else {
-        alert("Не хватает золота!");
+        showCustomNotification("Не хватает золота!", "error");
     }
 };
 
@@ -655,7 +858,8 @@ window.submitPlayerMarketOrder = function() {
     const amount = parseInt(amountInput.value);
     const price = parseInt(priceInput.value);
     if (isNaN(amount) || amount <= 0 || isNaN(price) || price <= 0) {
-        alert("Введите корректные данные!"); return;
+        showCustomNotification("Введите корректные данные!", "error"); 
+        return;
     }
     if ((state.inventory.barn[cropId] || 0) >= amount) {
         state.inventory.barn[cropId] -= amount;
@@ -671,7 +875,7 @@ window.submitPlayerMarketOrder = function() {
             showFarmNotification("", "Товар выставлен на рынок!");
         });
     } else {
-        alert(`В амбаре нет столько плодов! У тебя всего: ${state.inventory.barn[cropId] || 0} шт.`);
+        showCustomNotification(`В амбаре нет столько плодов! У тебя всего: ${state.inventory.barn[cropId] || 0} шт.`, "error");
     }
 };
 
@@ -679,21 +883,25 @@ function saveGameProgress() {
     if (state) localStorage.setItem("pixel_farm_state_v11", JSON.stringify(state));
 }
 
-// --- 9. ПОЛНЫЙ СБРОС ПРОГРЕССА ---
+// --- 9. ПОЛНЫЙ СБРОС ПРОГРЕССА (С ПОДТВЕРЖДЕНИЕМ) ---
 window.resetEntireGameProgress = function() {
-    const doubleCheck = confirm("🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс? Вы потеряете монеты, купленных роботов, инвентарь и замок на никнейм! Это действие нельзя отменить!");
-    if (doubleCheck) {
-        localStorage.removeItem("pixel_farm_state_v11");
-        localStorage.removeItem("pixel_farm_player_name");
-        localStorage.removeItem("pixel_farm_name_changed_at");
-        alert("Прогресс стёрт! Паспортная база очищена. Игра перезапускается! 🔄");
-        location.reload();
-    }
+    showCustomConfirm(
+        "🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс?\n\nВы потеряете:\n- Все монеты\n- Все купленные улучшения\n- Все посаженные культуры\n- Весь инвентарь\n- Замок на никнейм\n\nЭто действие нельзя отменить!",
+        function() {
+            localStorage.removeItem("pixel_farm_state_v11");
+            localStorage.removeItem("pixel_farm_player_name");
+            localStorage.removeItem("pixel_farm_name_changed_at");
+            showCustomNotification("Прогресс стёрт! Игра перезапускается! 🔄", "success");
+            setTimeout(() => location.reload(), 1500);
+        },
+        function() {
+            showCustomNotification("Сброс отменён", "info");
+        }
+    );
 };
 
 // --- АВТОЗАПУСК (ждём загрузки DOM) ---
 document.addEventListener("DOMContentLoaded", function() {
-    // Показываем меню, игра не запущена
     const menu = document.getElementById("ui-main-menu-overlay");
     const gameContainer = document.getElementById("game-container");
     if (menu) menu.style.display = "flex";
