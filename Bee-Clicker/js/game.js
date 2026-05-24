@@ -11,13 +11,269 @@ let beeRadioPlayer = null;
 let currentTrackIndex = -1;
 let currentMusicMode = "random";
 
+// ЗАЩИТА ОТ АВТОКЛИКЕРА
+let lastClickTime = 0;
+let clickCounter = 0;
+let clickSpamWarning = false;
+let animationFramePending = false;
+let pendingUIUpdate = false;
+let notificationQueue = [];
+let isShowingNotification = false;
+
+// КЭШ ДЛЯ DOM ЭЛЕМЕНТОВ
+let cachedElements = {};
+
 const tracksPool = [
     "sounds/1.mp3", "sounds/2.mp3", "sounds/3.mp3", "sounds/4.mp3", 
     "sounds/5.mp3", "sounds/6.mp3", "sounds/7.mp3"
 ];
 
-// ========== ИНИЦИАЛИЗАЦИЯ И ЗАГРУЗКА ==========
+// ========== КРАСИВЫЕ УВЕДОМЛЕНИЯ ==========
+function showFloatingNotification(title, message, icon = "👑", duration = 3000) {
+    // Создаём контейнер если его нет
+    let container = document.getElementById("floating-notification-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "floating-notification-container";
+        container.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+    }
+    
+    const notification = document.createElement("div");
+    notification.style.cssText = `
+        background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+        border: 3px solid #ffcc44;
+        border-radius: 16px;
+        padding: 12px 24px;
+        min-width: 280px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+        animation: notificationSlideIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+        pointer-events: auto;
+        backdrop-filter: blur(8px);
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 2rem; animation: notificationIconPulse 0.5s ease;">${icon}</div>
+            <div style="text-align: left;">
+                <div style="color: #ffcc44; font-weight: bold; font-size: 0.8rem; letter-spacing: 1px;">${title}</div>
+                <div style="color: #ffffff; font-weight: bold; font-size: 1rem; margin-top: 4px;">${message}</div>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Анимация появления
+    setTimeout(() => {
+        notification.style.animation = "notificationSlideOut 0.3s ease forwards";
+        setTimeout(() => notification.remove(), 300);
+    }, duration);
+}
+
+function showQueenLevelUpNotification(newLevel) {
+    showFloatingNotification(
+        "👑 КОРОЛЕВА ПОВЫШЕНА! 👑",
+        `Текущий уровень: ${newLevel}/500`,
+        "🐝✨",
+        2500
+    );
+}
+
+function showLilyEndNotification() {
+    showFloatingNotification(
+        "🌸 ЗОЛОТАЯ ЛИЛИЯ ЗАКОНЧИЛАСЬ 🌸",
+        "Бонус x3 отключён",
+        "⏰",
+        2500
+    );
+}
+
+function showLilyStartNotification() {
+    showFloatingNotification(
+        "✨ ЗОЛОТАЯ ЛИЛИЯ АКТИВНА! ✨",
+        "Бонус x3 на 5 минут!",
+        "🌸🔥",
+        3000
+    );
+}
+
+function showAutoClickerWarning() {
+    showFloatingNotification(
+        "⚠️ ПОДОЗРИТЕЛЬНАЯ АКТИВНОСТЬ ⚠️",
+        "Пожалуйста, кликайте в нормальном темпе",
+        "🤖❌",
+        3000
+    );
+}
+
+function showAchievementNotification(title, reward) {
+    const container = document.getElementById("achievement-toast-container");
+    if (!container) return;
+    
+    const toast = document.createElement("div");
+    toast.className = "achievement-toast";
+    toast.innerHTML = `
+        <div class="achievement-toast-icon">🏆</div>
+        <div class="achievement-toast-content">
+            <div class="achievement-toast-title">✨ ДОСТИЖЕНИЕ ОТКРЫТО! ✨</div>
+            <div class="achievement-toast-name">${title}</div>
+            <div class="achievement-toast-reward">+${reward} мёда</div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    toast.offsetHeight;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 400);
+    }, 4000);
+}
+
+// Добавляем CSS анимации в head
+function addNotificationStyles() {
+    if (document.getElementById("notification-styles")) return;
+    
+    const style = document.createElement("style");
+    style.id = "notification-styles";
+    style.textContent = `
+        @keyframes notificationSlideIn {
+            0% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            60% {
+                transform: translateY(10px) scale(1.02);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes notificationSlideOut {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes notificationIconPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .achievement-toast {
+            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+            color: #fff;
+            border: 3px solid #ffcc44;
+            border-radius: 12px;
+            padding: 14px 24px;
+            min-width: 320px;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+            pointer-events: auto;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+            transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+            margin-bottom: 10px;
+        }
+        
+        .achievement-toast.show {
+            opacity: 1;
+            transform: translateY(20px) scale(1);
+        }
+        
+        .achievement-toast.hide {
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+        }
+        
+        .achievement-toast-icon {
+            font-size: 1.8rem;
+            display: inline-block;
+            margin-right: 12px;
+            vertical-align: middle;
+            animation: notificationIconPulse 0.5s ease;
+        }
+        
+        .achievement-toast-content {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: left;
+        }
+        
+        .achievement-toast-title {
+            color: #ffcc44;
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        
+        .achievement-toast-name {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 2px;
+            color: #ffffff;
+        }
+        
+        .achievement-toast-reward {
+            margin-top: 6px;
+            font-size: 0.7rem;
+            color: #55ff55;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .achievement-toast-reward::before {
+            content: "🍯";
+            font-size: 0.9rem;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ========== ОПТИМИЗИРОВАННЫЙ UI ==========
+function throttleUpdateUI() {
+    if (pendingUIUpdate) return;
+    pendingUIUpdate = true;
+    requestAnimationFrame(() => {
+        updateClickerUI();
+        pendingUIUpdate = false;
+    });
+}
+
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 function initClickerGame() {
+    addNotificationStyles();
     loadGameProgress();
     
     if (!state || !state.buildings) {
@@ -27,6 +283,7 @@ function initClickerGame() {
         if (!state.totalHoneyEarned) state.totalHoneyEarned = 0;
     }
     
+    cacheElements();
     recalculateStats();
     updateClickerUI();
     renderBuildingsList();
@@ -46,7 +303,21 @@ function initClickerGame() {
     }
 }
 
-// ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
+function cacheElements() {
+    cachedElements = {
+        honey: document.getElementById("ui-honey"),
+        hps: document.getElementById("ui-hps"),
+        click: document.getElementById("ui-click"),
+        queenLvl: document.getElementById("ui-queen-lvl"),
+        achCount: document.getElementById("ui-ach-count"),
+        currentExp: document.getElementById("ui-current-exp"),
+        neededExp: document.getElementById("ui-needed-exp"),
+        progressBar: document.getElementById("ui-queen-progress"),
+        upgradesBox: document.getElementById("clicker-upgrades-box"),
+        shopBox: document.getElementById("clicker-shop-box")
+    };
+}
+
 function saveGameProgress() { 
     if (state) localStorage.setItem("bee_clicker_state_v3", JSON.stringify(state)); 
 }
@@ -67,50 +338,75 @@ function loadGameProgress() {
     }
 }
 
-// ========== ПОЛНЫЙ СБРОС ПРОГРЕССА ==========
-window.resetClickerGame = function() {
-    const doubleCheck = confirm("🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс?\n\nВы потеряете:\n- Весь накопленный мёд\n- Всех купленных пчёл\n- Все улучшения\n- Уровень Королевы\n- Все достижения\n\nЭто действие нельзя отменить!");
+// ========== ЗАЩИТА ОТ АВТОКЛИКЕРА ==========
+function isAutoClickerDetected() {
+    const now = Date.now();
+    const timeDiff = now - lastClickTime;
     
-    if (doubleCheck) {
-        // Полностью очищаем localStorage
-        localStorage.removeItem("bee_clicker_state_v3");
-        localStorage.removeItem("bee_clicker_achievements");
-        
-        // Создаём новый чистый state
-        state = JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
-        if (!state.unlockedAchievements) state.unlockedAchievements = [];
-        if (!state.totalClicks) state.totalClicks = 0;
-        if (!state.totalHoneyEarned) state.totalHoneyEarned = 0;
-        
-        // Сбрасываем активные эффекты
-        if (lilyTimerInterval) {
-            clearInterval(lilyTimerInterval);
-            lilyTimerInterval = null;
-        }
-        lilyActive = false;
-        lilyTimeLeft = 0;
-        
-        // Пересчитываем статистику
-        recalculateStats();
-        
-        // Обновляем весь UI
-        updateClickerUI();
-        renderBuildingsList();
-        renderUpgradesList();
-        
-        // Показываем уведомление
-        if (typeof showNotification === 'function') {
-            showNotification("🔄 Прогресс сброшен", "Игра началась заново!");
-        } else {
-            alert("✅ Прогресс успешно сброшен! Игра началась заново.");
-        }
-        
-        // Сохраняем пустой сейв
-        saveGameProgress();
+    if (timeDiff < 5) {
+        clickCounter++;
+    } else {
+        clickCounter = Math.max(0, clickCounter - 1);
     }
+    
+    lastClickTime = now;
+    
+    if (clickCounter > 20 && !clickSpamWarning) {
+        clickSpamWarning = true;
+        setTimeout(() => { clickSpamWarning = false; clickCounter = 0; }, 2000);
+        return true;
+    }
+    
+    return false;
+}
+
+// ========== ПОЛНЫЙ СБРОС ==========
+window.resetClickerGame = function() {
+    showFloatingNotification(
+        "⚠️ ПОДТВЕРЖДЕНИЕ ⚠️",
+        "Вы уверены, что хотите сбросить прогресс?",
+        "🔄",
+        2000
+    );
+    
+    setTimeout(() => {
+        const doubleCheck = confirm("🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс?\n\nВы потеряете:\n- Весь накопленный мёд\n- Всех купленных пчёл\n- Все улучшения\n- Уровень Королевы\n- Все достижения\n\nЭто действие нельзя отменить!");
+        
+        if (doubleCheck) {
+            localStorage.removeItem("bee_clicker_state_v3");
+            localStorage.removeItem("bee_clicker_achievements");
+            
+            state = JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
+            if (!state.unlockedAchievements) state.unlockedAchievements = [];
+            if (!state.totalClicks) state.totalClicks = 0;
+            if (!state.totalHoneyEarned) state.totalHoneyEarned = 0;
+            
+            if (lilyTimerInterval) {
+                clearInterval(lilyTimerInterval);
+                lilyTimerInterval = null;
+            }
+            lilyActive = false;
+            lilyTimeLeft = 0;
+            clickCounter = 0;
+            clickSpamWarning = false;
+            
+            recalculateStats();
+            updateClickerUI();
+            renderBuildingsList();
+            renderUpgradesList();
+            
+            showFloatingNotification(
+                "✅ ПРОГРЕСС СБРОШЕН ✅",
+                "Игра началась заново!",
+                "🔄✨",
+                3000
+            );
+            saveGameProgress();
+        }
+    }, 500);
 };
 
-// ========== ЕЖЕСЕКУНДНЫЙ ТИК ИГРЫ ==========
+// ========== ЕЖЕСЕКУНДНЫЙ ТИК ==========
 function runGameTick() {
     if (!state) return;
     
@@ -130,7 +426,7 @@ function runGameTick() {
         CLICKER_ACHIEVEMENTS.checkAll(state);
     }
     saveGameProgress();
-    updateClickerUI();
+    throttleUpdateUI();
 }
 
 // ========== НАСТРОЙКА МУЗЫКИ ==========
@@ -252,6 +548,15 @@ function recalculateStats() {
 function handleHoneyClick(e) {
     if (!state) return;
     
+    if (isAutoClickerDetected()) {
+        if (!clickSpamWarning) {
+            showAutoClickerWarning();
+            clickSpamWarning = true;
+            setTimeout(() => { clickSpamWarning = false; }, 3000);
+        }
+        return;
+    }
+    
     let power = state.clickPower;
     if (lilyActive) power *= 3; 
 
@@ -264,44 +569,50 @@ function handleHoneyClick(e) {
     addQueenExp(expGained);
 
     if (typeof ClickerAudio !== "undefined") ClickerAudio.playClick();
-    if (typeof CLICKER_ACHIEVEMENTS !== "undefined") CLICKER_ACHIEVEMENTS.checkAll(state); 
-    updateClickerUI();
+    
+    if (state.totalClicks % 5 === 0 && typeof CLICKER_ACHIEVEMENTS !== "undefined") {
+        CLICKER_ACHIEVEMENTS.checkAll(state);
+    }
+    
+    throttleUpdateUI();
     triggerClickAnimation();
 
-    if (e && typeof e.clientX !== 'undefined') {
+    if (e && typeof e.clientX !== 'undefined' && document.querySelectorAll('.honey-drop-particle').length < 30) {
         createHoneyParticles(e.clientX, e.clientY);
     }
 }
 
 function createHoneyParticles(x, y) {
-    for (let i = 0; i < 5; i++) {
+    const particleCount = 3;
+    for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement("div");
         particle.className = "honey-drop-particle";
         particle.innerText = "✦";
         particle.style.position = "fixed";
         particle.style.left = (x + (Math.random() - 0.5) * 30) + "px";
         particle.style.top = (y + (Math.random() - 0.5) * 30) + "px";
-        particle.style.fontSize = "1.5rem";
+        particle.style.fontSize = "1.3rem";
         particle.style.pointerEvents = "none";
         particle.style.zIndex = "99999";
-        particle.style.animation = "flyOutParticle 0.6s ease-out forwards";
+        particle.style.opacity = "0.8";
+        particle.style.animation = "flyOutParticle 0.4s ease-out forwards";
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 600);
+        setTimeout(() => particle.remove(), 400);
     }
 }
 
 function triggerClickAnimation() {
     const core = document.getElementById("clicker-core");
     if (core) { 
-        core.style.transform = "scale(0.93)"; 
-        setTimeout(() => core.style.transform = "scale(1)", 50);
+        core.style.transform = "scale(0.95)"; 
+        setTimeout(() => core.style.transform = "scale(1)", 80);
     }
 }
 
 // ========== ЗОЛОТАЯ ЛИЛИЯ ==========
 function trySpawnGoldenLily() {
     if (lilyActive || document.getElementById("golden-lily-element")) return;
-    if (Math.random() > 0.4) return;
+    if (Math.random() > 0.5) return;
     
     const lily = document.createElement("div");
     lily.id = "golden-lily-element"; 
@@ -312,6 +623,7 @@ function trySpawnGoldenLily() {
     lily.style.top = Math.random() * (window.innerHeight - 100) + "px";
     lily.style.cursor = "pointer";
     lily.style.zIndex = "99999";
+    lily.style.fontSize = "2.5rem";
     lily.onclick = () => { 
         lily.remove(); 
         activateGoldenLilyBoost(); 
@@ -319,18 +631,19 @@ function trySpawnGoldenLily() {
     document.body.appendChild(lily);
     setTimeout(() => { 
         if (lily && lily.remove) lily.remove(); 
-    }, 12000);
+    }, 10000);
 }
 
 function activateGoldenLilyBoost() {
     if (lilyTimerInterval) clearInterval(lilyTimerInterval);
     lilyActive = true; 
-    lilyTimeLeft = 600;
+    lilyTimeLeft = 300;
     
     const timerZone = document.getElementById("lily-timer-zone");
     if (timerZone) timerZone.style.display = "block";
     
     if (typeof ClickerAudio !== "undefined") ClickerAudio.playLevelUp();
+    showLilyStartNotification();
     
     lilyTimerInterval = setInterval(() => {
         lilyTimeLeft--;
@@ -343,7 +656,7 @@ function activateGoldenLilyBoost() {
             clearInterval(lilyTimerInterval);
             lilyActive = false;
             if (timerZone) timerZone.style.display = "none";
-            alert("⏰ Действие Нектара Золотой Лилии подошло к концу!");
+            showLilyEndNotification();
         }
     }, 1000);
 }
@@ -362,13 +675,24 @@ window.buyUpgrade = function(upgId) {
         updateClickerUI();
         renderUpgradesList();
         saveGameProgress();
+        showFloatingNotification(
+            "✨ УЛУЧШЕНИЕ КУПЛЕНО! ✨",
+            upg.name,
+            "🛒",
+            2000
+        );
     } else { 
-        alert("Не хватает мёда!"); 
+        showFloatingNotification(
+            "❌ НЕ ХВАТАЕТ МЁДА ❌",
+            `Нужно ещё ${ClickerUtils.formatNumber(upg.price - state.honey)} л`,
+            "🍯",
+            2000
+        );
     }
 };
 
 function renderUpgradesList() {
-    const box = document.getElementById("clicker-upgrades-box");
+    const box = cachedElements.upgradesBox || document.getElementById("clicker-upgrades-box");
     if (!box) return; 
     box.innerHTML = "";
     
@@ -398,14 +722,15 @@ function addQueenExp(amount) {
     state.queenExp = (state.queenExp || 0) + amount;
     let requiredExp = CLICKER_CONFIG.getRequiredExpForLevel(state.queenLevel);
     
-    while (state.queenExp >= requiredExp && state.queenLevel < 500) {
+    if (state.queenExp >= requiredExp && state.queenLevel < 500) {
         state.queenExp -= requiredExp;
         state.queenLevel++;
         if (typeof ClickerAudio !== "undefined") ClickerAudio.playLevelUp();
         recalculateStats();
         renderBuildingsList();
-        alert(`👑 Уровень Королевы повышен! Текущий уровень: ${state.queenLevel}/500`);
-        requiredExp = CLICKER_CONFIG.getRequiredExpForLevel(state.queenLevel);
+        renderUpgradesList();
+        throttleUpdateUI();
+        showQueenLevelUpNotification(state.queenLevel);
     }
 }
 
@@ -422,8 +747,20 @@ window.buyBeeBuilding = function(bId) {
         updateClickerUI();
         renderBuildingsList();
         saveGameProgress();
+        const data = CLICKER_CONFIG.buildingsData[bId];
+        showFloatingNotification(
+            "🐝 НОВАЯ ПЧЕЛА! 🐝",
+            `${data.name} нанят! +${data.hps} л/сек`,
+            "✨",
+            1500
+        );
     } else { 
-        alert("Не хватает мёда!"); 
+        showFloatingNotification(
+            "❌ НЕ ХВАТАЕТ МЁДА ❌",
+            `Нужно ещё ${ClickerUtils.formatNumber(cost - state.honey)} л`,
+            "🍯",
+            2000
+        );
     }
 };
 
@@ -433,7 +770,7 @@ function getBuildingCost(bId) {
 }
 
 function renderBuildingsList() {
-    const box = document.getElementById("clicker-shop-box");
+    const box = cachedElements.shopBox || document.getElementById("clicker-shop-box");
     if (!box) return; 
     box.innerHTML = "";
     
@@ -462,27 +799,18 @@ function updateClickerUI() {
     
     let mult = lilyActive ? 3 : 1;
     
-    const honeyElem = document.getElementById("ui-honey");
-    const hpsElem = document.getElementById("ui-hps");
-    const clickElem = document.getElementById("ui-click");
-    const queenLvlElem = document.getElementById("ui-queen-lvl");
-    const achCountElem = document.getElementById("ui-ach-count");
-    const currentExpElem = document.getElementById("ui-current-exp");
-    const neededExpElem = document.getElementById("ui-needed-exp");
-    const progressBar = document.getElementById("ui-queen-progress");
-    
-    if (honeyElem) honeyElem.innerText = ClickerUtils.formatNumber(state.honey);
-    if (hpsElem) hpsElem.innerText = ClickerUtils.formatNumber(state.honeyPerSecond * mult);
-    if (clickElem) clickElem.innerText = ClickerUtils.formatNumber(state.clickPower * mult);
-    if (queenLvlElem) queenLvlElem.innerText = state.queenLevel;
-    if (achCountElem) achCountElem.innerText = state.unlockedAchievements ? state.unlockedAchievements.length : 0;
+    if (cachedElements.honey) cachedElements.honey.innerText = ClickerUtils.formatNumber(state.honey);
+    if (cachedElements.hps) cachedElements.hps.innerText = ClickerUtils.formatNumber(state.honeyPerSecond * mult);
+    if (cachedElements.click) cachedElements.click.innerText = ClickerUtils.formatNumber(state.clickPower * mult);
+    if (cachedElements.queenLvl) cachedElements.queenLvl.innerText = state.queenLevel;
+    if (cachedElements.achCount) cachedElements.achCount.innerText = state.unlockedAchievements ? state.unlockedAchievements.length : 0;
     
     const reqExp = CLICKER_CONFIG.getRequiredExpForLevel(state.queenLevel);
-    if (currentExpElem) currentExpElem.innerText = ClickerUtils.formatNumber(state.queenExp || 0);
-    if (neededExpElem) neededExpElem.innerText = ClickerUtils.formatNumber(reqExp);
+    if (cachedElements.currentExp) cachedElements.currentExp.innerText = ClickerUtils.formatNumber(state.queenExp || 0);
+    if (cachedElements.neededExp) cachedElements.neededExp.innerText = ClickerUtils.formatNumber(reqExp);
     
-    if (progressBar) {
-        progressBar.style.width = `${state.queenLevel >= 500 ? 100 : ((state.queenExp || 0) / reqExp) * 100}%`;
+    if (cachedElements.progressBar) {
+        cachedElements.progressBar.style.width = `${state.queenLevel >= 500 ? 100 : ((state.queenExp || 0) / reqExp) * 100}%`;
     }
 }
 
