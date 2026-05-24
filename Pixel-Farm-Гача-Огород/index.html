@@ -85,12 +85,6 @@
             font-size: 0.95rem;
         }
 
-        .custom-notification-amount {
-            color: #55ff55;
-            font-size: 0.8rem;
-            margin-top: 4px;
-        }
-
         /* Анимация для иконки */
         @keyframes iconPulse {
             0% { transform: scale(0.5); opacity: 0; }
@@ -155,6 +149,7 @@
             font-size: 1rem;
             margin-bottom: 20px;
             line-height: 1.4;
+            white-space: pre-line;
         }
 
         .custom-modal-buttons {
@@ -323,9 +318,10 @@
     <script src="js/game.js"></script>
     
     <script>
-        // ========== СИСТЕМА КРАСИВЫХ ОКОШЕК ==========
+        // ========== СИСТЕМА КРАСИВЫХ ОКОШЕК (АСИНХРОННАЯ) ==========
         
-        let pendingConfirmCallback = null;
+        let modalResolve = null;
+        let modalReject = null;
         
         // Функция для красивого уведомления (alert)
         window.customAlert = function(message, title = "Уведомление", icon = "📢") {
@@ -391,84 +387,84 @@
             });
         };
 
-        // Функция для красивого подтверждения (confirm) - СИНХРОННАЯ
+        // Функция для красивого подтверждения (confirm) - АСИНХРОННАЯ
         window.customConfirm = function(message, title = "Подтверждение", icon = "❓") {
-            const modal = document.getElementById("custom-modal-overlay");
-            const modalIcon = document.getElementById("custom-modal-icon");
-            const modalTitle = document.getElementById("custom-modal-title");
-            const modalMessage = document.getElementById("custom-modal-message");
-            const confirmBtn = document.getElementById("custom-modal-confirm");
-            const cancelBtn = document.getElementById("custom-modal-cancel");
-            
-            if (!modal) {
-                return confirm(message);
-            }
-            
-            modalIcon.innerHTML = icon;
-            modalTitle.innerHTML = title;
-            modalMessage.innerHTML = message;
-            
-            // Показываем модальное окно
-            modal.classList.add("active");
-            
-            // Ждём ответа пользователя (синхронно через заморозку)
-            let result = null;
-            
-            const onConfirm = () => {
-                result = true;
-                cleanup();
-            };
-            
-            const onCancel = () => {
-                result = false;
-                cleanup();
-            };
-            
-            const cleanup = () => {
-                modal.classList.remove("active");
-                confirmBtn.removeEventListener("click", onConfirm);
-                cancelBtn.removeEventListener("click", onCancel);
-                // Выходим из цикла ожидания
-                if (window.__confirmResult) {
-                    window.__confirmResult = result;
+            return new Promise((resolve) => {
+                const modal = document.getElementById("custom-modal-overlay");
+                const modalIcon = document.getElementById("custom-modal-icon");
+                const modalTitle = document.getElementById("custom-modal-title");
+                const modalMessage = document.getElementById("custom-modal-message");
+                const confirmBtn = document.getElementById("custom-modal-confirm");
+                const cancelBtn = document.getElementById("custom-modal-cancel");
+                
+                if (!modal) {
+                    resolve(confirm(message));
+                    return;
                 }
-            };
-            
-            confirmBtn.addEventListener("click", onConfirm);
-            cancelBtn.addEventListener("click", onCancel);
-            
-            // Добавляем обработчик закрытия по Escape
-            const onEscape = (e) => {
-                if (e.key === 'Escape') {
-                    onCancel();
+                
+                modalIcon.innerHTML = icon;
+                modalTitle.innerHTML = title;
+                modalMessage.innerHTML = message;
+                
+                const onConfirm = () => {
+                    cleanup();
+                    resolve(true);
+                };
+                
+                const onCancel = () => {
+                    cleanup();
+                    resolve(false);
+                };
+                
+                const cleanup = () => {
+                    modal.classList.remove("active");
+                    confirmBtn.removeEventListener("click", onConfirm);
+                    cancelBtn.removeEventListener("click", onCancel);
                     document.removeEventListener('keydown', onEscape);
-                }
-            };
-            document.addEventListener('keydown', onEscape);
-            
-            // Синхронное ожидание (через микро-цикл)
-            window.__confirmResult = null;
-            
-            // Ждём в цикле с setTimeout
-            const waitForResult = () => {
-                if (window.__confirmResult !== null) {
-                    const res = window.__confirmResult;
-                    window.__confirmResult = null;
-                    return res;
-                }
-                // Небольшая задержка для разблокировки UI
-                const start = Date.now();
-                while (Date.now() - start < 10) {}
-                return waitForResult();
-            };
-            
-            return waitForResult();
+                };
+                
+                const onEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        onCancel();
+                    }
+                };
+                
+                confirmBtn.addEventListener("click", onConfirm);
+                cancelBtn.addEventListener("click", onCancel);
+                document.addEventListener('keydown', onEscape);
+                
+                modal.classList.add("active");
+            });
         };
         
-        // Перехватываем стандартный confirm (только confirm, alert оставляем для совместимости)
+        // Переопределяем confirm (асинхронно)
         window.originalConfirm = window.confirm;
         window.confirm = function(message) {
+            // Возвращаем Promise для совместимости
             return window.customConfirm(message);
+        };
+        
+        // Переопределяем resetEntireGameProgress для правильной работы с асинхронным confirm
+        const originalReset = window.resetEntireGameProgress;
+        window.resetEntireGameProgress = async function() {
+            const confirmed = await window.customConfirm(
+                "🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс?\n\nВы потеряете:\n- Все монеты\n- Все купленные улучшения\n- Все посаженные культуры\n- Весь прогресс\n\nЭто действие нельзя отменить!",
+                "⚠️ СБРОС ПРОГРЕССА",
+                "💣⚠️"
+            );
+            
+            if (confirmed) {
+                if (originalReset) {
+                    originalReset();
+                } else {
+                    // Стандартный сброс
+                    localStorage.removeItem("pixel_farm_state_v11");
+                    localStorage.removeItem("pixel_farm_player_name");
+                    localStorage.removeItem("pixel_farm_name_changed_at");
+                    alert("Прогресс стёрт! Игра перезапускается! 🔄");
+                    location.reload();
+                }
+            }
         };
         
         // Вспомогательные функции
@@ -524,9 +520,6 @@
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         };
-        
-        // Для совместимости сохраняем оригинальный alert
-        window.originalAlert = window.alert;
     </script>
 </body>
 </html>
