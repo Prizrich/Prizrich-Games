@@ -33,13 +33,13 @@ const FARM_CONFIG = {
 
     cropsData: {
         carrot: { name: "🥕 Морковь", rarity: "Обычный", rarityColor: "#b0b0b0", growTime: 10, sellPrice: 15, minSeedsDrop: 1, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌿", "🥕"] },
-        cabbage: { name: "🥬 Капуста", rarity: "Обычный", rarityColor: "#b0b0b0", growTime: 15, sellPrice: 25, minSeedsDrop: 1, maxSeedsDrop: 2, stagesVisual: ["🌱", "🥗", "🥬"] },
+        cabbage: { name: "🥬 Капуста", rarity: "Обычный", rarityColor: "#b0b0b0", growTime: 15, sellPrice: 25, minSeedsDrop: 1, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌿", "🥬"] },
         corn: { name: "🌽 Кукуруза", rarity: "Обычный", rarityColor: "#b0b0b0", growTime: 20, sellPrice: 35, minSeedsDrop: 1, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌾", "🌽"] },
-        grapes: { name: "🍇 Виноград", rarity: "Необычный", rarityColor: "#1e90ff", growTime: 30, sellPrice: 55, minSeedsDrop: 1, maxSeedsDrop: 3, stagesVisual: ["🌱", "🍇", "✨"] },
-        strawberry: { name: "🍓 Клубника", rarity: "Необычный", rarityColor: "#1e90ff", growTime: 40, sellPrice: 75, minSeedsDrop: 1, maxSeedsDrop: 3, stagesVisual: ["🌱", "☘️", "🍓✨"] },
-        pineapple: { name: "🍍 Ананас", rarity: "Редкий", rarityColor: "#a335ee", growTime: 60, sellPrice: 120, minSeedsDrop: 1, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌵", "🍍👑"] },
-        golden_apple: { name: "🍎 Золотое яблоко", rarity: "Легендарный", rarityColor: "#ff8000", growTime: 120, sellPrice: 350, minSeedsDrop: 0, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌳", "🍎👑"] },
-        ancient_fruit: { name: "🔮 Древний плод", rarity: "Мифический", rarityColor: "#ff0077", growTime: 240, sellPrice: 999, minSeedsDrop: 0, maxSeedsDrop: 1, stagesVisual: ["🌱", "✨", "🔮💎"] }
+        grapes: { name: "🍇 Виноград", rarity: "Необычный", rarityColor: "#1e90ff", growTime: 30, sellPrice: 55, minSeedsDrop: 1, maxSeedsDrop: 3, stagesVisual: ["🌱", "🌳", "🍇"] },
+        strawberry: { name: "🍓 Клубника", rarity: "Необычный", rarityColor: "#1e90ff", growTime: 40, sellPrice: 75, minSeedsDrop: 1, maxSeedsDrop: 3, stagesVisual: ["🌱", "☘️", "🍓"] },
+        pineapple: { name: "🍍 Ананас", rarity: "Редкий", rarityColor: "#a335ee", growTime: 60, sellPrice: 120, minSeedsDrop: 1, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌵", "🍍"] },
+        golden_apple: { name: "🍎 Золотое яблоко", rarity: "Легендарный", rarityColor: "#ff8000", growTime: 120, sellPrice: 350, minSeedsDrop: 0, maxSeedsDrop: 2, stagesVisual: ["🌱", "🌳", "🍎"] },
+        ancient_fruit: { name: "🔮 Древний плод", rarity: "Мифический", rarityColor: "#ff0077", growTime: 240, sellPrice: 999, minSeedsDrop: 0, maxSeedsDrop: 1, stagesVisual: ["🌱", "✨", "🔮"] }
     },
 
     rollGacha: function() {
