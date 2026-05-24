@@ -845,3 +845,4 @@ window.openAchievementsModal = function() {
 window.closeAchievementsModal = function() { 
     document.getElementById("achievements-modal").style.display = "none"; 
 };
+
