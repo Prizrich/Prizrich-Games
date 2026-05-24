@@ -2,189 +2,209 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>Bee Clicker: Твоя Пасека</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Медовый Кликер: Эволюция Улья</title>
     <link rel="stylesheet" href="CSS/style.css">
+    <style>
+        /* ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ МЕНЮ ПО ЦЕНТРУ ЭКРАНА */
+        .menu-overlay-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-color: rgba(92, 58, 0, 0.15);
+            display: flex;
+            justify-content: center; /* СТРОГО ПО ЦЕНТРУ Х */
+            align-items: center;     /* СТРОГО ПО ЦЕНТРУ Y */
+            z-index: 999999;
+            box-sizing: border-box;
+        }
+        
+        /* КРАСИВОЕ РАСШИРЕННОЕ ОКНО ЗАСТАВКИ */
+        .main-menu-screen {
+            background-color: #fff6d6;
+            border: 4px solid #5c3a00;
+            border-radius: 6px;
+            padding: 35px 30px;
+            text-align: center;
+            max-width: 440px; /* Сделали шире, чтобы текст внутри не сжимался */
+            width: 90%;
+            box-shadow: inset -4px -4px 0px #d9b236, inset 4px 4px 0px #ffffff, 0 12px 30px rgba(92, 58, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: menuFloat 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes menuFloat {
+            from { transform: translateY(0); }
+            to { transform: translateY(-8px); }
+        }
+
+        .menu-main-title {
+            color: #5c3a00;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 0px #fff;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        .menu-sub-title {
+            color: #7a5921;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-top: -10px;
+        }
+        .settings-zone {
+            background-color: #ffebaa;
+            border: 3px solid #5c3a00;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: inset -2px -2px 0px #d4b255;
+        }
+        .settings-zone h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: #5c3a00;
+            border-bottom: 2px solid #5c3a00;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+        .select-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .select-label {
+            font-weight: bold;
+            color: #5c3a00;
+            font-size: 0.9rem;
+        }
+        .start-play-btn {
+            font-size: 1.4rem !important;
+            padding: 15px !important;
+            width: 100%;
+            background-color: #ffaa00 !important;
+            box-shadow: inset -4px -4px 0px #b87100, inset 4px 4px 0px #ffea9f !important;
+            color: #ffffff;
+            font-weight: bold;
+            text-shadow: 1px 1px 0px #5c3a00;
+            cursor: pointer;
+        }
+        .game-interface-layout {
+            display: none;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="clicker-container">
-        <h2>🍯 Твоя пасека</h2>
+    <!-- СЮДА ПРИЛЕТАЮТ ВСЕ ПЛАШКИ ОТКРЫТЫХ АЧИВОК -->
+    <div id="achievement-toast-container"></div>
 
-        <!-- ПАНЕЛЬ СТАТИСТИКИ -->
-        <div class="stats-box">
-            <div>Всего мёда: <b id="ui-total-honey">0.0К</b> л</div>
-            <div>Доход: <b id="ui-income-rate">0.0</b> л/сек</div>
-            <div>Сила клика: <b id="ui-click-power">1</b> л</div>
-            <div>Уровень Королевы: <b id="ui-queen-lvl">1</b> / 500</div>
-        </div>
+    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И НАСТРОЙКИ МУЗЫКИ (ОТЦЕНТРИРОВАНО И УВЕЛИЧЕНО) -->
+    <div class="menu-overlay-bg" id="app-main-menu">
+        <div class="main-menu-screen">
+            <div style="font-size: 4.5rem; line-height: 1; margin-bottom: -5px;">👑🐝</div>
+            <h1 class="menu-main-title">МЕДОВЫЙ КЛИКЕР</h1>
+            <div class="menu-sub-title">Эволюция Unья • 500 Уровней Королевы</div>
 
-        <!-- ГОРШОК ДЛЯ КЛИКОВ (АВТО-МАСШТАБ ПОД ЭКРАН ТЕЛЕФОНА) -->
-        <div id="pot-clickable" style="font-size: 7.5rem; text-align: center; cursor: pointer; user-select: none; filter: drop-shadow(4px 4px 0px #000); margin: 15px auto; width: fit-content; transition: transform 0.05s ease; animation: menuPulse 2s infinite ease-in-out;">
-            🍯
-        </div>
-
-        <!-- СПИСОК УЛУЧШЕНИЙ МАГАЗИНА -->
-        <h3>🛒 Модернизация</h3>
-        <div class="inventory-list">
-            <!-- УЛУЧШЕНИЕ 1: ШМЕЛИ -->
-            <div class="inventory-item">
-                <div style="display:flex; flex-direction:column; text-align:left;">
-                    <span id="ui-shmel-counter" style="font-weight:bold;">Шмели-рабочие (x0)</span>
-                    <span style="font-size:0.7rem; color:#666;">+1.5 л/сек пассивного дохода</span>
+            <!-- БЛОК НАСТРОЕК РАДИОСТАНЦИИ -->
+            <div class="settings-zone">
+                <h3>🎵 Настройка радиостанции</h3>
+                
+                <div class="select-wrapper">
+                    <label class="select-label">Текущая волна улья:</label>
+                    <button class="buy-bee-btn" id="music-track-toggle-btn" style="width: 100%; text-align: center; font-size: 0.95rem; padding: 10px; background-color: #4a4a4a; color: #ffff55;" onclick="window.nextMusicTrack()">
+                        🔀 Случайный рандом
+                    </button>
                 </div>
-                <button class="mini-plant-btn" onclick="window.buyShmelWorker()">🛒 <span id="ui-shmel-price-tag">50</span></button>
+
+                <div class="select-wrapper">
+                    <label class="select-label">Громкость музыки: <span id="ui-volume-val">20%</span></label>
+                    <input type="range" min="0" max="100" value="20" id="music-volume-slider" style="cursor: pointer; width: 100%; height: 8px;" oninput="window.updateMusicVolume()">
+                </div>
             </div>
 
-            <!-- УЛУЧШЕНИЕ 2: КОРОЛЕВА -->
-            <div class="inventory-item">
-                <div style="display:flex; flex-direction:column; text-align:left;">
-                    <span style="font-weight:bold;">👑 Прокачка Матки</span>
-                    <span style="font-size:0.7rem; color:#666;">+2 литра к силе клика</span>
-                </div>
-                <button class="mini-plant-btn" onclick="window.upgradeQueenBee()">🛒 <span id="ui-queen-price-tag">150</span></button>
-            </div>
+            <!-- КНОПКА НАЧАЛА ИГРЫ -->
+            <button class="buy-bee-btn start-play-btn" onclick="window.startGameplayLayout()">
+                В УЛЕЙ (ИГРАТЬ) 🚀
+            </button>
         </div>
-
-        <!-- КНОПКА ПОЛНОГО СБРОСА -->
-        <button class="farm-btn reset-progress-btn" style="background-color: #ba2929;" onclick="window.resetEntireGameProgress()">
-            💥 Сбросить прогресс
-        </button>
     </div>
 
-    <!-- ВСТРОЕННЫЙ ДВИЖОК ИГРЫ (ОДНОФАЙЛОВЫЙ ВАРИАНТ) -->
-    <script>
-        console.log("🐝 Запуск ядра Bee-Clicker...");
-
-        let saveState = {
-            honey: 0,
-            clickPower: 1,
-            incomePerSecond: 0,
-            queenLevel: 1,
-            shmelCount: 0,
-            shmelPrice: 50,
-            queenPrice: 150
-        };
-
-        let lastClickTime = 0;
-
-        // КРАСИВОЕ УВЕДОМЛЕНИЕ В СТИЛЕ МАНКРАФТ ВЗАМЕН ALERT()
-        window.showGameAlert = function(message, emoji = "⚠️") {
-            const oldAlert = document.querySelector(".game-alert-popup");
-            if (oldAlert) oldAlert.remove();
-
-            const alertBox = document.createElement("div");
-            alertBox.className = "game-alert-popup";
-            alertBox.innerHTML = `
-                <span style="font-size: 1.4rem; filter: drop-shadow(2px 2px 0px #000);">${emoji}</span>
-                <p class="game-alert-text">${message}</p>
-            `;
-            
-            document.body.appendChild(alertBox);
-            
-            setTimeout(() => { alertBox.classList.add("show"); }, 30);
-            
-            setTimeout(() => {
-                alertBox.classList.remove("show");
-                setTimeout(() => { alertBox.remove(); }, 400);
-            }, 2500);
-        };
-
-        function initBeeClicker() {
-            const saved = localStorage.getItem("honey_clicker_save_v2");
-            if (saved) {
-                try { Object.assign(saveState, JSON.parse(saved)); } catch(e) { console.log("Сброс сейва."); }
-            }
-            
-            const pot = document.getElementById("pot-clickable");
-            if (pot) {
-                pot.onclick = function() {
-                    const currentTime = Date.now();
-                    // Защита от бешеного автокликера, чтобы страница не зависала
-                    if (currentTime - lastClickTime < 50) return;
-                    lastClickTime = currentTime;
-
-                    pot.style.transform = "scale(0.92)";
-                    setTimeout(() => { pot.style.transform = "scale(1)"; }, 40);
-
-                    saveState.honey += saveState.clickPower;
-                    updateClickerUI();
-                    saveClickerProgress();
-                };
-            }
-
-            updateClickerUI();
-
-            // Автодоход шмелей раз в секунду
-            setInterval(() => {
-                saveState.incomePerSecond = saveState.shmelCount * 1.5;
-                saveState.honey += saveState.incomePerSecond;
-                updateClickerUI();
-                if (Math.random() < 0.2) saveClickerProgress();
-            }, 1000);
-        }
-
-        function updateClickerUI() {
-            if (!document.getElementById("ui-total-honey")) return;
-
-            document.getElementById("ui-total-honey").innerText = saveState.honey.toFixed(1);
-            document.getElementById("ui-income-rate").innerText = saveState.incomePerSecond.toFixed(1);
-            document.getElementById("ui-click-power").innerText = saveState.clickPower;
-            document.getElementById("ui-queen-lvl").innerText = saveState.queenLevel;
-            
-            document.getElementById("ui-shmel-counter").innerText = `Шмели-рабочие (x${saveState.shmelCount})`;
-            document.getElementById("ui-shmel-price-tag").innerText = Math.floor(saveState.shmelPrice);
-            document.getElementById("ui-queen-price-tag").innerText = Math.floor(saveState.queenPrice);
-        }
-
-        window.buyShmelWorker = function() {
-            if (saveState.honey >= saveState.shmelPrice) {
-                saveState.honey -= saveState.shmelPrice;
-                saveState.shmelCount++;
-                saveState.shmelPrice *= 1.35;
+    <!-- ЭКРАН 2: ОСНОВНОЙ ИГРОВОЙ ИНТЕРФЕЙС ПАСЕКИ -->
+    <div class="game-wrapper game-interface-layout" id="app-game-layout">
+        <!-- ЛЕВАЯ ПАНЕЛЬ -->
+        <div class="side-panel left-panel">
+            <div class="queen-section">
+                <div class="queen-avatar-wrapper">
+                    <span class="queen-crown">👑</span>
+                    <span class="queen-bee">🐝</span>
+                </div>
+                <div class="queen-title">Королева улья</div>
+                <div class="queen-level-tag"><span id="ui-queen-lvl">1</span> / 500 LVL</div>
                 
-                window.showGameAlert("Нанят новый шмель-рабочий! 🐝", "✅");
-                updateClickerUI();
-                saveClickerProgress();
-            } else {
-                window.showGameAlert("Не хватает мёда на покупку шмеля!", "❌");
-            }
-        };
+                <div class="exp-container">
+                    <div class="exp-bar" id="ui-queen-progress"></div>
+                </div>
+                <div class="exp-text"><span id="ui-current-exp">0</span> / <span id="ui-needed-exp">1K</span></div>
+            </div>
 
-        window.upgradeQueenBee = function() {
-            if (saveState.queenLevel >= 500) {
-                window.showGameAlert("Королева раскачана до максимума!", "👑");
-                return;
-            }
+            <div class="stats-box">
+                <h3>📈 Твоя пасека</h3>
+                <div class="stat-line">Всего мёда: <b id="ui-honey">0</b> л</div>
+                <div class="stat-line">Доход: <b id="ui-hps">0</b> л/сек</div>
+                <div class="stat-line">Сила клика: <b id="ui-click">1</b> л</div>
+                <div class="stat-line" style="color:#ffaa00; margin-top:5px;">🏆 Ачивок: <b id="ui-ach-count">0</b> / 100</div>
+            </div>
+            
+            <button class="buy-bee-btn" style="margin-top: 15px; width: 100%; text-align: center; background-color: #ffb700;" onclick="window.openAchievementsModal()">📖 Посмотреть ачивки</button>
+            <button class="buy-bee-btn" style="margin-top: 10px; width: 100%; text-align: center; background-color: #4a4a4a;" onclick="window.exitToMainMenu()">🚪 Выйти в меню</button>
+            <button class="reset-game-btn" onclick="window.resetClickerGame()">🔄 Сбросить прогресс</button>
+        </div>
 
-            if (saveState.honey >= saveState.queenPrice) {
-                saveState.honey -= saveState.queenPrice;
-                saveState.queenLevel++;
-                saveState.clickPower = 1 + (saveState.queenLevel - 1) * 2;
-                saveState.queenPrice *= 1.45;
-                
-                window.showGameAlert(`Уровень Королевы повышен! Текущий уровень: ${saveState.queenLevel}/500`, "👑");
-                updateClickerUI();
-                saveClickerProgress();
-            } else {
-                window.showGameAlert("Не хватает мёда на улучшение Королевы!", "❌");
-            }
-        };
+        <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ -->
+        <div class="center-panel">
+            <div class="lily-timer" id="lily-timer-zone">
+                🌸 Лилия активна! Х3 Буст: <span id="lily-countdown">10:00</span>
+            </div>
 
-        window.resetEntireGameProgress = function() {
-            const doubleCheck = confirm("🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ прогресс? Сейв будет стёрт под ноль!");
-            if (doubleCheck) {
-                localStorage.removeItem("honey_clicker_save_v2");
-                alert("Весь мёд съеден, шмели улетели! 🔄");
-                location.reload();
-            }
-        };
+            <div class="click-tip" style="margin-bottom: 20px; margin-top: 0; font-size: 1.5rem; text-shadow: 1px 1px 0px #fff;">Кликай по горшку!</div>
+            <div class="main-honey-pot" id="clicker-core">🍯</div>
+            <div class="click-tip">Собирай нектар для эволюции улья</div>
+        </div>
 
-        function saveClickerProgress() {
-            localStorage.setItem("honey_clicker_save_v2", JSON.stringify(saveState));
-        }
+        <!-- ПРАВАЯ ПАНЕЛЬ -->
+        <div class="side-panel right-panel">
+            <h2>📜 Модернизация сот</h2>
+            <div class="shop-scroll-box" id="clicker-upgrades-box" style="max-height: 220px; margin-bottom: 15px; border-bottom: 2px solid #5c3a00;">
+            </div>
 
-        document.addEventListener("DOMContentLoaded", initBeeClicker);
-    </script>
+            <h2>🐝 Рабочая сила</h2>
+            <div class="shop-scroll-box" id="clicker-shop-box">
+            </div>
+        </div>
+    </div>
+
+    <!-- ВСПЛЫВАЮЩЕЕ ОКНО: КНИГА ДОСТИЖЕНИЙ -->
+    <div class="modal-overlay" id="achievements-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📜 Книга достижений улья (<span id="ui-modal-ach-count">0</span>/100)</h3>
+                <button class="modal-close-btn" onclick="window.closeAchievementsModal()">✕</button>
+            </div>
+            <div class="achievements-grid" id="modal-achievements-list"></div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/achievements.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
