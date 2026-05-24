@@ -1,7 +1,5 @@
-/* ===================================================================
-   ПИКСЕЛЬНЫЙ СТИЛЬ BEE-CLICKER С РЕЗИНОВОЙ ВЁРСТКОЙ И АЛЕРТАМИ
-   =================================================================== */
-* {
+
+ {
     box-sizing: border-box;
     user-select: none;
     image-rendering: crisp-edges;
@@ -11,8 +9,11 @@
 body {
     margin: 0; padding: 0;
     font-family: 'Courier New', Courier, monospace;
-    background-color: #f7ebd3;
-    color: #4a2f15;
+    
+    /* ТОТ САМЫЙ ПРИЯТНЫЙ ТЁПЛЫЙ ЖЁЛТО-ЯНТАРНЫЙ ФОН ПАСЕКИ */
+    background: radial-gradient(circle at 50% 30%, #ffd54f 0%, #ffb300 60%, #b38000 100%);
+    box-shadow: inset 0 0 120px rgba(74, 47, 21, 0.4);
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -22,16 +23,16 @@ body {
     padding: 15px;
 }
 
-/* ОСНОВНОЙ КОНТЕЙНЕР ПАСЕКИ (РЕЗИНОВЫЙ ПОД ЛЮБОЙ ЭКРАН) */
+/* ОСНОВНОЙ КОНТЕЙНЕР ПАСЕКИ (АККУРАТНОЕ ЖЁЛТОЕ ДЕРЕВО) */
 .clicker-container {
     background-color: #f7ebd3; 
     border: 4px solid #4a2f15;  
     border-radius: 4px;
     padding: 20px;
-    box-shadow: inset -4px -4px 0px #c2a672, inset 4px 4px 0px #ffffff, 0 12px 35px rgba(0, 0, 0, 0.4);
+    box-shadow: inset -4px -4px 0px #c2a672, inset 4px 4px 0px #ffffff, 0 12px 35px rgba(74, 47, 21, 0.4);
     display: flex;
     flex-direction: column;
-    max-width: 440px; /* Идеальный размер под экран смартфона */
+    max-width: 440px; /* Идеальный резиновый размер под экраны телефонов */
     width: 100%;
     box-sizing: border-box;
 }
@@ -44,8 +45,12 @@ h2, h3 {
     margin-bottom: 12px;
     text-transform: uppercase;
     text-align: center;
+    font-weight: 900;
 }
 
+h3 { color: #7a5a3a; font-size: 1.05rem; }
+
+/* ПАНЕЛЬ СТАТИСТИКИ (ТЁПЛЫЙ КОНТРАСТНЫЙ ЯНТАРЬ) */
 .stats-box {
     background-color: #e6d3af; 
     border: 2px solid #4a2f15;
@@ -54,7 +59,12 @@ h2, h3 {
     margin-bottom: 15px;
     font-size: 0.95rem;
     line-height: 1.5;
+    color: #4a2f15;
     box-shadow: inset -2px -2px 0px #c2a672;
+}
+
+.stats-box b {
+    color: #b35c00; /* Сочный медовый цвет для цифр */
 }
 
 .inventory-list {
@@ -64,6 +74,7 @@ h2, h3 {
     padding-right: 4px;
 }
 
+/* ПРИЯТНЫЕ СВЕТЛЫЕ КАРТОЧКИ УЛУЧШЕНИЙ */
 .inventory-item {
     background: #fffdf5;
     border: 2px solid #4a2f15;
@@ -74,10 +85,11 @@ h2, h3 {
     align-items: center;
     font-weight: bold;
     font-size: 0.85rem;
+    color: #4a2f15;
     box-sizing: border-box; 
 }
 
-/* ДЕРЕВЕНСКИЕ ПИКСЕЛЬНЫЕ КНОПКИ */
+/* КЛАССИЧЕСКИЕ КОРIЧНЕВЫЕ ИНДИ-КНОПКИ ФЕРМЫ */
 .farm-btn, .mini-plant-btn {
     background-color: #a3723b; 
     color: #fff;
@@ -90,46 +102,61 @@ h2, h3 {
     box-shadow: inset -2px -2px 0px #6e4922, inset 2px 2px 0px #c79a63;
     text-transform: uppercase;
 }
+
+/* При наведении кнопки сочно зеленеют, как в оригинале */
 .farm-btn:hover, .mini-plant-btn:hover { 
     background-color: #5c8a36; 
     box-shadow: inset -2px -2px 0px #3d5c24, inset 2px 2px 0px #8fcc58;
 }
 
 .mini-plant-btn { padding: 5px 10px; font-size: 0.75rem; }
-.reset-progress-btn { width: 100%; margin-top: auto; padding: 8px; font-size: 0.8rem; }
+
+/* Красная кнопка сброса */
+.reset-progress-btn { 
+    width: 100%; 
+    margin-top: auto; 
+    padding: 10px; 
+    font-size: 0.85rem; 
+    background-color: #ba2929;
+    box-shadow: inset -2px -2px 0px #701a1a, inset 2px 2px 0px #f87171;
+}
+.reset-progress-btn:hover {
+    background-color: #a61b1b;
+    box-shadow: inset -2px -2px 0px #521313, inset 2px 2px 0px #f87171;
+}
 
 /* АНИМАЦИЯ ПУЛЬСАЦИИ ГОРШКА */
 @keyframes menuPulse {
     0% { transform: scale(1); }
-    50% { transform: scale(1.04); filter: drop-shadow(6px 6px 0px #000); }
+    50% { transform: scale(1.04); }
     100% { transform: scale(1); }
 }
 
 /* ===================================================================
-   КАСТОМНОЕ ИГРОВОЕ УВЕДОМЛЕНИЕ (ВЗАМЕН БРАУЗЕРНОГО АЛЕРТА)
+   ФИОЛЕТОВОЕ УВЕДОМЛЕНИЕ ДЛЯ КЛИКЕРА (ПОВЕРХ ВСЕГО)
    =================================================================== */
 .game-alert-popup {
     position: fixed !important;
-    top: -100px; /* Стартово скрыто вверху */
+    top: -100px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 380px;
-    background: #2e1f4d; /* Фиолетовый благородный цвет */
-    border: 3px solid #ffaa00; /* Золотая майнкрафт-рамка */
+    background: #2e1f4d; /* Оставили премиальный фиолетовый для дорогого контраста */
+    border: 3px solid #ffaa00; 
     padding: 14px 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 4px 4px 0px rgba(0, 0, 0, 0.4);
-    z-index: 100000000 !important; /* Поверх всего */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 4px 4px 0px rgba(0, 0, 0, 0.3);
+    z-index: 100000000 !important;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
     box-sizing: border-box;
-    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Плавный выезд с отскоком */
+    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .game-alert-popup.show {
-    top: 25px; /* Мягко выезжает сверху */
+    top: 25px;
 }
 
 .game-alert-text {
