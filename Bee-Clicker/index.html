@@ -126,19 +126,44 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
             pointer-events: auto;
             backdrop-filter: blur(4px);
-            opacity: 0;
-            transform: translateY(-100px) scale(0.8);
-            transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+            will-change: transform, opacity;
         }
 
-        .achievement-toast.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        /* Анимация появления */
+        .achievement-toast.enter {
+            animation: achievementSlideIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
         }
 
-        .achievement-toast.hide {
-            opacity: 0;
-            transform: translateY(-100px) scale(0.8);
+        /* Анимация исчезновения */
+        .achievement-toast.exit {
+            animation: achievementSlideOut 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+        }
+
+        @keyframes achievementSlideIn {
+            0% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            60% {
+                transform: translateY(10px) scale(1.02);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes achievementSlideOut {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+                visibility: hidden;
+            }
         }
 
         .achievement-toast-icon {
@@ -146,6 +171,13 @@
             display: inline-block;
             margin-right: 12px;
             vertical-align: middle;
+            animation: achievementIconPulse 0.5s ease;
+        }
+
+        @keyframes achievementIconPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .achievement-toast-content {
@@ -199,6 +231,27 @@
             pointer-events: none;
         }
 
+        .floating-notification {
+            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+            border: 3px solid #ffcc44;
+            border-radius: 16px;
+            padding: 12px 24px;
+            min-width: 280px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+            backdrop-filter: blur(8px);
+            will-change: transform, opacity;
+        }
+
+        .floating-notification.enter {
+            animation: notificationSlideIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+        }
+
+        .floating-notification.exit {
+            animation: notificationSlideOut 0.3s ease forwards;
+        }
+
         @keyframes notificationSlideIn {
             0% {
                 transform: translateY(-100px) scale(0.8);
@@ -222,7 +275,37 @@
             100% {
                 transform: translateY(-100px) scale(0.8);
                 opacity: 0;
+                visibility: hidden;
             }
+        }
+
+        .floating-notification-icon {
+            font-size: 2rem;
+            display: inline-block;
+            margin-right: 12px;
+            vertical-align: middle;
+            animation: notificationIconPulse 0.5s ease;
+        }
+
+        .floating-notification-content {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: left;
+        }
+
+        .floating-notification-title {
+            color: #ffcc44;
+            font-weight: bold;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .floating-notification-message {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-top: 4px;
         }
 
         @keyframes notificationIconPulse {
