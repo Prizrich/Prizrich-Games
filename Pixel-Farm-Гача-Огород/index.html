@@ -15,9 +15,97 @@
         #ui-main-menu-overlay {
             transition: opacity 0.5s ease;
         }
+
+        /* ========== КАСТОМНЫЕ ОКОШКИ УВЕДОМЛЕНИЙ ========== */
+        .custom-notification-container {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 999999;
+            pointer-events: none;
+        }
+
+        .custom-notification {
+            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
+            border: 3px solid #ffcc44;
+            border-radius: 16px;
+            padding: 12px 24px;
+            min-width: 280px;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+            transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+
+        .custom-notification.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .custom-notification.hide {
+            opacity: 0;
+            transform: translateY(-100px) scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .custom-notification-icon {
+            font-size: 1.8rem;
+            display: inline-block;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
+
+        .custom-notification-content {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: left;
+        }
+
+        .custom-notification-title {
+            color: #ffcc44;
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .custom-notification-message {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .custom-notification-amount {
+            color: #55ff55;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        /* Анимация для иконки */
+        @keyframes iconPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .custom-notification-icon {
+            animation: iconPulse 0.5s ease;
+        }
     </style>
 </head>
 <body>
+
+    <!-- КОНТЕЙНЕР ДЛЯ КРАСИВЫХ ОКОШЕК УВЕДОМЛЕНИЙ -->
+    <div id="custom-notification-container" class="custom-notification-container"></div>
 
     <!-- ГЛАВНОЕ МЕНЮ ИГРЫ -->
     <div id="ui-main-menu-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 30%, #3d6a29 0%, #294c1a 60%, #152b0c 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999999; backdrop-filter: blur(5px);">
@@ -135,5 +223,213 @@
     <script src="js/config.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/game.js"></script>
+    
+    <script>
+        // ========== СИСТЕМА КРАСИВЫХ ОКОШЕК ==========
+        // Переопределяем alert на красивое окошко
+        window.customAlert = function(title, message, icon = "📢") {
+            return new Promise((resolve) => {
+                const container = document.getElementById("custom-notification-container");
+                if (!container) {
+                    alert(`${title}\n${message}`);
+                    resolve();
+                    return;
+                }
+
+                const notification = document.createElement("div");
+                notification.className = "custom-notification";
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="custom-notification-icon">${icon}</div>
+                        <div class="custom-notification-content">
+                            <div class="custom-notification-title">${title}</div>
+                            <div class="custom-notification-message">${message}</div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(notification);
+                notification.offsetHeight; // принудительный рефлоу
+                notification.classList.add("show");
+
+                setTimeout(() => {
+                    notification.classList.add("hide");
+                    setTimeout(() => {
+                        notification.remove();
+                        resolve();
+                    }, 300);
+                }, 3000);
+            });
+        };
+
+        // Переопределяем confirm на красивое окошко
+        window.customConfirm = function(title, message, icon = "❓") {
+            return new Promise((resolve) => {
+                const container = document.getElementById("custom-notification-container");
+                if (!container) {
+                    resolve(confirm(`${title}\n${message}`));
+                    return;
+                }
+
+                const notification = document.createElement("div");
+                notification.className = "custom-notification";
+                notification.style.cursor = "pointer";
+                notification.style.minWidth = "320px";
+                notification.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="custom-notification-icon">${icon}</div>
+                        <div class="custom-notification-content">
+                            <div class="custom-notification-title">${title}</div>
+                            <div class="custom-notification-message">${message}</div>
+                            <div style="display: flex; gap: 10px; margin-top: 12px; justify-content: center;">
+                                <button style="background:#5c8a36; color:white; border:none; padding:6px 16px; border-radius:25px; cursor:pointer;">✅ Да</button>
+                                <button style="background:#ba2929; color:white; border:none; padding:6px 16px; border-radius:25px; cursor:pointer;">❌ Нет</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(notification);
+                notification.offsetHeight;
+                notification.classList.add("show");
+
+                const yesBtn = notification.querySelector("button:first-child");
+                const noBtn = notification.querySelector("button:last-child");
+
+                const close = (result) => {
+                    notification.classList.add("hide");
+                    setTimeout(() => {
+                        notification.remove();
+                        resolve(result);
+                    }, 300);
+                };
+
+                yesBtn.onclick = () => close(true);
+                noBtn.onclick = () => close(false);
+            });
+        };
+
+        // Функция для красивого уведомления о покупке
+        window.showPurchaseNotification = function(itemName, price) {
+            const container = document.getElementById("custom-notification-container");
+            if (!container) return;
+
+            const notification = document.createElement("div");
+            notification.className = "custom-notification";
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="custom-notification-icon">🛒✨</div>
+                    <div class="custom-notification-content">
+                        <div class="custom-notification-title">ПОКУПКА УСПЕШНА!</div>
+                        <div class="custom-notification-message">${itemName}</div>
+                        <div class="custom-notification-amount">-${price}💰</div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(notification);
+            notification.offsetHeight;
+            notification.classList.add("show");
+
+            setTimeout(() => {
+                notification.classList.add("hide");
+                setTimeout(() => notification.remove(), 300);
+            }, 2500);
+        };
+
+        // Функция для красивого уведомления о продаже
+        window.showSellNotification = function(amount, earned) {
+            const container = document.getElementById("custom-notification-container");
+            if (!container) return;
+
+            const notification = document.createElement("div");
+            notification.className = "custom-notification";
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="custom-notification-icon">💰📦</div>
+                    <div class="custom-notification-content">
+                        <div class="custom-notification-title">УРОЖАЙ ПРОДАН!</div>
+                        <div class="custom-notification-message">Продано ${amount} шт</div>
+                        <div class="custom-notification-amount">+${earned}💰</div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(notification);
+            notification.offsetHeight;
+            notification.classList.add("show");
+
+            setTimeout(() => {
+                notification.classList.add("hide");
+                setTimeout(() => notification.remove(), 300);
+            }, 2500);
+        };
+
+        // Функция для красивого уведомления об ошибке
+        window.showErrorNotification = function(message) {
+            const container = document.getElementById("custom-notification-container");
+            if (!container) return;
+
+            const notification = document.createElement("div");
+            notification.className = "custom-notification";
+            notification.style.borderColor = "#ff4444";
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="custom-notification-icon">❌⚠️</div>
+                    <div class="custom-notification-content">
+                        <div class="custom-notification-title" style="color:#ff8888;">ОШИБКА!</div>
+                        <div class="custom-notification-message">${message}</div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(notification);
+            notification.offsetHeight;
+            notification.classList.add("show");
+
+            setTimeout(() => {
+                notification.classList.add("hide");
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        };
+
+        // Функция для красивого уведомления о гейне
+        window.showGachaNotification = function(cropName, rarity) {
+            const container = document.getElementById("custom-notification-container");
+            if (!container) return;
+
+            const rarityColors = {
+                "Обычный": "#b0b0b0",
+                "Необычный": "#1e90ff",
+                "Редкий": "#a335ee",
+                "Легендарный": "#ff8000",
+                "Мифический": "#ff0077"
+            };
+            const color = rarityColors[rarity] || "#ffcc44";
+
+            const notification = document.createElement("div");
+            notification.className = "custom-notification";
+            notification.style.borderColor = color;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="custom-notification-icon" style="animation: iconPulse 0.5s ease;">🎲✨</div>
+                    <div class="custom-notification-content">
+                        <div class="custom-notification-title" style="color:${color};">ПОЛУЧЕНО ИЗ ГАЧИ!</div>
+                        <div class="custom-notification-message">${cropName}</div>
+                        <div class="custom-notification-amount" style="color:${color};">${rarity} ★</div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(notification);
+            notification.offsetHeight;
+            notification.classList.add("show");
+
+            setTimeout(() => {
+                notification.classList.add("hide");
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        };
+    </script>
 </body>
 </html>
