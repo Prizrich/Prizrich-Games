@@ -1,4 +1,3 @@
-// Данные игрока и чистые функции-геттеры
 import { EXP_FOR_LEVEL, THEME_MULTIPLIERS, THEME_RISK, themeOrder, THEME_UNLOCK, tasksData } from './config.js';
 
 // === СОСТОЯНИЕ ИГРОКА ===
