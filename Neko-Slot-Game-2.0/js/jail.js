@@ -1,4 +1,3 @@
-// Тюремная система
 import { player, isInJail, bailAmount, setIsInJail } from './utils.js';
 import { updateUI, saveGame } from './game.js';
 
