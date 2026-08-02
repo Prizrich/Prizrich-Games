@@ -15,6 +15,14 @@
         </div>
     </div>
 
+    <div id="alert-modal" class="modal-overlay modal-alert" style="display:none;">
+        <div class="modal-content">
+            <h3 id="alert-title">🐝 Внимание!</h3>
+            <p id="alert-message" style="font-size:1.1rem; line-height:1.6;"></p>
+            <button class="action-btn" onclick="closeAlertModal()">✅ Понятно</button>
+        </div>
+    </div>
+
     <div class="game-container">
         <header class="signboard">
             <div class="bee-logo-wrapper">
@@ -57,12 +65,12 @@
                 <div id="mail-window" class="window-content active">
                     <div class="mail-sidebar">
                         <div class="mail-contacts" id="contacts-list">
-                            <div class="mail-contact active" onclick="selectContact('system')">📢 Система</div>
-                            <div class="mail-contact" onclick="selectContact('nahida')">🟢 NAHIDA</div>
-                            <div class="mail-contact" onclick="selectContact('pepto')">🛰️ PETPO</div>
-                            <div class="mail-contact" onclick="selectContact('mushroom')">🍄 Гриб</div>
-                            <div class="mail-contact" onclick="selectContact('karas')">🐟 KAPACb</div>
-                            <div class="mail-contact" onclick="selectContact('starlik')">😈 Старлик</div>
+                            <div class="mail-contact active" data-contact="system" onclick="selectContact('system', this)">📢 Система</div>
+                            <div class="mail-contact" data-contact="nahida" onclick="selectContact('nahida', this)">🟢 NAHIDA</div>
+                            <div class="mail-contact" data-contact="pepto" onclick="selectContact('pepto', this)">🛰️ PETPO</div>
+                            <div class="mail-contact" data-contact="mushroom" onclick="selectContact('mushroom', this)">🍄 Гриб</div>
+                            <div class="mail-contact" data-contact="karas" onclick="selectContact('karas', this)">🐟 KAPACb</div>
+                            <div class="mail-contact" data-contact="starlik" onclick="selectContact('starlik', this)">😈 Старлик</div>
                         </div>
                     </div>
                     <div class="mail-content">
