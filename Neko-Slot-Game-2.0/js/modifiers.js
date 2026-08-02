@@ -1,4 +1,3 @@
-// Система модификаторов
 import { ALL_MODIFIERS } from './config.js';
 import { player, gameCompleted, canSave, activeModifiers, setActiveModifiers, setGameCompleted } from './utils.js';
 import { saveGame, resetGameState, updateUI } from './game.js';
@@ -86,7 +85,11 @@ export function applySelectedModifiers() {
     });
     const limit = getCurrentModifierLimit();
     if (selected.length > limit) { 
-        alert(`Можно выбрать не более ${limit} модификаторов! Текущий уровень позволяет брать только ${limit}. Побеждайте босса больше раз, чтобы увеличить лимит!`); 
+        showModalMessage(
+            `⚠️ ЛИМИТ МОДИФИКАТОРОВ ⚠️`,
+            `Можно выбрать не более <strong>${limit}</strong> модификаторов!<br><br>Текущий уровень позволяет брать только ${limit}.<br>Побеждайте босса больше раз, чтобы увеличить лимит!`,
+            "😞 ПОНЯТНО"
+        );
         return; 
     }
     
@@ -115,56 +118,42 @@ export function applySelectedModifiers() {
 }
 
 export function resetGameWithModifiers() {
-    // Очищаем сохранения
     localStorage.removeItem("nekoSlotSave");
-    
-    // Сброс состояния игрока через resetGameState
     resetGameState();
-    
-    // Применяем модификаторы к игроку
     applyModifiersToPlayer(player);
-    
-    // Сброс достижений
     for (let key in achievements) {
         achievements[key].unlocked = false;
     }
     saveAchievements();
-    
-    // Сброс визуального оформления
     document.body.className = "theme-forest";
     const bgContainer = document.getElementById("bgEffects");
     if (bgContainer) bgContainer.innerHTML = "";
     player.currentTheme = "forest";
-    
-    // Обновляем UI
     updateUI();
-    
-    // Скрываем тюремную панель
     const jailPanel = document.getElementById("jailPanel");
     if (jailPanel) jailPanel.style.display = "none";
-    
-    // Активируем кнопки
     const spinBtn = document.getElementById("spinBtn");
     const jobBtn = document.getElementById("jobBtn");
     if (spinBtn) spinBtn.disabled = false;
     if (jobBtn) jobBtn.disabled = false;
-    
-    // Сообщение
     const msg = document.getElementById("msg");
     if (msg) msg.innerHTML = "⚙️ НОВАЯ ИГРА С МОДИФИКАТОРАМИ! ⚙️";
-    
-    // Сохраняем игру
     saveGame();
-    
-    // Скрываем селектор модификаторов
     const modifiersSelector = document.getElementById("modifiersSelector");
     if (modifiersSelector) modifiersSelector.style.display = "none";
-    
-    // Обновляем UI достижений
     const achievementsPanel = document.getElementById("achievementsPanel");
     if (achievementsPanel) {
         import('./achievements.js').then(module => {
             module.updateAchievementsUI();
         });
     }
+}
+
+function showModalMessage(title, message, buttonText) {
+    const modal = document.getElementById("storyModal");
+    const modalText = document.getElementById("modalText");
+    const modalChoices = document.getElementById("modalChoices");
+    modalText.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+    modalChoices.innerHTML = `<button class="choice-btn" onclick="document.getElementById('storyModal').style.display='none'">${buttonText || "OK"}</button>`;
+    modal.style.display = "flex";
 }
