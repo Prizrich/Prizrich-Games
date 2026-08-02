@@ -1,4 +1,3 @@
-// Основная игровая логика
 import { FRUITS, STAR, EXP_FOR_LEVEL, THEME_MULTIPLIERS, THEME_UNLOCK, themeOrder } from './config.js';
 import { 
     player, spinCount, legendCount, jobCount, gameCompleted, isInJail, isSpinning, isWorking, canSave, bailAmount, activeModifiers,
@@ -7,7 +6,7 @@ import {
     incrementSpinCount, incrementLegendCount, incrementJobCount, setPlayer, setActiveModifiers,
     getExpNeededForNextLevel, getTotalExpForNextLevel
 } from './utils.js';
-import { playSFX, playLevelUpSound, playMusicForLocation } from './audio.js';
+import { playSFX, playLevelUpSound, playMusicForLocation, stopCurrentMusic } from './audio.js';
 import { applyThemeBackground, showLevelUpNotification, showLocationUnlockNotification, hideJobBackground } from './effects.js';
 import { checkAchievements } from './achievements.js';
 import { applyModifiersToPlayer, updateModifiersUI } from './modifiers.js';
@@ -15,7 +14,6 @@ import { sendToJail } from './jail.js';
 import { startBossFight, inBossFight } from './boss.js';
 import { levelEvents, pendingLevelUpEvent, checkAndShowPendingEvent, showLevelUpEvent, isModalOpen } from './events.js';
 
-// Глобальные переменные для этого модуля
 let pendingEventLevel = null;
 
 export function saveGame() { 
@@ -58,7 +56,6 @@ export function loadGame() {
 }
 
 export function resetGameState() {
-    // Сброс состояния игрока
     player.level = 1;
     player.money = 200;
     player.exp = 0;
@@ -71,7 +68,6 @@ export function resetGameState() {
     player.smallWins = false;
     player.highRisk = false;
     
-    // Сброс глобальных переменных
     spinCount = 0;
     legendCount = 0;
     jobCount = 0;
@@ -82,7 +78,6 @@ export function resetGameState() {
     setIsWorking(false);
     setCanSave(true);
     
-    // Сброс модификаторов
     activeModifiers.length = 0;
 }
 
@@ -209,7 +204,6 @@ export function addExp(amount) {
         playLevelUpSound();
         showLevelUpNotification(player.level);
         
-        // Проверяем открытие новых локаций
         if (player.level === 6 && player.currentTheme !== "cyberpunk") {
             showLocationUnlockNotification("cyberpunk", THEME_MULTIPLIERS.cyberpunk, () => {
                 applyTheme("cyberpunk");
@@ -229,7 +223,6 @@ export function addExp(amount) {
             });
         }
         
-        // События уровней
         if (player.level >= 2 && player.level <= 18 && levelEvents && levelEvents[player.level]) {
             pendingEventLevel = player.level;
         }
@@ -240,10 +233,9 @@ export function addExp(amount) {
         checkAchievements(); 
     }
     
-    // Проверяем отложенные события
-    if (pendingEventLevel && !isModalOpen) {
+    if (pendingEventLevel && !isModalOpen && !window.isModalOpen) {
         setTimeout(() => {
-            if (typeof showLevelUpEvent === 'function' && !isModalOpen) {
+            if (typeof showLevelUpEvent === 'function' && !isModalOpen && !window.isModalOpen) {
                 showLevelUpEvent(pendingEventLevel);
                 pendingEventLevel = null;
             }
