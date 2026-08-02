@@ -1,11 +1,6 @@
-// ===================================================================
-// АУДИО-МОДУЛЬ: 8-БИТНЫЙ СИНТЕЗАТОР ЗВУКОВЫХ ЭФФЕКТОВ CLIKS & BEB
-// ===================================================================
-
 const AudioEngine = {
-    enabled: true, // Включаем звук по умолчанию!
+    enabled: true,
 
-    // Внутренний генератор ретро-частот звуковой карты браузера
     createTone(frequency, duration, type = "sine") {
         if (!this.enabled) return;
         try {
@@ -19,7 +14,7 @@ const AudioEngine = {
             osc.type = type;
             osc.frequency.value = frequency;
             
-            gain.gain.setValueAtTime(0.1, ctx.currentTime); // Делаем звук приятным и негромким
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
             
             osc.connect(gain);
@@ -32,22 +27,19 @@ const AudioEngine = {
         }
     },
 
-    // Короткий ламповый писк при переключении контактов или вкладок
     playClickSound() {
-        this.createTone(587.33, 0.08, "triangle"); // Нота Ре второй октавы
+        this.createTone(587.33, 0.08, "triangle");
     },
 
-    // Медовый праздничный двойной писк при закупке товара у Вали 🚚
     playDeliverySound() {
-        this.createTone(523.25, 0.1, "sine"); // До
+        this.createTone(523.25, 0.1, "sine");
         setTimeout(() => {
-            this.createTone(659.25, 0.15, "sine"); // Ми
+            this.createTone(659.25, 0.15, "sine");
         }, 100);
     },
 
-    // Тревожный низкий писк при бот-атаке Старлика или KAPACb
     playAlertSound() {
-        this.createTone(220.00, 0.3, "sawtooth"); // Низкий гул Ля малой октавы
+        this.createTone(220.00, 0.3, "sawtooth");
     }
 };
 
