@@ -12,7 +12,6 @@
     --neon-purple: #b000ff;
     --neon-gold: #ffcc00;
     --neon-green: #00ff88;
-    --cell-size: clamp(32px, 7vw, 58px);
 }
 
 body {
@@ -23,7 +22,7 @@ body {
     position: relative;
     overflow-x: hidden;
     margin: 0;
-    padding: 10px;
+    padding: 20px;
 }
 
 /* Все элементы - пиксельный шрифт */
@@ -71,9 +70,9 @@ body::before {
 
 .start-container {
     background: linear-gradient(135deg, #1a1e2c, #0f121f);
-    padding: 25px 20px;
+    padding: 35px 30px;
     max-width: 480px;
-    min-width: 300px;
+    min-width: 340px;
     width: 90%;
     text-align: center;
     border: 4px solid var(--neon-cyan);
@@ -81,16 +80,15 @@ body::before {
 }
 
 .game-title {
-    font-size: clamp(0.9rem, 5vw, 1.3rem);
+    font-size: 1.3rem;
     color: var(--neon-cyan);
     text-shadow: 3px 3px 0px var(--neon-pink);
     margin-bottom: 15px;
     letter-spacing: 1px;
-    word-break: keep-all;
 }
 
 .game-subtitle {
-    font-size: clamp(0.45rem, 3vw, 0.55rem);
+    font-size: 0.55rem;
     color: #aaa;
     margin-bottom: 25px;
     letter-spacing: 1px;
@@ -103,7 +101,6 @@ body::before {
     background: #0a0e1a;
     padding: 4px;
     border: 2px solid #333;
-    flex-wrap: wrap;
 }
 
 .tab-btn {
@@ -111,11 +108,10 @@ body::before {
     background: #1a1e2c;
     border: none;
     color: #ccc;
-    font-size: clamp(0.45rem, 3vw, 0.65rem);
-    padding: 8px 12px;
+    font-size: 0.65rem;
+    padding: 10px 12px;
     cursor: pointer;
     font-weight: normal;
-    min-width: 70px;
 }
 
 .tab-btn.active {
@@ -155,7 +151,6 @@ body::before {
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-wrap: wrap;
 }
 
 .slider-container span {
@@ -190,8 +185,8 @@ body::before {
     background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
     border: none;
     color: #000;
-    font-size: clamp(0.6rem, 4vw, 0.8rem);
-    padding: 12px 25px;
+    font-size: 0.8rem;
+    padding: 14px 35px;
     cursor: pointer;
     margin-top: 25px;
     letter-spacing: 2px;
@@ -224,16 +219,15 @@ body::before {
 }
 
 .game-container {
-    max-width: 100%;
+    max-width: 850px;
     width: 100%;
     margin: 0 auto;
     background: #0f121f;
-    padding: 12px;
+    padding: 15px;
     position: relative;
     z-index: 1;
     border: 4px solid var(--world-primary, #4caf50);
     box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
-    overflow-x: auto;
 }
 
 .exit-menu-btn {
@@ -263,7 +257,7 @@ body.world-space { background: #0a0a2a; }
     align-items: center;
     background: #0a0e1a;
     border: 2px solid #333;
-    padding: 8px 15px;
+    padding: 8px 20px;
     margin-bottom: 15px;
     flex-wrap: wrap;
     gap: 8px;
@@ -275,19 +269,17 @@ body.world-space { background: #0a0a2a; }
     gap: 8px;
     background: #000000aa;
     border: 2px solid #555;
-    padding: 6px 12px;
-    font-size: clamp(0.55rem, 3vw, 0.7rem);
+    padding: 6px 15px;
+    font-size: 0.7rem;
     color: #fff;
-    flex-wrap: wrap;
 }
 
 .shop-btn, .reset-progress-btn, .ultima-btn {
-    padding: 6px 12px;
+    padding: 8px 18px;
     cursor: pointer;
-    font-size: clamp(0.45rem, 2.5vw, 0.55rem);
+    font-size: 0.55rem;
     border: none;
     box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
-    white-space: nowrap;
 }
 
 .shop-btn { background: #ffd700; color: #000; }
@@ -311,7 +303,6 @@ body.world-space { background: #0a0a2a; }
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    flex-wrap: wrap;
 }
 
 .world-nav-btn {
@@ -323,7 +314,6 @@ body.world-space { background: #0a0a2a; }
     font-size: 1.3rem;
     cursor: pointer;
     box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
-    flex-shrink: 0;
 }
 
 .world-nav-btn:active {
@@ -339,12 +329,11 @@ body.world-space { background: #0a0a2a; }
     padding: 8px;
     background: #0a0e1a;
     border: 3px solid var(--world-primary, #4caf50);
-    min-width: 120px;
 }
 
-.current-world-icon { font-size: clamp(1.2rem, 5vw, 2rem); filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.5)); }
-.current-world-name { font-size: clamp(0.45rem, 3vw, 0.6rem); margin-top: 4px; color: #fff; }
-.world-property { font-size: clamp(0.35rem, 2.5vw, 0.45rem); margin-top: 4px; color: #ddd; }
+.current-world-icon { font-size: 2rem; filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.5)); }
+.current-world-name { font-size: 0.6rem; margin-top: 4px; color: #fff; }
+.world-property { font-size: 0.45rem; margin-top: 4px; color: #ddd; }
 
 .help-btn {
     background: #0a0e1a;
@@ -355,7 +344,6 @@ body.world-space { background: #0a0a2a; }
     cursor: pointer;
     font-size: 1rem;
     box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
-    flex-shrink: 0;
 }
 
 .help-btn:active {
@@ -380,7 +368,7 @@ body.world-space { background: #0a0a2a; }
     justify-content: center;
     cursor: pointer;
     border: 2px solid #555;
-    font-size: clamp(0.5rem, 3vw, 0.65rem);
+    font-size: 0.65rem;
     color: #fff;
     box-shadow: 2px 2px 0px rgba(0,0,0,0.5);
 }
@@ -402,9 +390,8 @@ body.world-space { background: #0a0a2a; }
     padding: 8px;
     margin-bottom: 10px;
     text-align: center;
-    font-size: clamp(0.45rem, 2.5vw, 0.55rem);
+    font-size: 0.55rem;
     color: var(--neon-cyan);
-    word-break: break-word;
 }
 
 .stats-row {
@@ -413,11 +400,11 @@ body.world-space { background: #0a0a2a; }
     align-items: center;
     background: #0a0e1a;
     border: 2px solid #333;
-    padding: 8px 12px;
+    padding: 10px 15px;
     margin-bottom: 10px;
     flex-wrap: wrap;
     gap: 8px;
-    font-size: clamp(0.5rem, 3vw, 0.65rem);
+    font-size: 0.65rem;
     color: #fff;
 }
 
@@ -427,7 +414,6 @@ body.world-space { background: #0a0a2a; }
     animation: pulse 0.8s infinite alternate;
     color: #fff;
     border: 1px solid #ff007f;
-    font-size: clamp(0.45rem, 2.5vw, 0.55rem);
 }
 
 @keyframes pulse { 0% { opacity: 0.7; } 100% { opacity: 1; text-shadow: 0 0 5px #ff007f; } }
@@ -436,7 +422,6 @@ body.world-space { background: #0a0a2a; }
     background: #0a0e1a;
     padding: 10px;
     border: 3px solid var(--world-primary, #4caf50);
-    overflow-x: auto;
 }
 
 .board {
@@ -445,8 +430,9 @@ body.world-space { background: #0a0a2a; }
     grid-template-rows: repeat(8, var(--cell-size));
     gap: 3px;
     justify-content: center;
-    margin: 0 auto;
 }
+
+:root { --cell-size: clamp(38px, 6vw, 58px); }
 
 .cell {
     display: flex;
@@ -487,7 +473,7 @@ body.world-space { background: #0a0a2a; }
     padding: 8px 20px;
     cursor: pointer;
     margin-top: 10px;
-    font-size: clamp(0.5rem, 3vw, 0.6rem);
+    font-size: 0.6rem;
     box-shadow: 3px 3px 0px rgba(0,0,0,0.5);
 }
 
@@ -498,7 +484,7 @@ body.world-space { background: #0a0a2a; }
 
 .progress-bar-bg { background: #0a0e1a; height: 8px; margin-top: 5px; overflow: hidden; border: 1px solid #333; }
 
-#worldExtraInfo { background: #0a0e1a; border: 2px solid #333; padding: 8px 12px; margin-top: 10px; font-size: 0.45rem; text-align: center; color: #ddd; word-break: break-word; }
+#worldExtraInfo { background: #0a0e1a; border: 2px solid #333; padding: 8px 12px; margin-top: 10px; font-size: 0.45rem; text-align: center; color: #ddd; }
 
 /* Модальные окна */
 .modal-overlay, .shop-modal, .tutorial-overlay, .victory-celebration {
@@ -522,7 +508,7 @@ body.world-space { background: #0a0a2a; }
 .modal, .victory-card {
     background: #0f121f;
     border: 4px solid gold;
-    padding: 20px;
+    padding: 25px;
     text-align: center;
     max-width: 350px;
     width: 90%;
@@ -532,12 +518,12 @@ body.world-space { background: #0a0a2a; }
 .modal .modal-title, .victory-card .victory-title {
     color: gold;
     margin: 15px 0;
-    font-size: clamp(0.7rem, 4vw, 0.9rem);
+    font-size: 0.9rem;
 }
 
 .modal #modalStats, .victory-card .victory-stats {
     color: #ffd700;
-    font-size: clamp(0.5rem, 3vw, 0.6rem);
+    font-size: 0.6rem;
 }
 
 /* Магазин */
@@ -567,7 +553,7 @@ body.world-space { background: #0a0a2a; }
     gap: 10px;
 }
 
-.shop-item b { color: gold; font-size: clamp(0.5rem, 2.5vw, 0.6rem); }
+.shop-item b { color: gold; font-size: 0.6rem; }
 
 .skin-current {
     background: #00ff88;
@@ -579,7 +565,7 @@ body.world-space { background: #0a0a2a; }
 .shop-buy-btn {
     background: #ffd700;
     border: none;
-    padding: 6px 12px;
+    padding: 8px 18px;
     cursor: pointer;
     color: #000;
     font-size: 0.5rem;
@@ -632,13 +618,13 @@ body.world-space { background: #0a0a2a; }
 .world-tutorial h3 {
     color: #fff;
     margin: 0 0 8px 0;
-    font-size: clamp(0.5rem, 3vw, 0.6rem);
+    font-size: 0.6rem;
 }
 
 .world-tutorial p {
     color: #ddd;
     margin: 5px 0;
-    font-size: clamp(0.4rem, 2.5vw, 0.45rem);
+    font-size: 0.45rem;
     line-height: 1.5;
 }
 
@@ -662,202 +648,64 @@ body.world-space { background: #0a0a2a; }
 #score, #moves, #comboDisplay { color: #ffd700; }
 #questProgressDisplay { color: #00ff88; }
 
-/* ========== МОБИЛЬНАЯ АДАПТАЦИЯ ========== */
-@media (max-width: 768px) {
-    body {
-        padding: 8px;
-    }
-    
-    .game-container {
-        padding: 8px;
-    }
-    
-    .currency-bar {
-        padding: 6px 10px;
-    }
-    
-    .currency {
-        padding: 4px 8px;
-        font-size: 0.55rem;
-    }
-    
-    .world-nav {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .world-nav-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 1rem;
-    }
-    
-    .current-world-card {
-        min-width: 100px;
-        padding: 6px;
-    }
-    
-    .help-btn {
-        width: 34px;
-        height: 34px;
-        font-size: 0.9rem;
-    }
-    
-    .level-badge {
-        width: 32px;
-        height: 32px;
-        font-size: 0.5rem;
-    }
-    
-    .board {
-        gap: 2px;
-    }
-    
-    .cell {
-        font-size: calc(var(--cell-size) * 0.4);
-    }
-}
-
+/* Адаптация */
 @media (max-width: 600px) {
-    .level-badge {
-        width: 28px;
-        height: 28px;
-        font-size: 0.45rem;
-    }
-    
-    .shop-btn, .reset-progress-btn, .ultima-btn {
-        padding: 4px 8px;
-        font-size: 0.45rem;
-    }
-    
-    .stats-row {
-        font-size: 0.5rem;
-        padding: 6px 10px;
-    }
-    
-    .combo-indicator {
-        padding: 3px 8px;
-        font-size: 0.45rem;
-    }
-    
-    .quest-target-display {
-        font-size: 0.45rem;
-        padding: 6px;
-    }
-    
-    .start-container {
-        padding: 20px 15px;
-        min-width: 280px;
-    }
-    
-    .tab-btn {
-        padding: 6px 8px;
-        font-size: 0.45rem;
-        min-width: 60px;
-    }
-    
-    .sound-settings {
-        padding: 15px;
-    }
-    
-    .sound-option label {
-        font-size: 0.5rem;
-    }
-    
-    .slider-container span {
-        font-size: 0.65rem;
-    }
-    
-    .play-btn {
-        padding: 10px 20px;
-        font-size: 0.6rem;
-    }
-}
-
-@media (max-width: 480px) {
-    :root {
-        --cell-size: clamp(28px, 6vw, 38px);
-    }
-    
-    .board {
-        gap: 1px;
-    }
-    
+    .cell { font-size: 1rem; }
+    .level-badge { width: 32px; height: 32px; font-size: 0.5rem; }
+    .currency-bar { padding: 6px 12px; }
+    .victory-title { font-size: 0.7rem; }
+    .game-title { font-size: 1rem; }
+    .play-btn { font-size: 0.65rem; padding: 12px 25px; }
+    .start-container { padding: 20px; }
+    .tab-btn { font-size: 0.5rem; padding: 6px 10px; }
     .cell {
-        font-size: calc(var(--cell-size) * 0.35);
-    }
-    
-    .level-selector {
-        gap: 4px;
-    }
-    
-    .level-badge {
-        width: 26px;
-        height: 26px;
-        font-size: 0.4rem;
-    }
-    
-    .currency-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .currency {
-        justify-content: center;
-    }
-    
-    .shop-item {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .modal, .victory-card {
-        padding: 15px;
-    }
-    
-    .game-title {
-        font-size: 0.9rem;
+        font-size: 8px !important;
     }
 }
 
-@media (max-width: 380px) {
-    :root {
-        --cell-size: clamp(26px, 5vw, 32px);
-    }
-    
-    .world-nav-btn {
-        width: 32px;
-        height: 32px;
-        font-size: 0.8rem;
-    }
-    
-    .current-world-card {
-        min-width: 80px;
-    }
-    
-    .current-world-icon {
-        font-size: 1rem;
-    }
-    
-    .current-world-name {
-        font-size: 0.4rem;
-    }
-    
-    .help-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 0.8rem;
-    }
+.notification-modal {
+    max-width: 400px;
+    padding: 25px 20px;
+    background: linear-gradient(135deg, #1a1e2c, #0f121f);
+    border: 4px solid var(--neon-cyan);
+    box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
+    text-align: center;
 }
 
-/* Горизонтальная прокрутка для доски на очень маленьких экранах */
-@media (max-width: 500px) {
-    .board-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .board {
-        min-width: calc(var(--cell-size) * 8 + 16px);
-    }
+.notification-modal .modal-title {
+    color: var(--neon-cyan);
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.notification-modal #notificationMessage {
+    color: #ddd;
+    font-size: 0.6rem;
+    line-height: 1.8;
+    padding: 0 10px;
+}
+
+.world-unlock-modal {
+    max-width: 420px;
+    padding: 30px 25px;
+    background: linear-gradient(135deg, #1a1e2c, #0f121f);
+    border: 4px solid #ffd700;
+    box-shadow: 0 0 30px rgba(255,215,0,0.2), 8px 8px 0px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.world-unlock-modal .modal-title {
+    color: #ffd700;
+    font-size: 1.1rem;
+    text-shadow: 2px 2px 0px rgba(255,215,0,0.3);
+}
+
+/* Анимация для модальных окон */
+.modal-overlay.active .modal {
+    animation: modalPop 0.3s ease-out;
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
