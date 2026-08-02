@@ -1,4 +1,3 @@
-// Система достижений
 import { player, spinCount, legendCount, jobCount, gameCompleted, activeModifiers } from './utils.js';
 import { updateUI } from './game.js';
 
