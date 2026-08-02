@@ -1,4 +1,3 @@
-// Аудио система
 import { locationMusic } from './config.js';
 
 let currentMusic = null;
