@@ -2,15 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Медовый Кликер: Эволюция Улья</title>
     <link rel="stylesheet" href="CSS/style.css">
     <style>
-        /* ИДЕАЛЬНОЕ ЦЕНТРИРОВАНИЕ МЕНЮ ПО ЦЕНТРУ ЭКРАНА */
         .menu-overlay-bg {
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             background-color: rgba(92, 58, 0, 0.15);
             display: flex;
             justify-content: center;
@@ -19,7 +20,6 @@
             box-sizing: border-box;
         }
         
-        /* КРАСИВОЕ РАСШИРЕННОЕ ОКНО ЗАСТАВКИ */
         .main-menu-screen {
             background-color: #fff6d6;
             border: 4px solid #5c3a00;
@@ -97,240 +97,18 @@
         .game-interface-layout {
             display: none;
         }
-
-        /* ========== КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ДОСТИЖЕНИЙ (СВЕРХУ ПО ЦЕНТРУ) ========== */
-        .achievement-toast-container {
-            position: fixed;
-            top: 20px;
-            left: 0;
-            right: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 10px;
-            z-index: 999999;
-            pointer-events: none;
-        }
-
-        /* Стиль для самой плашки достижения */
-        .achievement-toast {
-            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-            color: #fff;
-            border: 3px solid #ffcc44;
-            border-radius: 12px;
-            padding: 12px 20px;
-            min-width: 300px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
-            pointer-events: auto;
-            backdrop-filter: blur(4px);
-            will-change: transform, opacity;
-        }
-
-        /* Анимация появления */
-        .achievement-toast.enter {
-            animation: achievementSlideIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-        }
-
-        /* Анимация исчезновения */
-        .achievement-toast.exit {
-            animation: achievementSlideOut 0.4s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
-        }
-
-        @keyframes achievementSlideIn {
-            0% {
-                transform: translateY(-100px) scale(0.8);
-                opacity: 0;
-            }
-            60% {
-                transform: translateY(10px) scale(1.02);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes achievementSlideOut {
-            0% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) scale(0.8);
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-
-        .achievement-toast-icon {
-            font-size: 1.8rem;
-            display: inline-block;
-            margin-right: 12px;
-            vertical-align: middle;
-            animation: achievementIconPulse 0.5s ease;
-        }
-
-        @keyframes achievementIconPulse {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .achievement-toast-content {
-            display: inline-block;
-            vertical-align: middle;
-            text-align: left;
-        }
-
-        .achievement-toast-title {
-            color: #ffcc44;
-            font-weight: bold;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-
-        .achievement-toast-name {
-            font-weight: bold;
-            font-size: 0.95rem;
-            margin-bottom: 2px;
-            color: #ffffff;
-        }
-
-        .achievement-toast-reward {
-            margin-top: 4px;
-            font-size: 0.7rem;
-            color: #55ff55;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .achievement-toast-reward::before {
-            content: "🍯";
-            font-size: 0.8rem;
-        }
-
-        /* ========== КОНТЕЙНЕР ДЛЯ ОБЫЧНЫХ УВЕДОМЛЕНИЙ ========== */
-        .floating-notification-container {
-            position: fixed;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 999998;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            pointer-events: none;
-        }
-
-        .floating-notification {
-            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-            border: 3px solid #ffcc44;
-            border-radius: 16px;
-            padding: 12px 24px;
-            min-width: 280px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
-            backdrop-filter: blur(8px);
-            will-change: transform, opacity;
-        }
-
-        .floating-notification.enter {
-            animation: notificationSlideIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-        }
-
-        .floating-notification.exit {
-            animation: notificationSlideOut 0.3s ease forwards;
-        }
-
-        @keyframes notificationSlideIn {
-            0% {
-                transform: translateY(-100px) scale(0.8);
-                opacity: 0;
-            }
-            60% {
-                transform: translateY(10px) scale(1.02);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes notificationSlideOut {
-            0% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) scale(0.8);
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-
-        .floating-notification-icon {
-            font-size: 2rem;
-            display: inline-block;
-            margin-right: 12px;
-            vertical-align: middle;
-            animation: notificationIconPulse 0.5s ease;
-        }
-
-        .floating-notification-content {
-            display: inline-block;
-            vertical-align: middle;
-            text-align: left;
-        }
-
-        .floating-notification-title {
-            color: #ffcc44;
-            font-weight: bold;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-
-        .floating-notification-message {
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 0.95rem;
-            margin-top: 4px;
-        }
-
-        @keyframes notificationIconPulse {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-        }
     </style>
 </head>
 <body>
 
-    <!-- КОНТЕЙНЕР ДЛЯ УВЕДОМЛЕНИЙ ДОСТИЖЕНИЙ (ПОЯВЛЯЮТСЯ СВЕРХУ) -->
-    <div id="achievement-toast-container" class="achievement-toast-container"></div>
+    <div id="achievement-toast-container"></div>
 
-    <!-- КОНТЕЙНЕР ДЛЯ ОБЫЧНЫХ ПЛАВАЮЩИХ УВЕДОМЛЕНИЙ -->
-    <div id="floating-notification-container" class="floating-notification-container"></div>
-
-    <!-- ЭКРАН 1: ГЛАВНОЕ МЕНЮ И НАСТРОЙКИ МУЗЫКИ -->
     <div class="menu-overlay-bg" id="app-main-menu">
         <div class="main-menu-screen">
             <div style="font-size: 4.5rem; line-height: 1; margin-bottom: -5px;">👑🐝</div>
             <h1 class="menu-main-title">МЕДОВЫЙ КЛИКЕР</h1>
             <div class="menu-sub-title">Эволюция Улья • 500 Уровней Королевы</div>
 
-            <!-- БЛОК НАСТРОЕК РАДИОСТАНЦИИ -->
             <div class="settings-zone">
                 <h3>🎵 Настройка радиостанции</h3>
                 
@@ -347,16 +125,13 @@
                 </div>
             </div>
 
-            <!-- КНОПКА НАЧАЛА ИГРЫ -->
             <button class="buy-bee-btn start-play-btn" onclick="window.startGameplayLayout()">
                 В УЛЕЙ (ИГРАТЬ) 🚀
             </button>
         </div>
     </div>
 
-    <!-- ЭКРАН 2: ОСНОВНОЙ ИГРОВОЙ ИНТЕРФЕЙС ПАСЕКИ -->
     <div class="game-wrapper game-interface-layout" id="app-game-layout">
-        <!-- ЛЕВАЯ ПАНЕЛЬ -->
         <div class="side-panel left-panel">
             <div class="queen-section">
                 <div class="queen-avatar-wrapper">
@@ -385,7 +160,6 @@
             <button class="reset-game-btn" onclick="window.resetClickerGame()">🔄 Сбросить прогресс</button>
         </div>
 
-        <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ -->
         <div class="center-panel">
             <div class="lily-timer" id="lily-timer-zone">
                 🌸 Лилия активна! Х3 Буст: <span id="lily-countdown">10:00</span>
@@ -396,7 +170,6 @@
             <div class="click-tip">Собирай нектар для эволюции улья</div>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ -->
         <div class="side-panel right-panel">
             <h2>📜 Модернизация сот</h2>
             <div class="shop-scroll-box" id="clicker-upgrades-box" style="max-height: 220px; margin-bottom: 15px; border-bottom: 2px solid #5c3a00;">
@@ -408,7 +181,6 @@
         </div>
     </div>
 
-    <!-- ВСПЛЫВАЮЩЕЕ ОКНО: КНИГА ДОСТИЖЕНИЙ -->
     <div class="modal-overlay" id="achievements-modal">
         <div class="modal-content">
             <div class="modal-header">
