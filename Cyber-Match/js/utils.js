@@ -1,5 +1,3 @@
-// Глобальное состояние игры
-
 let playerStats = {
     coins: 300,
     crystals: 15,
