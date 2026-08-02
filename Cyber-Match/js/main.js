@@ -1,5 +1,3 @@
-// Главный файл - точка входа
-
 function initUIElements() {
     window.uiElements = {
         score: document.getElementById("score"),
@@ -15,7 +13,6 @@ function initUIElements() {
 function initStartScreen() {
     loadAudioSettingsUI();
     
-    // Табы
     const tabBtns = document.querySelectorAll(".tab-btn");
     const playTab = document.getElementById("playTab");
     const settingsTab = document.getElementById("settingsTab");
@@ -34,7 +31,6 @@ function initStartScreen() {
         };
     });
     
-    // Настройки звука
     const musicSlider = document.getElementById("musicVolumeSlider");
     const soundsSlider = document.getElementById("soundsVolumeSlider");
     const musicValue = document.getElementById("musicVolumeValue");
@@ -60,7 +56,6 @@ function initStartScreen() {
         };
     }
     
-    // Кнопка Play
     const playBtn = document.getElementById("playBtn");
     const startScreen = document.getElementById("startScreen");
     const gameWrapper = document.getElementById("gameWrapper");
@@ -89,7 +84,6 @@ function loadAudioSettingsUI() {
 }
 
 function setupEventListeners() {
-    // Кнопки навигации по мирам
     const prevBtn = document.getElementById("prevWorldBtn");
     const nextBtn = document.getElementById("nextWorldBtn");
     
@@ -117,7 +111,6 @@ function setupEventListeners() {
         };
     }
     
-    // Кнопки игры
     const resetBtn = document.getElementById("resetBtn");
     const nextLevelBtn = document.getElementById("nextLevelBtn");
     const modalRestartBtn = document.getElementById("modalRestartBtn");
@@ -130,6 +123,10 @@ function setupEventListeners() {
     const victoryRestartBtn = document.getElementById("victoryRestartBtn");
     const exitToMenuBtn = document.getElementById("exitToMenuBtn");
     const shuffleBtn = document.getElementById("shuffleBtn");
+    const unlockModalOkBtn = document.getElementById("unlockModalOkBtn");
+    const worldUnlockModal = document.getElementById("worldUnlockModal");
+    const notificationOkBtn = document.getElementById("notificationOkBtn");
+    const notificationModal = document.getElementById("notificationModal");
     
     if (resetBtn) resetBtn.onclick = () => resetLevel();
     if (nextLevelBtn) nextLevelBtn.onclick = () => nextLevel();
@@ -140,19 +137,53 @@ function setupEventListeners() {
     if (helpBtn) helpBtn.onclick = () => showTutorial();
     if (closeTutorialBtn) closeTutorialBtn.onclick = () => closeTutorial();
     if (resetProgressBtn) resetProgressBtn.onclick = () => {
-        if (confirm("⚠️ УДАЛИТЬ ВЕСЬ ПРОГРЕСС?")) {
-            localStorage.removeItem("cyberMatchFixed");
-            localStorage.removeItem("cyberMatchAudio");
-            location.reload();
-        }
+        showNotification("⚠️", "ПОДТВЕРЖДЕНИЕ", 
+            "Вы уверены, что хотите <b>удалить весь прогресс</b>?<br>Это действие нельзя отменить!");
     };
     if (victoryRestartBtn) victoryRestartBtn.onclick = () => victoryRestart();
     if (exitToMenuBtn) exitToMenuBtn.onclick = () => exitToMainMenu();
     if (shuffleBtn) shuffleBtn.onclick = () => {
-        if (confirm("🃏 Перетасовать поле? Ход не потратится.")) {
-            shuffleBoard();
-        }
+        showNotification("🃏", "ПЕРЕТАСОВКА", "Вы уверены, что хотите перетасовать поле?<br>Ход не потратится.");
     };
+    
+    if (unlockModalOkBtn && worldUnlockModal) {
+        unlockModalOkBtn.onclick = () => {
+            worldUnlockModal.classList.remove("active");
+        };
+    }
+    
+    // Закрытие уведомления
+    if (notificationOkBtn && notificationModal) {
+        notificationOkBtn.onclick = () => {
+            notificationModal.classList.remove("active");
+        };
+    }
+    
+    // Закрытие по клику на фон
+    notificationModal.addEventListener("click", (e) => {
+        if (e.target === notificationModal) {
+            notificationModal.classList.remove("active");
+        }
+    });
+    
+    worldUnlockModal.addEventListener("click", (e) => {
+        if (e.target === worldUnlockModal) {
+            worldUnlockModal.classList.remove("active");
+        }
+    });
+}
+
+// Переопределяем showNotification для использования в main.js
+function showNotification(icon, title, message) {
+    const modal = document.getElementById("notificationModal");
+    const iconEl = document.getElementById("notificationIcon");
+    const titleEl = document.getElementById("notificationTitle");
+    const msgEl = document.getElementById("notificationMessage");
+    
+    if (iconEl) iconEl.textContent = icon || "✅";
+    if (titleEl) titleEl.textContent = title || "УВЕДОМЛЕНИЕ";
+    if (msgEl) msgEl.innerHTML = message || "";
+    if (modal) modal.classList.add("active");
 }
 
 function showTutorial() {
@@ -184,9 +215,58 @@ function closeTutorial() {
     if (modal) modal.classList.remove("active");
 }
 
-// Запуск
+// Обработка подтверждения сброса прогресса через уведомление
 document.addEventListener("DOMContentLoaded", () => {
     initUIElements();
     setupEventListeners();
     initStartScreen();
+    
+    // Переопределяем обработчик для кнопки сброса с подтверждением
+    const resetProgressBtn = document.getElementById("resetProgressBtn");
+    if (resetProgressBtn) {
+        resetProgressBtn.onclick = () => {
+            showNotification("⚠️", "ПОДТВЕРЖДЕНИЕ", 
+                "Вы уверены, что хотите <b>удалить весь прогресс</b>?<br>Это действие нельзя отменить!");
+            // Переопределяем кнопку OK для подтверждения
+            const okBtn = document.getElementById("notificationOkBtn");
+            const modal = document.getElementById("notificationModal");
+            const oldClick = okBtn.onclick;
+            okBtn.onclick = () => {
+                localStorage.removeItem("cyberMatchFixed");
+                localStorage.removeItem("cyberMatchAudio");
+                location.reload();
+            };
+            // Восстанавливаем после закрытия
+            const observer = new MutationObserver(() => {
+                if (!modal.classList.contains("active")) {
+                    okBtn.onclick = oldClick;
+                    observer.disconnect();
+                }
+            });
+            observer.observe(modal, { attributes: true, attributeFilter: ["class"] });
+        };
+    }
+    
+    // Переопределяем обработчик для перетасовки с подтверждением
+    const shuffleBtn = document.getElementById("shuffleBtn");
+    if (shuffleBtn) {
+        shuffleBtn.onclick = () => {
+            showNotification("🃏", "ПЕРЕТАСОВКА", "Вы уверены, что хотите перетасовать поле?<br>Ход не потратится.");
+            const okBtn = document.getElementById("notificationOkBtn");
+            const modal = document.getElementById("notificationModal");
+            const oldClick = okBtn.onclick;
+            okBtn.onclick = () => {
+                shuffleBoard();
+                modal.classList.remove("active");
+                okBtn.onclick = oldClick;
+            };
+            const observer = new MutationObserver(() => {
+                if (!modal.classList.contains("active")) {
+                    okBtn.onclick = oldClick;
+                    observer.disconnect();
+                }
+            });
+            observer.observe(modal, { attributes: true, attributeFilter: ["class"] });
+        };
+    }
 });
