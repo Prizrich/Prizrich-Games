@@ -2,260 +2,64 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixel Farm: Гача Огород</title>
-    <!-- ПРИНУДИТЕЛЬНОЕ ОБНОВЛЕНИЕ СТИЛЕЙ: версия 3 -->
-    <link rel="stylesheet" href="CSS/style.css?v=3">
-    <style>
-        @keyframes menuPulse {
-            0% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.02); opacity: 1; }
-            100% { transform: scale(1); opacity: 0.9; }
-        }
-        #ui-main-menu-overlay {
-            transition: opacity 0.5s ease;
-        }
-
-        /* ========== КАСТОМНЫЕ ОКОШКИ УВЕДОМЛЕНИЙ ========== */
-        .custom-notification-container {
-            position: fixed;
-            top: 20px;
-            left: 0;
-            right: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            z-index: 999999;
-            pointer-events: none;
-        }
-
-        .custom-notification {
-            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-            border: 3px solid #ffcc44;
-            border-radius: 16px;
-            padding: 12px 24px;
-            min-width: 280px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
-            pointer-events: auto;
-            backdrop-filter: blur(8px);
-            opacity: 0;
-            transform: translateY(-100px) scale(0.8);
-            transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
-        }
-
-        .custom-notification.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .custom-notification.hide {
-            opacity: 0;
-            transform: translateY(-100px) scale(0.8);
-            transition: all 0.3s ease;
-        }
-
-        .custom-notification-icon {
-            font-size: 1.8rem;
-            display: inline-block;
-            margin-right: 12px;
-            vertical-align: middle;
-            animation: iconPulse 0.5s ease;
-        }
-
-        .custom-notification-content {
-            display: inline-block;
-            vertical-align: middle;
-            text-align: left;
-        }
-
-        .custom-notification-title {
-            color: #ffcc44;
-            font-weight: bold;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-
-        .custom-notification-message {
-            color: #ffffff;
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        /* Анимация для иконки */
-        @keyframes iconPulse {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Стили для модального окна подтверждения */
-        .custom-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .custom-modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .custom-modal {
-            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-            border: 3px solid #ffcc44;
-            border-radius: 20px;
-            padding: 25px;
-            min-width: 320px;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
-
-        .custom-modal-overlay.active .custom-modal {
-            transform: scale(1);
-        }
-
-        .custom-modal-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            animation: iconPulse 0.5s ease;
-        }
-
-        .custom-modal-title {
-            color: #ffcc44;
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-bottom: 10px;
-        }
-
-        .custom-modal-message {
-            color: #ffffff;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            line-height: 1.4;
-            white-space: pre-line;
-        }
-
-        .custom-modal-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-        }
-
-        .custom-modal-btn {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .custom-modal-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .custom-modal-btn.confirm {
-            background: #5c8a36;
-            color: white;
-        }
-
-        .custom-modal-btn.cancel {
-            background: #ba2929;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
 
-    <!-- КОНТЕЙНЕР ДЛЯ КРАСИВЫХ ОКОШЕК УВЕДОМЛЕНИЙ -->
-    <div id="custom-notification-container" class="custom-notification-container"></div>
-
-    <!-- МОДАЛЬНОЕ ОКНО ДЛЯ ПОДТВЕРЖДЕНИЙ -->
-    <div id="custom-modal-overlay" class="custom-modal-overlay">
-        <div class="custom-modal">
-            <div class="custom-modal-icon" id="custom-modal-icon">❓</div>
-            <div class="custom-modal-title" id="custom-modal-title">Подтверждение</div>
-            <div class="custom-modal-message" id="custom-modal-message">Вы уверены?</div>
-            <div class="custom-modal-buttons">
-                <button class="custom-modal-btn confirm" id="custom-modal-confirm">✅ Да</button>
-                <button class="custom-modal-btn cancel" id="custom-modal-cancel">❌ Нет</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ГЛАВНОЕ МЕНЮ ИГРЫ -->
-    <div id="ui-main-menu-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 50% 30%, #3d6a29 0%, #294c1a 60%, #152b0c 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999999; backdrop-filter: blur(5px);">
-        <div class="panel" style="max-width: 450px; width: 90%; text-align: center; padding: 30px; gap: 15px; background-color: #f7ebd3; border: 4px solid #4a2f15; box-shadow: inset -4px -4px 0px #c2a672, inset 4px 4px 0px #ffffff, 0 15px 40px rgba(0,0,0,0.6);">
-            <h1 style="margin: 0; font-size: 2.8rem; color: #4a2f15; text-shadow: 2px 2px 0px #fff;">PIXEL FARM</h1>
-            <div style="font-size: 1rem; font-weight: bold; color: #5c8a36;">🌾 ГАЧА ОГОРОД ОНЛАЙН 🔮</div>
-            <p style="font-size: 0.85rem; color: #6e4922; font-weight: bold; margin: 0 0 15px 0;">
-                Выращивай 8 редких культур, крути Гачу, автоматизируй полив и торгуй на онлайн-рынке!
-            </p>
-            <button class="farm-btn" style="width: 100%; padding: 15px; font-size: 1.3rem; background-color: #5c8a36; animation: menuPulse 1.5s infinite ease-in-out;" onclick="window.startFarmGameFromMenu()">
-                🚜 ПОЕХАЛИ!
-            </button>
-        </div>
-    </div>
-
+    <!-- ====== УВЕДОМЛЕНИЯ ====== -->
     <div id="farm-toast-container"></div>
 
-    <div class="farm-layout" style="display: none;" id="game-container">
-        <!-- ЛЕВАЯ ПАНЕЛЬ -->
+    <!-- ====== ОСНОВНОЙ МАКЕТ ====== -->
+    <div class="farm-layout">
+
+        <!-- ====== ЛЕВАЯ ПАНЕЛЬ: АМБАР ====== -->
         <div class="panel side-panel">
             <h2>📦 Твой Амбар</h2>
-            
-            <div style="margin-bottom: 10px;">
-                <label style="font-size: 0.8rem; font-weight: bold; color: #4a2f15;">Твой ник на рынке:</label>
-                <input type="text" id="ui-player-name" value="" placeholder="Впиши ник и жми Enter..." style="width:100%; margin-top:4px; background:#fff; border:2px solid #4a2f15; padding:6px; font-weight:bold;" onchange="window.savePlayerName()" onkeydown="if(event.key==='Enter') window.savePlayerName()">
+
+            <!-- БЛОК НИКА -->
+            <div class="nickname-block">
+                <label class="nickname-label">👤 Твой ник на рынке:</label>
+                <input type="text" id="ui-player-name" value="Фермер" class="nickname-input">
+                <button onclick="window.savePlayerName()" class="nickname-save-btn">💾 Сохранить ник</button>
+                <div id="nickname-hint" class="nickname-hint"></div>
             </div>
 
+            <!-- СТАТИСТИКА -->
             <div class="stats-box">
-                <div>💰 Монеты: <b id="ui-coins">0</b></div>
-                <div>🌾 Уровень: <b id="ui-farm-lvl">1</b> / 12</div>
-                <div id="ui-auto-status">💧 Автополив: Выкл</div>
-                <div id="ui-harvester-status">🤖 Автосбор: Выкл</div>
-                <div id="ui-planter-status">🤖 Автопосадка: Выкл</div>
-                <div id="ui-fert-status">⚡ Удобрение: х1</div>
-                <div id="ui-auto-seeds-count">📦 Семян для сеятеля: 0</div>
+                <div>🪙 Монеты: <b id="ui-coins">200</b> Золота</div>
+                <div>📈 Уровень поля: <b id="ui-farm-lvl">1</b> / 12</div>
+                <div class="stat-item auto-water" id="ui-auto-status">💧 Автополив: Выкл</div>
+                <div class="stat-item auto-harvest" id="ui-harvester-status">🤖 Автосбор: Выкл</div>
+                <div class="stat-item auto-plant" id="ui-planter-status">🤖 Автопосадка: Выкл</div>
+                <div class="stat-item fertilizer" id="ui-fert-status">⚡ Удобрение: х1 (Обычное)</div>
+                <div class="stat-item auto-seeds" id="ui-auto-seeds-count">📦 Семян для сеятеля: 0</div>
             </div>
 
+            <!-- КНОПКИ ДЕЙСТВИЙ -->
             <button class="farm-btn sell-all-btn" onclick="window.sellAllCrops()">💰 Продать весь урожай</button>
+            <button class="farm-btn reset-btn" onclick="window.resetGameProgress()">🔄 Сбросить прогресс</button>
 
-            <h3>🛒 Магазин</h3>
-            <div class="inventory-list" id="ui-shop-list" style="max-height: 140px;"></div>
+            <!-- МАГАЗИН -->
+            <h3>🛒 Сельский Магазин</h3>
+            <div class="inventory-list" id="ui-shop-list"></div>
 
-            <h3>🌱 Семена</h3>
-            <div class="inventory-list" id="ui-seeds-list" style="max-height: 100px;"></div>
+            <!-- СЕМЕНА -->
+            <h3>🎒 Запасы семян</h3>
+            <div class="inventory-list" id="ui-seeds-list"></div>
 
-            <h3>🏚️ Амбар</h3>
-            <div class="inventory-list" id="ui-barn-list" style="max-height: 100px;"></div>
-
-            <button class="farm-btn" style="background-color: #ba2929; margin-top: 10px;" onclick="window.resetEntireGameProgress()">💥 Сбросить прогресс</button>
+            <!-- УРОЖАЙ -->
+            <h3>🌾 Собранный урожай</h3>
+            <div class="inventory-list" id="ui-barn-list"></div>
         </div>
 
-        <!-- ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ОГОРОД -->
+        <!-- ====== ЦЕНТРАЛЬНАЯ ПАНЕЛЬ: ОГОРОД ====== -->
         <div class="panel center-panel">
             <div class="center-header">
                 <h2>🟫 Твой Огород</h2>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <select id="mass-plant-crop-select" style="background:#efe0c9; border:2px solid #4a2f15; border-radius:20px; padding:5px 10px;">
+                <div class="center-tools">
+                    <select id="mass-plant-crop-select" class="crop-select">
                         <option value="carrot">🥕 Морковь</option>
                         <option value="cabbage">🥬 Капуста</option>
                         <option value="corn">🌽 Кукуруза</option>
@@ -265,261 +69,91 @@
                         <option value="golden_apple">🍎 Золотое яблоко</option>
                         <option value="ancient_fruit">🔮 Древний плод</option>
                     </select>
-                    <button class="tool-btn" onclick="window.triggerMassPlanting()">🌾 Массовая посадка</button>
-                    <button class="tool-btn" id="tool-watering-can" onclick="window.toggleWateringTool()">💧 Взять лейку</button>
+                    <button class="tool-btn plant-all-btn" id="tool-auto-plant-btn" onclick="window.triggerMassPlanting()">🌾 Массовая посадка</button>
+                    <button class="tool-btn water-btn" id="tool-watering-can" onclick="window.toggleWateringTool()">💧 Взять лейку</button>
+                    <button class="tool-btn clear-seed-btn" id="tool-clear-seed" onclick="window.clearSelectedSeed()">❌ Отменить семя</button>
                 </div>
             </div>
-            <div class="farm-grid">
-                <div class="plots-grid" id="farm-plots-grid"></div>
-            </div>
+            <div class="farm-grid" id="farm-plots-grid"></div>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ: РЫНОК -->
+        <!-- ====== ПРАВАЯ ПАНЕЛЬ: ГАЧА И РЫНОК ====== -->
         <div class="panel side-panel">
-            <h2>✨ Гача</h2>
-            <button class="farm-btn gacha-btn" onclick="window.triggerGachaRoll()">🎲 Получить семена (100💰)</button>
+            <h2>✨ Сбор семян (Гача)</h2>
+            <div class="gacha-banner">
+                <div class="banner-preview">🌟 Шансы: Миф(1%) | Лега(5%) | Ред(14%) | Необ(25%) | Обыч(55%)</div>
+                <button class="farm-btn gacha-btn" onclick="window.triggerGachaRoll()">✨ Получить семена (100 Золота)</button>
+            </div>
             <div class="gacha-result-alert" id="ui-gacha-result"></div>
 
-            <h2>📊 Рынок</h2>
+            <h2>📊 Мониторинг рынка</h2>
             <div class="market-status-box" id="ui-market-prices"></div>
 
             <h2>🛒 Онлайн Рынок</h2>
-            <button class="farm-btn" style="background-color:#a3723b; margin-bottom:10px;" onclick="window.openCreateOrderModal()">📦 Выставить товар</button>
-            <div class="market-status-box" style="max-height: 250px; overflow-y: auto;" id="ui-market-board"></div>
-        </div>
-    </div>
-
-    <!-- МОДАЛКА РЫНКА -->
-    <div class="modal-overlay" id="farm-market-modal">
-        <div class="panel" style="max-width: 320px; text-align: center; background:#f7ebd3;">
-            <h3>📦 Выставить урожай</h3>
-            <select id="modal-sell-crop-select" style="width:100%; margin:10px 0;">
-                <option value="carrot">🥕 Морковь</option>
-                <option value="cabbage">🥬 Капуста</option>
-                <option value="corn">🌽 Кукуруза</option>
-                <option value="grapes">🍇 Виноград</option>
-                <option value="strawberry">🍓 Клубника</option>
-                <option value="pineapple">🍍 Ананас</option>
-                <option value="golden_apple">🍎 Золотое яблоко</option>
-                <option value="ancient_fruit">🔮 Древний плод</option>
-            </select>
-            <div id="modal-stock-count" style="font-size:12px; margin-bottom:10px;">В амбаре: 0 шт.</div>
-            <input type="number" id="modal-sell-amount-input" placeholder="Количество" value="1" min="1" style="width:100%; margin:5px 0;">
-            <input type="number" id="modal-sell-price-input" placeholder="Цена" value="30" min="1" style="width:100%; margin:5px 0;">
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button onclick="window.submitPlayerMarketOrder()" style="flex:1; background:#5c8a36; color:white; border:none; padding:8px; border-radius:40px;">✅ Выставить</button>
-                <button onclick="window.closeCreateOrderModal()" style="flex:1; background:#ba2929; color:white; border:none; padding:8px; border-radius:40px;">❌ Отмена</button>
+            <button class="farm-btn market-sell-btn" onclick="window.openCreateOrderModal()">📦 Выставить свой товар</button>
+            <div class="market-status-box market-board" id="ui-market-board">
+                <div class="market-loading">🌐 Подключение к рынку...</div>
             </div>
         </div>
     </div>
 
+    <!-- ====== МОДАЛКА: ВЫСТАВИТЬ ТОВАР ====== -->
+    <div class="modal-overlay" id="farm-market-modal">
+        <div class="modal-panel">
+            <h3>📦 Выставить урожай</h3>
+
+            <div class="modal-field">
+                <label>🌾 Что продаём:</label>
+                <select id="modal-sell-crop-select" class="select-custom" onchange="window.updateModalStockCount()">
+                    <option value="carrot">🥕 Морковь</option>
+                    <option value="cabbage">🥬 Капуста</option>
+                    <option value="corn">🌽 Кукуруза</option>
+                    <option value="grapes">🍇 Виноград</option>
+                    <option value="strawberry">🍓 Клубника</option>
+                    <option value="pineapple">🍍 Ананас</option>
+                    <option value="golden_apple">🍏 Золотое Яблоко</option>
+                    <option value="ancient_fruit">🔮 Древний плод</option>
+                </select>
+                <div class="stock-count" id="modal-stock-count">📦 В амбаре: 0 шт.</div>
+            </div>
+
+            <div class="modal-field">
+                <label>🔢 Сколько выставляем (шт):</label>
+                <input type="number" id="modal-sell-amount-input" value="1" min="1">
+            </div>
+
+            <div class="modal-field">
+                <label>💰 Ваша цена за ВСЁ (Золота):</label>
+                <input type="number" id="modal-sell-price-input" value="30" min="1">
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn submit-btn" onclick="window.submitPlayerMarketOrder()">✅ Выставить</button>
+                <button class="modal-btn cancel-btn" onclick="window.closeCreateOrderModal()">❌ Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== МОДАЛКА: ПОДТВЕРЖДЕНИЕ СБРОСА ====== -->
+    <div class="modal-overlay" id="reset-confirm-modal">
+        <div class="modal-panel reset-modal">
+            <h3>⚠️ Сброс прогресса</h3>
+            <p class="reset-text">
+                Ты уверен? <b>ВСЁ ПРОПАДЁТ:</b><br>
+                🪙 Монеты, 🌱 Семена, 🌾 Урожай, 🏠 Уровень, 🤖 Автоматизации
+            </p>
+            <p class="reset-warning">⚠️ Это действие НЕОБРАТИМО!</p>
+            <div class="modal-actions">
+                <button class="modal-btn reset-confirm-btn" onclick="window.confirmResetGame()">✅ Да, сбросить</button>
+                <button class="modal-btn reset-cancel-btn" onclick="window.closeResetModal()">❌ Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== СКРИПТЫ ====== -->
     <script src="js/config.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/game.js"></script>
-    
-    <script>
-        // ========== СИСТЕМА КРАСИВЫХ ОКОШЕК (АСИНХРОННАЯ) ==========
-        
-        let modalResolve = null;
-        let modalReject = null;
-        
-        // Функция для красивого уведомления (alert)
-        window.customAlert = function(message, title = "Уведомление", icon = "📢") {
-            return new Promise((resolve) => {
-                const container = document.getElementById("custom-notification-container");
-                if (!container) {
-                    alert(message);
-                    resolve();
-                    return;
-                }
-
-                const notification = document.createElement("div");
-                notification.className = "custom-notification";
-                
-                let finalIcon = icon;
-                let borderColor = "#ffcc44";
-                let titleColor = "#ffcc44";
-                
-                if (message.includes("Не хватает") || message.includes("не хватает")) {
-                    finalIcon = "❌💰";
-                    borderColor = "#ff4444";
-                    titleColor = "#ff8888";
-                    title = "ОШИБКА!";
-                } else if (message.includes("успешно") || message.includes("куплено") || message.includes("Куплено")) {
-                    finalIcon = "✅✨";
-                    borderColor = "#55ff55";
-                    titleColor = "#55ff55";
-                    title = "УСПЕХ!";
-                } else if (message.includes("собран") || message.includes("посажены")) {
-                    finalIcon = "🌾🌱";
-                    borderColor = "#88ff88";
-                    titleColor = "#88ff88";
-                    title = "УРОЖАЙ!";
-                } else if (message.includes("полито")) {
-                    finalIcon = "💧💦";
-                    borderColor = "#44aaff";
-                    titleColor = "#44aaff";
-                    title = "ПОЛИВ!";
-                }
-                
-                notification.style.borderColor = borderColor;
-                notification.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="custom-notification-icon">${finalIcon}</div>
-                        <div class="custom-notification-content">
-                            <div class="custom-notification-title" style="color:${titleColor};">${title}</div>
-                            <div class="custom-notification-message">${message}</div>
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(notification);
-                notification.offsetHeight;
-                notification.classList.add("show");
-
-                setTimeout(() => {
-                    notification.classList.add("hide");
-                    setTimeout(() => {
-                        notification.remove();
-                        resolve();
-                    }, 300);
-                }, 2500);
-            });
-        };
-
-        // Функция для красивого подтверждения (confirm) - АСИНХРОННАЯ
-        window.customConfirm = function(message, title = "Подтверждение", icon = "❓") {
-            return new Promise((resolve) => {
-                const modal = document.getElementById("custom-modal-overlay");
-                const modalIcon = document.getElementById("custom-modal-icon");
-                const modalTitle = document.getElementById("custom-modal-title");
-                const modalMessage = document.getElementById("custom-modal-message");
-                const confirmBtn = document.getElementById("custom-modal-confirm");
-                const cancelBtn = document.getElementById("custom-modal-cancel");
-                
-                if (!modal) {
-                    resolve(confirm(message));
-                    return;
-                }
-                
-                modalIcon.innerHTML = icon;
-                modalTitle.innerHTML = title;
-                modalMessage.innerHTML = message;
-                
-                const onConfirm = () => {
-                    cleanup();
-                    resolve(true);
-                };
-                
-                const onCancel = () => {
-                    cleanup();
-                    resolve(false);
-                };
-                
-                const cleanup = () => {
-                    modal.classList.remove("active");
-                    confirmBtn.removeEventListener("click", onConfirm);
-                    cancelBtn.removeEventListener("click", onCancel);
-                    document.removeEventListener('keydown', onEscape);
-                };
-                
-                const onEscape = (e) => {
-                    if (e.key === 'Escape') {
-                        onCancel();
-                    }
-                };
-                
-                confirmBtn.addEventListener("click", onConfirm);
-                cancelBtn.addEventListener("click", onCancel);
-                document.addEventListener('keydown', onEscape);
-                
-                modal.classList.add("active");
-            });
-        };
-        
-        // Переопределяем confirm (асинхронно)
-        window.originalConfirm = window.confirm;
-        window.confirm = function(message) {
-            // Возвращаем Promise для совместимости
-            return window.customConfirm(message);
-        };
-        
-        // Переопределяем resetEntireGameProgress для правильной работы с асинхронным confirm
-        const originalReset = window.resetEntireGameProgress;
-        window.resetEntireGameProgress = async function() {
-            const confirmed = await window.customConfirm(
-                "🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс?\n\nВы потеряете:\n- Все монеты\n- Все купленные улучшения\n- Все посаженные культуры\n- Весь прогресс\n\nЭто действие нельзя отменить!",
-                "⚠️ СБРОС ПРОГРЕССА",
-                "💣⚠️"
-            );
-            
-            if (confirmed) {
-                if (originalReset) {
-                    originalReset();
-                } else {
-                    // Стандартный сброс
-                    localStorage.removeItem("pixel_farm_state_v11");
-                    localStorage.removeItem("pixel_farm_player_name");
-                    localStorage.removeItem("pixel_farm_name_changed_at");
-                    alert("Прогресс стёрт! Игра перезапускается! 🔄");
-                    location.reload();
-                }
-            }
-        };
-        
-        // Вспомогательные функции
-        window.showPurchaseNotification = function(itemName, price) {
-            window.customAlert(`Куплено: ${itemName} за ${price}💰`, "ПОКУПКА УСПЕШНА!", "🛒✨");
-        };
-
-        window.showSellNotification = function(amount, earned) {
-            window.customAlert(`Продано ${amount} шт за ${earned}💰`, "УРОЖАЙ ПРОДАН!", "💰📦");
-        };
-
-        window.showErrorNotification = function(message) {
-            window.customAlert(message, "ОШИБКА!", "❌⚠️");
-        };
-
-        window.showNoMoneyNotification = function(needed) {
-            window.customAlert(`Не хватает монет! Нужно ещё ${needed}💰`, "НЕДОСТАТОЧНО СРЕДСТВ!", "❌💰");
-        };
-
-        window.showGachaNotification = function(cropName, rarity) {
-            const container = document.getElementById("custom-notification-container");
-            if (!container) return;
-
-            const rarityColors = {
-                "Обычный": "#b0b0b0",
-                "Необычный": "#1e90ff",
-                "Редкий": "#a335ee",
-                "Легендарный": "#ff8000",
-                "Мифический": "#ff0077"
-            };
-            const color = rarityColors[rarity] || "#ffcc44";
-
-            const notification = document.createElement("div");
-            notification.className = "custom-notification";
-            notification.style.borderColor = color;
-            notification.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="custom-notification-icon" style="animation: iconPulse 0.5s ease;">🎲✨</div>
-                    <div class="custom-notification-content">
-                        <div class="custom-notification-title" style="color:${color};">ПОЛУЧЕНО ИЗ ГАЧИ!</div>
-                        <div class="custom-notification-message">${cropName}</div>
-                        <div class="custom-notification-amount" style="color:${color};">${rarity} ★</div>
-                    </div>
-                </div>
-            `;
-
-            container.appendChild(notification);
-            notification.offsetHeight;
-            notification.classList.add("show");
-
-            setTimeout(() => {
-                notification.classList.add("hide");
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        };
-    </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
