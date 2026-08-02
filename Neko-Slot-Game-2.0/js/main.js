@@ -1,11 +1,10 @@
-// Главный файл - точка входа
 import { FRUITS, THEME_UNLOCK, themeOrder } from './config.js';
 import { 
     player, canSave, isWorking, isInJail, isSpinning, gameCompleted, spinCount, legendCount, jobCount, activeModifiers, bailAmount,
     setCanSave, setGameCompleted, setIsInJail, setIsSpinning, setIsWorking, setCurrentJob, setCurrentTask,
     incrementSpinCount, incrementLegendCount, incrementJobCount, setPlayer, setActiveModifiers
 } from './utils.js';
-import { initAudio, updateMusicVolume, updateSFXVolume, getMusicVolume, getSfxVolume, playMusicForLocation } from './audio.js';
+import { initAudio, updateMusicVolume, updateSFXVolume, getMusicVolume, getSfxVolume, playMusicForLocation, stopCurrentMusic } from './audio.js';
 import { applyThemeBackground, effects } from './effects.js';
 import { 
     loadPlaythroughCount, updateModifiersSelectorUI, updateModifiersUI, applySelectedModifiers, 
@@ -18,11 +17,9 @@ import { startRandomJob } from './jobs.js';
 import { checkAndShowPendingEvent, levelEvents, isModalOpen, pendingLevelUpEvent } from './events.js';
 import { saveGame, loadGame, updateUI, applyTheme, updateThemeButtonsWithLock, spin, endWork, addExp, resetGameState } from './game.js';
 
-// Глобальные переменные для доступа из HTML
 window.isModalOpen = false;
 window.pendingLevelUpEvent = null;
 
-// Глобальные функции для доступа из HTML onclick
 window.closeModal = function() { 
     document.getElementById("storyModal").style.display = "none";
     window.isModalOpen = false;
@@ -43,26 +40,21 @@ window.closeBossModal = closeBossModal;
 window.healInBattle = healInBattle;
 window.bossAction = bossAction;
 
-// Функция для отображения событий уровня
 window.showLevelUpEvent = function(level) {
     import('./events.js').then(module => {
         module.showLevelUpEvent(level);
     });
 };
 
-// Функции меню
 function startGame() {
     document.getElementById("mainMenu").style.display = "none";
     document.getElementById("gameContainer").style.display = "block";
-    
-    // Запускаем музыку для текущей локации при первом входе
     import('./audio.js').then(module => {
         module.initAudio();
         setTimeout(() => {
             module.playMusicForLocation(player.currentTheme || "forest");
         }, 100);
     });
-    
     init();
 }
 
@@ -78,31 +70,37 @@ function toggleSettings() {
 }
 
 function exitToMenu() {
-    if (confirm("Выйти в главное меню? Прогресс сохранится.")) {
-        saveGame();
-        
-        // Останавливаем музыку через audio модуль
-        import('./audio.js').then(module => {
-            module.stopCurrentMusic();
-        });
-        
-        document.getElementById("gameContainer").style.display = "none";
-        document.getElementById("mainMenu").style.display = "flex";
-        if (gameCompleted) { 
-            updateModifiersSelectorUI(); 
-            document.getElementById("modifiersSelector").style.display = "block"; 
+    showConfirmModal(
+        "🏠 ВЫХОД В МЕНЮ",
+        "Вы уверены, что хотите выйти в главное меню?<br>Прогресс сохранится.",
+        () => {
+            saveGame();
+            stopCurrentMusic();
+            document.getElementById("gameContainer").style.display = "none";
+            document.getElementById("mainMenu").style.display = "flex";
+            if (gameCompleted) { 
+                updateModifiersSelectorUI(); 
+                document.getElementById("modifiersSelector").style.display = "block"; 
+            }
         }
-    }
+    );
 }
 
 function resetProgress() {
-    if (confirm("⚠️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС? Всё начнётся заново!")) {
-        localStorage.removeItem("nekoSlotSave");
-        localStorage.removeItem("nekoAchievements");
-        localStorage.removeItem("nekoPlaythroughCount");
-        location.reload();
-    }
+    showConfirmModal(
+        "⚠️ СБРОС ПРОГРЕССА ⚠️",
+        "ВСЁ НАЧНЁТСЯ ЗАНОВО!<br>Весь прогресс будет <strong>безвозвратно утерян</strong>.<br><br>Вы уверены?",
+        () => {
+            localStorage.removeItem("nekoSlotSave");
+            localStorage.removeItem("nekoAchievements");
+            localStorage.removeItem("nekoPlaythroughCount");
+            location.reload();
+        },
+        "💀 ДА, СБРОСИТЬ",
+        "❌ ОТМЕНА"
+    );
 }
+
 function showPrologue() {
     const modal = document.getElementById("storyModal");
     const modalText = document.getElementById("modalText");
@@ -121,7 +119,6 @@ function showPrologue() {
         <p>🔥 Удачи, авантюрист!</p>`;
     modalChoices.innerHTML = `<button class="choice-btn" id="prologStartBtn">🎰 ИГРАТЬ!</button>`;
     modal.style.display = "flex";
-    
     const startBtn = document.getElementById("prologStartBtn");
     if (startBtn) {
         startBtn.onclick = () => {
@@ -134,7 +131,25 @@ function showPrologue() {
     }
 }
 
-// Инициализация игры
+function showConfirmModal(title, message, onConfirm, confirmText, cancelText) {
+    const modal = document.getElementById("storyModal");
+    const modalText = document.getElementById("modalText");
+    const modalChoices = document.getElementById("modalChoices");
+    modalText.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+    modalChoices.innerHTML = `
+        <button class="choice-btn" id="confirmModalBtn" style="background:#44aa44;">${confirmText || "✅ ДА"}</button>
+        <button class="choice-btn" id="cancelModalBtn" style="background:#aa4444;">${cancelText || "❌ ОТМЕНА"}</button>
+    `;
+    modal.style.display = "flex";
+    document.getElementById("confirmModalBtn").onclick = () => {
+        modal.style.display = "none";
+        if (onConfirm) onConfirm();
+    };
+    document.getElementById("cancelModalBtn").onclick = () => {
+        modal.style.display = "none";
+    };
+}
+
 function init() {
     loadPlaythroughCount();
     loadAchievements();
@@ -200,10 +215,8 @@ function init() {
         showPrologue();
     }
     
-    // Инициализация аудио
     initAudio();
     
-    // Запуск музыки при первом клике (обходит автозапрет браузера)
     const startMusicOnFirstClick = () => {
         if (player.currentTheme) {
             playMusicForLocation(player.currentTheme);
@@ -216,7 +229,6 @@ function init() {
     document.addEventListener('click', startMusicOnFirstClick);
     document.addEventListener('touchstart', startMusicOnFirstClick);
     
-    // Привязка обработчиков событий
     const payBailBtn = document.getElementById("payBailBtn");
     if (payBailBtn) payBailBtn.onclick = payBail;
     
@@ -277,7 +289,6 @@ function init() {
     updateUI();
 }
 
-// Привязка кнопок меню после загрузки страницы
 document.addEventListener("DOMContentLoaded", () => {
     const playBtn = document.getElementById("playBtn");
     if (playBtn) playBtn.onclick = startGame;
