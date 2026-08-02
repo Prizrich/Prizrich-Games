@@ -1,4 +1,14 @@
-// Магазин и скины
+function showNotification(icon, title, message) {
+    const modal = document.getElementById("notificationModal");
+    const iconEl = document.getElementById("notificationIcon");
+    const titleEl = document.getElementById("notificationTitle");
+    const msgEl = document.getElementById("notificationMessage");
+    
+    if (iconEl) iconEl.textContent = icon || "✅";
+    if (titleEl) titleEl.textContent = title || "УВЕДОМЛЕНИЕ";
+    if (msgEl) msgEl.innerHTML = message || "";
+    if (modal) modal.classList.add("active");
+}
 
 function updateCurrency() {
     const coinsSpan = document.getElementById("coinsAmount");
@@ -37,12 +47,12 @@ function updateAllSkins() {
 function buySkin(skinId) {
     let skin = SKINS.find(s => s.id === skinId);
     if (!skin || playerStats.ownedSkins.includes(skinId)) {
-        alert("❌ У вас уже есть этот скин!");
+        showNotification("❌", "ОШИБКА", "У вас уже есть этот скин!");
         return false;
     }
     if ((skin.priceCoins > 0 && playerStats.coins < skin.priceCoins) || 
         (skin.priceCrystals > 0 && playerStats.crystals < skin.priceCrystals)) {
-        alert("❌ Не хватает ресурсов!");
+        showNotification("❌", "ОШИБКА", "Не хватает ресурсов!");
         return false;
     }
     if (skin.priceCoins > 0) playerStats.coins -= skin.priceCoins;
@@ -50,21 +60,21 @@ function buySkin(skinId) {
     playerStats.ownedSkins.push(skinId);
     updateCurrency();
     saveGameProgress();
-    alert(`✅ Скин "${skin.name}" куплен!`);
-    openShop(); // Обновляем магазин
+    showNotification("✅", "КУПЛЕНО!", `Скин "<b>${skin.name}</b>" успешно куплен!`);
+    openShop();
     return true;
 }
 
 function setActiveSkin(skinId) {
     if (!playerStats.ownedSkins.includes(skinId)) {
-        alert("❌ Скин не куплен!");
+        showNotification("❌", "ОШИБКА", "Скин не куплен!");
         return false;
     }
     playerStats.activeSkin = skinId;
     updateAllSkins();
     saveGameProgress();
-    alert(`✅ Скин "${SKINS.find(s => s.id === skinId).name}" надет!`);
-    openShop(); // Обновляем магазин
+    showNotification("✅", "СКИН НАДЕТ!", `Скин "<b>${SKINS.find(s => s.id === skinId).name}</b>" активирован!`);
+    openShop();
     return true;
 }
 
@@ -72,29 +82,23 @@ function buyItem(itemId) {
     let item = SHOP_ITEMS.find(i => i.id === itemId);
     if (!item) return false;
     
-    // Проверка ресурсов
     if ((item.priceCoins > 0 && playerStats.coins < item.priceCoins) || 
         (item.priceCrystals > 0 && playerStats.crystals < item.priceCrystals)) {
-        alert("❌ Не хватает ресурсов!");
+        showNotification("❌", "ОШИБКА", "Не хватает ресурсов!");
         return false;
     }
     
-    // Списываем цену
     if (item.priceCoins > 0) playerStats.coins -= item.priceCoins;
     if (item.priceCrystals > 0) playerStats.crystals -= item.priceCrystals;
     
-    // Обработка эффектов
     if (item.effect?.crystalsGain) {
         addCrystals(item.effect.crystalsGain);
     } else if (item.effect?.coinsGain) {
         addCoins(item.effect.coinsGain);
     } else {
-        // Увеличиваем счётчик купленных предметов
         playerStats.ownedItems[itemId] = (playerStats.ownedItems[itemId] || 0) + 1;
         
-        // ПРИМЕНЯЕМ ЭФФЕКТ СРАЗУ
         if (itemId === "extra_moves") {
-            // Добавляем ходы прямо сейчас (5 ходов за штуку)
             let gainedMoves = 5;
             movesLeft += gainedMoves;
             updateUI();
@@ -126,8 +130,8 @@ function buyItem(itemId) {
     
     updateCurrency();
     saveGameProgress();
-    alert(`✅ Куплено: ${item.name}!`);
-    openShop(); 
+    showNotification("✅", "КУПЛЕНО!", `Улучшение "<b>${item.name}</b>" успешно приобретено!`);
+    openShop();
     return true;
 }
 
@@ -143,13 +147,11 @@ function openShop() {
     
     list.innerHTML = "";
     
-    // Заголовок скинов
     let title = document.createElement("div");
     title.style.cssText = "font-size:0.7rem;margin:10px 0;color:gold;text-align:center";
     title.innerHTML = "🎨 СКИНЫ ДЛЯ КЛЕТОК";
     list.appendChild(title);
     
-    // Скины
     SKINS.forEach(skin => {
         let owned = playerStats.ownedSkins.includes(skin.id);
         let active = playerStats.activeSkin === skin.id;
@@ -189,13 +191,11 @@ function openShop() {
         list.appendChild(div);
     });
     
-    // Заголовок улучшений
     let title2 = document.createElement("div");
     title2.style.cssText = "font-size:0.7rem;margin:20px 0 10px;color:gold;text-align:center";
     title2.innerHTML = "🛍️ УЛУЧШЕНИЯ";
     list.appendChild(title2);
     
-    // Предметы магазина
     SHOP_ITEMS.forEach(item => {
         let count = playerStats.ownedItems[item.id] || 0;
         let div = document.createElement("div");
@@ -225,7 +225,6 @@ function openShop() {
         list.appendChild(div);
     });
     
-    // Добавляем обработчики
     document.querySelectorAll(".skin-buy").forEach(btn => {
         btn.onclick = () => buySkin(btn.dataset.skin);
     });
