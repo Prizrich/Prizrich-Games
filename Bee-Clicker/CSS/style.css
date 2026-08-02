@@ -1,12 +1,8 @@
-/* ===================================================================
-   1. ГЛОБАЛЬНЫЕ СТРУКТУРНЫЕ СТИЛИ И ФОН ИГРЫ
-   =================================================================== */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* Светлая золотисто-янтарная пиксельная сетка сот во весь экран */
-    background-color: #ffcc44; 
+    background-color: #ffcc44;
     background-image: 
         linear-gradient(rgba(230, 160, 0, 0.15) 3px, transparent 3px),
         linear-gradient(90deg, rgba(230, 160, 0, 0.15) 3px, transparent 3px);
@@ -21,22 +17,20 @@ body {
     overflow-x: hidden;
 }
 
-/* Общий макет для панелей (светло-медовые плашки) */
 .side-panel, .center-panel, .main-menu-screen {
-    background-color: #fff6d6; 
-    border: 4px solid #5c3a00; /* Прочные коричневые рамки */
+    background-color: #fff6d6;
+    border: 4px solid #5c3a00;
     border-radius: 6px;
     box-shadow: inset -4px -4px 0px #d9b236, inset 4px 4px 0px #ffffff, 0 8px 20px rgba(92, 58, 0, 0.15);
     box-sizing: border-box;
 }
 
-/* ===================================================================
-   2. СТИЛИЗАЦИЯ СТАРТОВОГО ЭКРАНА (ГЛАВНОЕ МЕНЮ)
-   =================================================================== */
 .menu-overlay-bg {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(92, 58, 0, 0.15);
     display: flex;
     justify-content: center;
@@ -80,7 +74,6 @@ body {
     margin-top: -10px;
 }
 
-/* Окно выбора музыки */
 .settings-zone {
     background-color: #ffebaa;
     border: 3px solid #5c3a00;
@@ -132,9 +125,6 @@ body {
     box-shadow: inset -4px -4px 0px #b87100, inset 4px 4px 0px #ffea9f !important;
 }
 
-/* ===================================================================
-   3. ИГРОВОЙ МАКЕТ ПАСЕКИ (ЭКРАН 2)
-   =================================================================== */
 .game-wrapper {
     display: grid;
     grid-template-columns: 320px 1fr 390px;
@@ -152,9 +142,6 @@ body {
     flex-direction: column;
 }
 
-/* ===================================================================
-   4. ЛЕВАЯ КОЛОНКА (КОРОЛЕВА, ОПЫТ И СТАТИСТИКА)
-   =================================================================== */
 .queen-section {
     background-color: #fffcf0;
     border: 3px solid #5c3a00;
@@ -166,28 +153,28 @@ body {
 
 .queen-avatar-wrapper {
     position: relative;
-    display: inline-block; 
-    width: 110px;          
+    display: inline-block;
+    width: 110px;
     height: 110px;
     margin-bottom: 10px;
 }
 
-.queen-bee { 
-    font-size: 5.5rem; 
-    line-height: 110px;    
+.queen-bee {
+    font-size: 5.5rem;
+    line-height: 110px;
     display: block;
     text-align: center;
-    position: relative; 
-    z-index: 2; 
+    position: relative;
+    z-index: 2;
 }
 
-.queen-crown { 
-    position: absolute; 
-    font-size: 2.3rem; 
-    top: -14px;     
-    left: 0px;     
+.queen-crown {
+    position: absolute;
+    font-size: 2.3rem;
+    top: -14px;
+    left: 0px;
     transform: rotate(-9deg);
-    z-index: 3; 
+    z-index: 3;
 }
 
 .queen-title {
@@ -209,7 +196,6 @@ body {
     text-shadow: 1px 1px 0px #5c3a00;
 }
 
-/* Майнкрафтовская полоса опыта */
 .exp-container {
     background-color: #2c1c04;
     height: 16px;
@@ -252,7 +238,10 @@ body {
     margin-bottom: 8px;
     font-weight: 500;
 }
-.stat-line b { color: #b05500; }
+
+.stat-line b {
+    color: #b05500;
+}
 
 .reset-game-btn {
     background-color: #ba2929;
@@ -264,11 +253,12 @@ body {
     margin-top: auto;
     box-shadow: inset -3px -3px 0px #701414, inset 3px 3px 0px #ff6b6b;
 }
-.reset-game-btn:hover { background-color: #ff4444; border-color: #ffffff; }
 
-/* ===================================================================
-   5. ЦЕНТРАЛЬНАЯ КОЛОНКА (ГИГАНТСКИЙ ГОРШОК С МЁДОМ)
-   =================================================================== */
+.reset-game-btn:hover {
+    background-color: #ff4444;
+    border-color: #ffffff;
+}
+
 .center-panel {
     justify-content: center;
     align-items: center;
@@ -291,7 +281,14 @@ body {
     filter: drop-shadow(0 10px 15px rgba(92, 58, 0, 0.2));
     line-height: 1;
 }
-.main-honey-pot:hover { transform: scale(1.03); }
+
+.main-honey-pot:hover {
+    transform: scale(1.03);
+}
+
+.main-honey-pot:active {
+    transform: scale(0.95);
+}
 
 .click-tip {
     margin-top: 30px;
@@ -300,9 +297,6 @@ body {
     font-size: 0.95rem;
 }
 
-/* ===================================================================
-   6. ПРАВАЯ КОЛОНКА (ДВА МАГАЗИНА УЛУЧШЕНИЙ И НАЙМА)
-   =================================================================== */
 .right-panel h2 {
     margin-top: 0;
     color: #5c3a00;
@@ -335,8 +329,17 @@ body {
     gap: 3px;
 }
 
-.shop-item-name { font-weight: bold; color: #5c3a00; font-size: 1rem; }
-.shop-item-desc { font-size: 0.8rem; color: #7a5921; font-weight: 500; }
+.shop-item-name {
+    font-weight: bold;
+    color: #5c3a00;
+    font-size: 1rem;
+}
+
+.shop-item-desc {
+    font-size: 0.8rem;
+    color: #7a5921;
+    font-weight: 500;
+}
 
 .buy-bee-btn {
     background-color: #ffb700;
@@ -348,16 +351,21 @@ body {
     cursor: pointer;
     box-shadow: inset -2px -2px 0px #b87100, inset 2px 2px 0px #ffea9f;
     text-shadow: 1px 1px 0px #5c3a00;
-}
-.buy-bee-btn:hover { 
-    background-color: #44cc44; 
-    border-color: #ffffff; 
-    box-shadow: inset -2px -2px 0px #1e7a1e, inset 2px 2px 0px #a3ffa3; 
+    transition: all 0.15s ease;
 }
 
-/* ===================================================================
-   7. СТИЛИ ЭФФЕКТОВ, ЧАСТИЦ И ИВЕНТОВ ЛИЛИИ
-   =================================================================== */
+.buy-bee-btn:hover {
+    background-color: #44cc44;
+    border-color: #ffffff;
+    box-shadow: inset -2px -2px 0px #1e7a1e, inset 2px 2px 0px #a3ffa3;
+}
+
+.buy-bee-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #888;
+}
+
 .lily-timer {
     background-color: #ffaa00;
     color: white;
@@ -370,23 +378,33 @@ body {
     margin-bottom: 15px;
     animation: pulse 1s infinite alternate;
 }
-@keyframes pulse { from { opacity: 0.8; } to { opacity: 1; } }
+
+@keyframes pulse {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
+}
 
 .honey-drop-particle {
     position: fixed !important;
     pointer-events: none !important;
-    font-size: 1.8rem !important; /* Сделали искры чуть крупнее и заметнее */
+    font-size: 1.8rem !important;
     font-weight: bold !important;
-    
-    /* КРАСИМ В ЦВЕТ ЖИДКОГО МЁДА */
-    color: #ffee00 !important; 
-    
-    /* ДОБАВЛЯЕМ ЯНТАРНОЕ МЕДОВОЕ СВЕЧЕНИЕ КРАЯМ */
-    text-shadow: 0 0 8px #ffdd00, 0 0 15px #d47a00 !important; 
-    
+    color: #ffee00 !important;
+    text-shadow: 0 0 8px #ffdd00, 0 0 15px #d47a00 !important;
     z-index: 99999 !important;
-    animation: flyOutParticle 0.6s ease-out forwards !important;
     user-select: none !important;
+    animation: flyOutParticle 0.6s ease-out forwards !important;
+}
+
+@keyframes flyOutParticle {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--dx, 50px), var(--dy, -100px)) scale(0.3);
+    }
 }
 
 .golden-lily-spawn {
@@ -398,11 +416,35 @@ body {
     animation: floatLily 12s linear forwards;
     filter: drop-shadow(0 0 10px #ffff55);
 }
+
 @keyframes floatLily {
-    0% { transform: scale(0.8) rotate(0deg); opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: scale(0.8) translate(120px, -220px) rotate(360deg); opacity: 0; }
+    0% {
+        transform: scale(0.8) rotate(0deg);
+        opacity: 0;
+    }
+    15% {
+        opacity: 1;
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.8) translate(120px, -220px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+#achievement-toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+    max-width: 350px;
+    width: 100%;
 }
 
 .achievement-toast {
@@ -415,25 +457,33 @@ body {
     min-width: 260px;
     box-sizing: border-box;
     animation: slideInAch 0.4s ease-out forwards;
-}
-@keyframes slideInAch {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+    pointer-events: auto;
+    width: 100%;
 }
 
-/* ===================================================================
-   8. КНИГА ДОСТИЖЕНИЙ (МОДАЛЬНОЕ ОКНО)
-   =================================================================== */
+@keyframes slideInAch {
+    from {
+        transform: translateX(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(20, 14, 10, 0.7);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 9999999;
-    backdrop-filter: blur(5px); /* Красивое размытие фона пасеки */
+    backdrop-filter: blur(5px);
 }
 
 .modal-content {
@@ -458,7 +508,12 @@ body {
     padding-bottom: 10px;
     margin-bottom: 15px;
 }
-.modal-header h3 { margin: 0; border: none; padding: 0; }
+
+.modal-header h3 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
 
 .modal-close-btn {
     background: transparent;
@@ -468,7 +523,10 @@ body {
     cursor: pointer;
     font-weight: bold;
 }
-.modal-close-btn:hover { color: #ba2929; }
+
+.modal-close-btn:hover {
+    color: #ba2929;
+}
 
 .achievements-grid {
     flex: 1;
@@ -498,18 +556,60 @@ body {
     background-color: #3c2a21;
 }
 
-.ach-list-card.unlocked .ach-list-title { color: #ffff55; }
-.ach-list-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 2px; }
-.ach-list-desc { font-size: 0.8rem; line-height: 1.3; }
-.ach-list-reward { font-size: 0.75rem; color: #55ff55; font-weight: bold; margin-top: 4px; }
+.ach-list-card.unlocked .ach-list-title {
+    color: #ffff55;
+}
 
-/* ===================================================================
-   9. КАСТАМНЫЕ СКРОЛЛБАРЫ И АДАПТИВНОСТЬ
-   =================================================================== */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #ffebaa; border: 1px solid #5c3a00; }
-::-webkit-scrollbar-thumb { background: #ffaa00; border: 1px solid #5c3a00; }
+.ach-list-title {
+    font-weight: bold;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+
+.ach-list-desc {
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+.ach-list-reward {
+    font-size: 0.75rem;
+    color: #55ff55;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #ffebaa;
+    border: 1px solid #5c3a00;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ffaa00;
+    border: 1px solid #5c3a00;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #cc8800;
+}
 
 @media (max-width: 1050px) {
-    .game-wrapper { display: flex; flex-direction: column; height: auto; }
+    .game-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        gap: 20px;
+    }
+    
+    .side-panel, .center-panel {
+        width: 100%;
+        padding: 20px;
+    }
+    
+    .main-honey-pot {
+        font-size: 8rem;
+    }
 }
