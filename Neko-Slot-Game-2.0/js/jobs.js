@@ -1,4 +1,3 @@
-// Система работ
 import { characters, jailTasks, tasksData } from './config.js';
 import { player, isInJail, isWorking, currentJob, currentTask, jobCount, getCurrentMultiplier, getCurrentRisk, getTasksForCurrentTheme, setIsWorking, setCurrentJob, setCurrentTask, incrementJobCount } from './utils.js';
 import { updateUI, saveGame, endWork } from './game.js';
@@ -7,7 +6,7 @@ import { checkAchievements } from './achievements.js';
 import { showJobBackground, hideJobBackground } from './effects.js';
 
 export function startRandomJob() {
-    // В тюрьме можно работать
+
     if (isInJail) {
         const randomIndex = Math.floor(Math.random() * jailTasks.length);
         setCurrentTask(jailTasks[randomIndex]);
