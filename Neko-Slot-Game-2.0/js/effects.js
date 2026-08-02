@@ -1,4 +1,3 @@
-// Визуальные эффекты
 export const effects = {
     forest: () => {
         let h = ''; 
