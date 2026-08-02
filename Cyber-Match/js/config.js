@@ -1,5 +1,3 @@
-// Конфигурация игры - глобальные константы
-
 const WORLDS_LIST = ["forest", "steampunk", "cyber", "space"];
 
 const WORLDS = {
