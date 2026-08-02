@@ -1,848 +1,341 @@
-// ===================================================================
-// ОСНОВНАЯ ЛОГИКА КЛИКЕРА "МЕДОВЫЙ УЛЕЙ"
-// ===================================================================
+const clickerGame = {
+    state: null,
+    saveInterval: null,
+    tickInterval: null,
 
-let state = null;
-let lilyActive = false;
-let lilyTimeLeft = 0;
-let lilyTimerInterval = null;
-
-let beeRadioPlayer = null;
-let currentTrackIndex = -1;
-let currentMusicMode = "random";
-
-// ЗАЩИТА ОТ АВТОКЛИКЕРА
-let lastClickTime = 0;
-let clickCounter = 0;
-let clickSpamWarning = false;
-let animationFramePending = false;
-let pendingUIUpdate = false;
-let notificationQueue = [];
-let isShowingNotification = false;
-
-// КЭШ ДЛЯ DOM ЭЛЕМЕНТОВ
-let cachedElements = {};
-
-const tracksPool = [
-    "sounds/1.mp3", "sounds/2.mp3", "sounds/3.mp3", "sounds/4.mp3", 
-    "sounds/5.mp3", "sounds/6.mp3", "sounds/7.mp3"
-];
-
-// ========== КРАСИВЫЕ УВЕДОМЛЕНИЯ ==========
-function showFloatingNotification(title, message, icon = "👑", duration = 3000) {
-    // Создаём контейнер если его нет
-    let container = document.getElementById("floating-notification-container");
-    if (!container) {
-        container = document.createElement("div");
-        container.id = "floating-notification-container";
-        container.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 999999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            pointer-events: none;
-        `;
-        document.body.appendChild(container);
-    }
-    
-    const notification = document.createElement("div");
-    notification.style.cssText = `
-        background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-        border: 3px solid #ffcc44;
-        border-radius: 16px;
-        padding: 12px 24px;
-        min-width: 280px;
-        max-width: 400px;
-        text-align: center;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
-        animation: notificationSlideIn 0.4s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-        pointer-events: auto;
-        backdrop-filter: blur(8px);
-    `;
-    
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="font-size: 2rem; animation: notificationIconPulse 0.5s ease;">${icon}</div>
-            <div style="text-align: left;">
-                <div style="color: #ffcc44; font-weight: bold; font-size: 0.8rem; letter-spacing: 1px;">${title}</div>
-                <div style="color: #ffffff; font-weight: bold; font-size: 1rem; margin-top: 4px;">${message}</div>
-            </div>
-        </div>
-    `;
-    
-    container.appendChild(notification);
-    
-    // Анимация появления
-    setTimeout(() => {
-        notification.style.animation = "notificationSlideOut 0.3s ease forwards";
-        setTimeout(() => notification.remove(), 300);
-    }, duration);
-}
-
-function showQueenLevelUpNotification(newLevel) {
-    showFloatingNotification(
-        "👑 КОРОЛЕВА ПОВЫШЕНА! 👑",
-        `Текущий уровень: ${newLevel}/500`,
-        "🐝✨",
-        2500
-    );
-}
-
-function showLilyEndNotification() {
-    showFloatingNotification(
-        "🌸 ЗОЛОТАЯ ЛИЛИЯ ЗАКОНЧИЛАСЬ 🌸",
-        "Бонус x3 отключён",
-        "⏰",
-        2500
-    );
-}
-
-function showLilyStartNotification() {
-    showFloatingNotification(
-        "✨ ЗОЛОТАЯ ЛИЛИЯ АКТИВНА! ✨",
-        "Бонус x3 на 5 минут!",
-        "🌸🔥",
-        3000
-    );
-}
-
-function showAutoClickerWarning() {
-    showFloatingNotification(
-        "⚠️ ПОДОЗРИТЕЛЬНАЯ АКТИВНОСТЬ ⚠️",
-        "Пожалуйста, кликайте в нормальном темпе",
-        "🤖❌",
-        3000
-    );
-}
-
-function showAchievementNotification(title, reward) {
-    const container = document.getElementById("achievement-toast-container");
-    if (!container) return;
-    
-    const toast = document.createElement("div");
-    toast.className = "achievement-toast";
-    toast.innerHTML = `
-        <div class="achievement-toast-icon">🏆</div>
-        <div class="achievement-toast-content">
-            <div class="achievement-toast-title">✨ ДОСТИЖЕНИЕ ОТКРЫТО! ✨</div>
-            <div class="achievement-toast-name">${title}</div>
-            <div class="achievement-toast-reward">+${reward} мёда</div>
-        </div>
-    `;
-    
-    container.appendChild(toast);
-    toast.offsetHeight;
-    toast.classList.add('show');
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-        toast.classList.add('hide');
-        setTimeout(() => toast.remove(), 400);
-    }, 4000);
-}
-
-// Добавляем CSS анимации в head
-function addNotificationStyles() {
-    if (document.getElementById("notification-styles")) return;
-    
-    const style = document.createElement("style");
-    style.id = "notification-styles";
-    style.textContent = `
-        @keyframes notificationSlideIn {
-            0% {
-                transform: translateY(-100px) scale(0.8);
-                opacity: 0;
-            }
-            60% {
-                transform: translateY(10px) scale(1.02);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-        }
+    init() {
+        this.state = this.loadGameProgress() || JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
+        this.recalculateStats();
+        this.renderBuildingsList();
+        this.renderUpgradesList();
+        this.updateUI();
         
-        @keyframes notificationSlideOut {
-            0% {
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) scale(0.8);
-                opacity: 0;
-            }
-        }
+        if (this.tickInterval) clearInterval(this.tickInterval);
+        this.tickInterval = setInterval(() => this.runGameTick(), 1000);
         
-        @keyframes notificationIconPulse {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        if (this.saveInterval) clearInterval(this.saveInterval);
+        this.saveInterval = setInterval(() => this.saveGameProgress(), 5000);
         
-        .achievement-toast {
-            background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
-            color: #fff;
-            border: 3px solid #ffcc44;
-            border-radius: 12px;
-            padding: 14px 24px;
-            min-width: 320px;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,200,0.2);
-            pointer-events: auto;
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            transform: translateY(-100px) scale(0.8);
-            transition: all 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
-            margin-bottom: 10px;
-        }
-        
-        .achievement-toast.show {
-            opacity: 1;
-            transform: translateY(20px) scale(1);
-        }
-        
-        .achievement-toast.hide {
-            opacity: 0;
-            transform: translateY(-100px) scale(0.8);
-        }
-        
-        .achievement-toast-icon {
-            font-size: 1.8rem;
-            display: inline-block;
-            margin-right: 12px;
-            vertical-align: middle;
-            animation: notificationIconPulse 0.5s ease;
-        }
-        
-        .achievement-toast-content {
-            display: inline-block;
-            vertical-align: middle;
-            text-align: left;
-        }
-        
-        .achievement-toast-title {
-            color: #ffcc44;
-            font-weight: bold;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-        
-        .achievement-toast-name {
-            font-weight: bold;
-            font-size: 1rem;
-            margin-bottom: 2px;
-            color: #ffffff;
-        }
-        
-        .achievement-toast-reward {
-            margin-top: 6px;
-            font-size: 0.7rem;
-            color: #55ff55;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        
-        .achievement-toast-reward::before {
-            content: "🍯";
-            font-size: 0.9rem;
-        }
-    `;
-    document.head.appendChild(style);
-}
+        this.setupClickHandler();
+    },
 
-// ========== ОПТИМИЗИРОВАННЫЙ UI ==========
-function throttleUpdateUI() {
-    if (pendingUIUpdate) return;
-    pendingUIUpdate = true;
-    requestAnimationFrame(() => {
-        updateClickerUI();
-        pendingUIUpdate = false;
-    });
-}
+    setupClickHandler() {
+        const pot = document.getElementById("clicker-core");
+        if (pot) {
+            pot.removeEventListener("click", this.clickHandler);
+            this.clickHandler = (e) => this.handleHoneyClick(e);
+            pot.addEventListener("click", this.clickHandler);
+        }
+    },
 
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
-function initClickerGame() {
-    addNotificationStyles();
-    loadGameProgress();
-    
-    if (!state || !state.buildings) {
-        state = JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
-        if (!state.unlockedAchievements) state.unlockedAchievements = [];
-        if (!state.totalClicks) state.totalClicks = 0;
-        if (!state.totalHoneyEarned) state.totalHoneyEarned = 0;
-    }
-    
-    cacheElements();
-    recalculateStats();
-    updateClickerUI();
-    renderBuildingsList();
-    renderUpgradesList();
-    
-    setInterval(() => {
-        runGameTick();
-    }, 1000);
-    
-    setInterval(() => {
-        trySpawnGoldenLily();
-    }, 30000);
-    
-    const clickCore = document.getElementById("clicker-core");
-    if (clickCore) {
-        clickCore.addEventListener("click", handleHoneyClick);
-    }
-}
-
-function cacheElements() {
-    cachedElements = {
-        honey: document.getElementById("ui-honey"),
-        hps: document.getElementById("ui-hps"),
-        click: document.getElementById("ui-click"),
-        queenLvl: document.getElementById("ui-queen-lvl"),
-        achCount: document.getElementById("ui-ach-count"),
-        currentExp: document.getElementById("ui-current-exp"),
-        neededExp: document.getElementById("ui-needed-exp"),
-        progressBar: document.getElementById("ui-queen-progress"),
-        upgradesBox: document.getElementById("clicker-upgrades-box"),
-        shopBox: document.getElementById("clicker-shop-box")
-    };
-}
-
-function saveGameProgress() { 
-    if (state) localStorage.setItem("bee_clicker_state_v3", JSON.stringify(state)); 
-}
-
-function loadGameProgress() {
-    const saved = localStorage.getItem("bee_clicker_state_v3");
-    if (saved) {
+    loadGameProgress() {
         try {
-            state = JSON.parse(saved);
-            if (!state.unlockedAchievements) state.unlockedAchievements = [];
-            if (!state.totalClicks) state.totalClicks = 0;
-            if (!state.totalHoneyEarned) state.totalHoneyEarned = 0;
-        } catch(e) {
-            state = JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
-        }
-    } else {
-        state = JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
-    }
-}
-
-// ========== ЗАЩИТА ОТ АВТОКЛИКЕРА ==========
-function isAutoClickerDetected() {
-    const now = Date.now();
-    const timeDiff = now - lastClickTime;
-    
-    if (timeDiff < 5) {
-        clickCounter++;
-    } else {
-        clickCounter = Math.max(0, clickCounter - 1);
-    }
-    
-    lastClickTime = now;
-    
-    if (clickCounter > 20 && !clickSpamWarning) {
-        clickSpamWarning = true;
-        setTimeout(() => { clickSpamWarning = false; clickCounter = 0; }, 2000);
-        return true;
-    }
-    
-    return false;
-}
-
-// ========== ПОЛНЫЙ СБРОС ==========
-window.resetClickerGame = function() {
-    showFloatingNotification(
-        "⚠️ ПОДТВЕРЖДЕНИЕ ⚠️",
-        "Вы уверены, что хотите сбросить прогресс?",
-        "🔄",
-        2000
-    );
-    
-    setTimeout(() => {
-        const doubleCheck = confirm("🚨 ВНИМАНИЕ! Вы уверены, что хотите СБРОСИТЬ весь прогресс?\n\nВы потеряете:\n- Весь накопленный мёд\n- Всех купленных пчёл\n- Все улучшения\n- Уровень Королевы\n- Все достижения\n\nЭто действие нельзя отменить!");
-        
-        if (doubleCheck) {
-            localStorage.removeItem("bee_clicker_state_v3");
-            localStorage.removeItem("bee_clicker_achievements");
-            
-            state = JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
-            if (!state.unlockedAchievements) state.unlockedAchievements = [];
-            if (!state.totalClicks) state.totalClicks = 0;
-            if (!state.totalHoneyEarned) state.totalHoneyEarned = 0;
-            
-            if (lilyTimerInterval) {
-                clearInterval(lilyTimerInterval);
-                lilyTimerInterval = null;
+            const saved = localStorage.getItem("beeClickerSave");
+            if (saved) {
+                const data = JSON.parse(saved);
+                data.unlockedAchievements = data.unlockedAchievements || [];
+                return data;
             }
-            lilyActive = false;
-            lilyTimeLeft = 0;
-            clickCounter = 0;
-            clickSpamWarning = false;
-            
-            recalculateStats();
-            updateClickerUI();
-            renderBuildingsList();
-            renderUpgradesList();
-            
-            showFloatingNotification(
-                "✅ ПРОГРЕСС СБРОШЕН ✅",
-                "Игра началась заново!",
-                "🔄✨",
-                3000
-            );
-            saveGameProgress();
+        } catch (e) {}
+        return null;
+    },
+
+    saveGameProgress() {
+        try {
+            localStorage.setItem("beeClickerSave", JSON.stringify(this.state));
+        } catch (e) {}
+    },
+
+    resetGame() {
+        if (!confirm("Точно сбросить весь прогресс улья?")) return;
+        this.state = JSON.parse(JSON.stringify(CLICKER_CONFIG.startingState));
+        this.state.unlockedAchievements = [];
+        this.recalculateStats();
+        this.renderBuildingsList();
+        this.renderUpgradesList();
+        this.updateUI();
+        this.saveGameProgress();
+    },
+
+    recalculateStats() {
+        let hps = 0;
+        for (let key in this.state.buildings) {
+            const data = CLICKER_CONFIG.buildingsData[key];
+            const count = this.state.buildings[key] || 0;
+            let production = data.hps * count;
+            if (this.state.purchasedUpgrades.includes("upgrade_worker_1") && key === "worker") {
+                production *= 2;
+            }
+            if (this.state.purchasedUpgrades.includes("upgrade_forager_1") && key === "forager") {
+                production *= 2;
+            }
+            hps += production;
         }
-    }, 500);
-};
-
-// ========== ЕЖЕСЕКУНДНЫЙ ТИК ==========
-function runGameTick() {
-    if (!state) return;
-    
-    let earned = state.honeyPerSecond;
-    if (lilyActive) earned *= 3; 
-
-    state.honey += earned;
-    state.totalHoneyEarned += earned;
-
-    if (earned > 0) {
-        let expGained = earned * 0.1;
-        if (state.purchasedUpgrades && state.purchasedUpgrades.includes("upgrade_queen_1")) expGained *= 1.3;
-        addQueenExp(expGained);
-    }
-
-    if (typeof CLICKER_ACHIEVEMENTS !== "undefined") {
-        CLICKER_ACHIEVEMENTS.checkAll(state);
-    }
-    saveGameProgress();
-    throttleUpdateUI();
-}
-
-// ========== НАСТРОЙКА МУЗЫКИ ==========
-window.updateMusicVolume = function() {
-    const slider = document.getElementById("music-volume-slider");
-    const volumeText = document.getElementById("ui-volume-val");
-    if (!slider) return;
-
-    const volVal = parseInt(slider.value);
-    if (volumeText) volumeText.innerText = volVal + "%";
-    if (beeRadioPlayer) beeRadioPlayer.volume = volVal / 100;
-};
-
-window.nextMusicTrack = function() {
-    if (currentMusicMode === "random") {
-        playNextRandomTrack();
-    } else {
-        currentTrackIndex = (currentTrackIndex + 1) % tracksPool.length;
-        if (beeRadioPlayer) {
-            beeRadioPlayer.src = tracksPool[currentTrackIndex];
-            const slider = document.getElementById("music-volume-slider");
-            beeRadioPlayer.volume = slider ? (parseInt(slider.value) / 100) : 0.20;
-            beeRadioPlayer.play().catch(e => console.log(e));
-        }
-    }
-};
-
-window.startGameplayLayout = function() {
-    const modeSelect = document.getElementById("music-mode-select");
-    if (modeSelect) currentMusicMode = modeSelect.value;
-
-    document.getElementById("app-main-menu").style.display = "none";
-    document.getElementById("app-game-layout").style.display = "grid";
-
-    launchBeeRadio();
-    initClickerGame();
-};
-
-window.exitToMainMenu = function() {
-    saveGameProgress();
-    if (beeRadioPlayer) beeRadioPlayer.pause();
-    document.getElementById("app-game-layout").style.display = "none";
-    document.getElementById("app-main-menu").style.display = "flex";
-};
-
-function launchBeeRadio() {
-    if (currentMusicMode === "off") return;
-
-    if (!beeRadioPlayer) {
-        beeRadioPlayer = new Audio();
-        beeRadioPlayer.addEventListener("ended", () => {
-            if (currentMusicMode === "random") playNextRandomTrack();
-            else beeRadioPlayer.play().catch(e => console.log(e));
-        });
-    }
-
-    const slider = document.getElementById("music-volume-slider");
-    beeRadioPlayer.volume = slider ? (parseInt(slider.value) / 100) : 0.20;
-
-    if (currentMusicMode === "random") {
-        currentTrackIndex = Math.floor(Math.random() * tracksPool.length);
-        beeRadioPlayer.src = tracksPool[currentTrackIndex];
-    } else {
-        currentTrackIndex = parseInt(currentMusicMode) - 1;
-        beeRadioPlayer.src = tracksPool[currentTrackIndex];
-    }
-
-    beeRadioPlayer.play().catch(e => {
-        console.log("Браузер ждёт первого клика для старта звуков...");
-        const clickCore = document.getElementById("clicker-core");
-        if (clickCore) {
-            clickCore.addEventListener("click", function startOnFirstClick() {
-                if (beeRadioPlayer) beeRadioPlayer.play().catch(err => console.log(err));
-                clickCore.removeEventListener("click", startOnFirstClick);
-            }, { once: true });
-        }
-    });
-}
-
-function playNextRandomTrack() {
-    if (!beeRadioPlayer || currentMusicMode !== "random") return;
-    let nextIndex = currentTrackIndex;
-    while (nextIndex === currentTrackIndex && tracksPool.length > 1) {
-        nextIndex = Math.floor(Math.random() * tracksPool.length);
-    }
-    currentTrackIndex = nextIndex;
-    beeRadioPlayer.src = tracksPool[currentTrackIndex];
-    
-    const slider = document.getElementById("music-volume-slider");
-    beeRadioPlayer.volume = slider ? (parseInt(slider.value) / 100) : 0.20;
-    beeRadioPlayer.play().catch(e => console.log(e));
-}
-
-// ========== РАСЧЁТ СТАТИСТИКИ ==========
-function recalculateStats() {
-    if (!state) return;
-    
-    let workerMult = state.purchasedUpgrades && state.purchasedUpgrades.includes("upgrade_worker_1") ? 2 : 1;
-    let foragerMult = state.purchasedUpgrades && state.purchasedUpgrades.includes("upgrade_forager_1") ? 2 : 1;
-
-    let rawHps = 0;
-    rawHps += (state.buildings.worker || 0) * CLICKER_CONFIG.buildingsData.worker.hps * workerMult;
-    rawHps += (state.buildings.forager || 0) * CLICKER_CONFIG.buildingsData.forager.hps * foragerMult;
-    rawHps += (state.buildings.guard || 0) * CLICKER_CONFIG.buildingsData.guard.hps;
-    rawHps += (state.buildings.alchemist || 0) * CLICKER_CONFIG.buildingsData.alchemist.hps;
-    rawHps += (state.buildings.royal || 0) * CLICKER_CONFIG.buildingsData.royal.hps;
-
-    const bonus = CLICKER_CONFIG.getQueenBonus(state.queenLevel || 1);
-    
-    let extraClick = 0;
-    if (state.purchasedUpgrades && state.purchasedUpgrades.includes("upgrade_click_1")) extraClick += 3;
-    if (state.purchasedUpgrades && state.purchasedUpgrades.includes("upgrade_click_2")) extraClick += 15;
-
-    state.honeyPerSecond = rawHps * bonus.productionMultiplier;
-    state.clickPower = 1 + bonus.clickBonus + extraClick;
-}
-
-// ========== КЛИК ПО ГОРШКУ ==========
-function handleHoneyClick(e) {
-    if (!state) return;
-    
-    if (isAutoClickerDetected()) {
-        if (!clickSpamWarning) {
-            showAutoClickerWarning();
-            clickSpamWarning = true;
-            setTimeout(() => { clickSpamWarning = false; }, 3000);
-        }
-        return;
-    }
-    
-    let power = state.clickPower;
-    if (lilyActive) power *= 3; 
-
-    state.honey += power;
-    state.totalHoneyEarned += power;
-    state.totalClicks = (state.totalClicks || 0) + 1;
-
-    let expGained = power * 0.5;
-    if (state.purchasedUpgrades && state.purchasedUpgrades.includes("upgrade_queen_1")) expGained *= 1.3;
-    addQueenExp(expGained);
-
-    if (typeof ClickerAudio !== "undefined") ClickerAudio.playClick();
-    
-    if (state.totalClicks % 5 === 0 && typeof CLICKER_ACHIEVEMENTS !== "undefined") {
-        CLICKER_ACHIEVEMENTS.checkAll(state);
-    }
-    
-    throttleUpdateUI();
-    triggerClickAnimation();
-
-    if (e && typeof e.clientX !== 'undefined' && document.querySelectorAll('.honey-drop-particle').length < 30) {
-        createHoneyParticles(e.clientX, e.clientY);
-    }
-}
-
-function createHoneyParticles(x, y) {
-    const particleCount = 3;
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement("div");
-        particle.className = "honey-drop-particle";
-        particle.innerText = "✦";
-        particle.style.position = "fixed";
-        particle.style.left = (x + (Math.random() - 0.5) * 30) + "px";
-        particle.style.top = (y + (Math.random() - 0.5) * 30) + "px";
-        particle.style.fontSize = "1.3rem";
-        particle.style.pointerEvents = "none";
-        particle.style.zIndex = "99999";
-        particle.style.opacity = "0.8";
-        particle.style.animation = "flyOutParticle 0.4s ease-out forwards";
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 400);
-    }
-}
-
-function triggerClickAnimation() {
-    const core = document.getElementById("clicker-core");
-    if (core) { 
-        core.style.transform = "scale(0.95)"; 
-        setTimeout(() => core.style.transform = "scale(1)", 80);
-    }
-}
-
-// ========== ЗОЛОТАЯ ЛИЛИЯ ==========
-function trySpawnGoldenLily() {
-    if (lilyActive || document.getElementById("golden-lily-element")) return;
-    if (Math.random() > 0.5) return;
-    
-    const lily = document.createElement("div");
-    lily.id = "golden-lily-element"; 
-    lily.className = "golden-lily-spawn"; 
-    lily.innerText = "🌸✨";
-    lily.style.position = "fixed";
-    lily.style.left = Math.random() * (window.innerWidth - 100) + "px";
-    lily.style.top = Math.random() * (window.innerHeight - 100) + "px";
-    lily.style.cursor = "pointer";
-    lily.style.zIndex = "99999";
-    lily.style.fontSize = "2.5rem";
-    lily.onclick = () => { 
-        lily.remove(); 
-        activateGoldenLilyBoost(); 
-    };
-    document.body.appendChild(lily);
-    setTimeout(() => { 
-        if (lily && lily.remove) lily.remove(); 
-    }, 10000);
-}
-
-function activateGoldenLilyBoost() {
-    if (lilyTimerInterval) clearInterval(lilyTimerInterval);
-    lilyActive = true; 
-    lilyTimeLeft = 300;
-    
-    const timerZone = document.getElementById("lily-timer-zone");
-    if (timerZone) timerZone.style.display = "block";
-    
-    if (typeof ClickerAudio !== "undefined") ClickerAudio.playLevelUp();
-    showLilyStartNotification();
-    
-    lilyTimerInterval = setInterval(() => {
-        lilyTimeLeft--;
-        let mins = Math.floor(lilyTimeLeft / 60); 
-        let secs = lilyTimeLeft % 60;
-        const countdownSpan = document.getElementById("lily-countdown");
-        if (countdownSpan) countdownSpan.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         
-        if (lilyTimeLeft <= 0) {
-            clearInterval(lilyTimerInterval);
-            lilyActive = false;
-            if (timerZone) timerZone.style.display = "none";
-            showLilyEndNotification();
+        const queenBonus = CLICKER_CONFIG.getQueenBonus(this.state.queenLevel);
+        this.state.honeyPerSecond = hps * queenBonus.productionMultiplier;
+        this.state.clickPower = 1 + queenBonus.clickBonus;
+        
+        if (this.state.purchasedUpgrades.includes("upgrade_click_1")) {
+            this.state.clickPower += 3;
         }
-    }, 1000);
-}
+        if (this.state.purchasedUpgrades.includes("upgrade_click_2")) {
+            this.state.clickPower += 15;
+        }
+    },
 
-// ========== УЛУЧШЕНИЯ ==========
-window.buyUpgrade = function(upgId) {
-    if (!state) return;
-    
-    const upg = CLICKER_CONFIG.upgradesData[upgId];
-    if (state.honey >= upg.price) {
-        state.honey -= upg.price;
-        if (!state.purchasedUpgrades) state.purchasedUpgrades = [];
-        state.purchasedUpgrades.push(upgId);
-        if (typeof ClickerAudio !== "undefined") ClickerAudio.playBuy();
-        recalculateStats();
-        updateClickerUI();
-        renderUpgradesList();
-        saveGameProgress();
-        showFloatingNotification(
-            "✨ УЛУЧШЕНИЕ КУПЛЕНО! ✨",
-            upg.name,
-            "🛒",
-            2000
-        );
-    } else { 
-        showFloatingNotification(
-            "❌ НЕ ХВАТАЕТ МЁДА ❌",
-            `Нужно ещё ${ClickerUtils.formatNumber(upg.price - state.honey)} л`,
-            "🍯",
-            2000
-        );
-    }
-};
+    getExpMultiplier() {
+        return this.state.purchasedUpgrades.includes("upgrade_queen_1") ? 1.3 : 1;
+    },
 
-function renderUpgradesList() {
-    const box = cachedElements.upgradesBox || document.getElementById("clicker-upgrades-box");
-    if (!box) return; 
-    box.innerHTML = "";
-    
-    if (!state || !CLICKER_CONFIG.upgradesData) return;
-    
-    for (let upgId in CLICKER_CONFIG.upgradesData) {
-        if (state.purchasedUpgrades && state.purchasedUpgrades.includes(upgId)) continue;
-        const data = CLICKER_CONFIG.upgradesData[upgId];
-        const card = document.createElement("div");
-        card.className = "shop-item-card";
-        card.innerHTML = `
-            <div class="shop-item-info">
-                <span class="shop-item-name">${data.name}</span>
-                <span class="shop-item-desc">${data.desc}</span>
-            </div>
-            <button class="buy-bee-btn" style="background-color:#55ff55;" onclick="window.buyUpgrade('${upgId}')">🍯 ${ClickerUtils.formatNumber(data.price)} л</button>
-        `;
-        box.appendChild(card);
-    }
-}
+    gainQueenExp(amount) {
+        const multi = this.getExpMultiplier();
+        this.state.queenExp += amount * multi;
+        const needed = CLICKER_CONFIG.getRequiredExpForLevel(this.state.queenLevel);
+        while (this.state.queenExp >= needed && this.state.queenLevel < 500) {
+            this.state.queenExp -= needed;
+            this.state.queenLevel++;
+            this.recalculateStats();
+            ClickerAudio.playLevelUp();
+            this.updateUI();
+        }
+        if (this.state.queenLevel >= 500) {
+            this.state.queenExp = 0;
+        }
+    },
 
-// ========== ОПЫТ КОРОЛЕВЫ ==========
-function addQueenExp(amount) {
-    if (!state) return;
-    if (state.queenLevel >= 500) return;
-    
-    state.queenExp = (state.queenExp || 0) + amount;
-    let requiredExp = CLICKER_CONFIG.getRequiredExpForLevel(state.queenLevel);
-    
-    if (state.queenExp >= requiredExp && state.queenLevel < 500) {
-        state.queenExp -= requiredExp;
-        state.queenLevel++;
-        if (typeof ClickerAudio !== "undefined") ClickerAudio.playLevelUp();
-        recalculateStats();
-        renderBuildingsList();
-        renderUpgradesList();
-        throttleUpdateUI();
-        showQueenLevelUpNotification(state.queenLevel);
-    }
-}
+    handleHoneyClick(e) {
+        const honey = this.state.clickPower;
+        this.state.honey += honey;
+        this.state.totalHoneyEarned += honey;
+        this.state.totalClicks++;
+        
+        this.gainQueenExp(honey * 0.1);
+        
+        ClickerAudio.playClick();
+        this.spawnHoneyParticles(e);
+        this.updateUI();
+        CLICKER_ACHIEVEMENTS.checkAll(this.state);
+    },
 
-// ========== ПОКУПКА ПЧЁЛ ==========
-window.buyBeeBuilding = function(bId) {
-    if (!state) return;
-    
-    const cost = getBuildingCost(bId);
-    if (state.honey >= cost) {
-        state.honey -= cost;
-        state.buildings[bId] = (state.buildings[bId] || 0) + 1;
-        if (typeof ClickerAudio !== "undefined") ClickerAudio.playBuy();
-        recalculateStats();
-        updateClickerUI();
-        renderBuildingsList();
-        saveGameProgress();
-        const data = CLICKER_CONFIG.buildingsData[bId];
-        showFloatingNotification(
-            "🐝 НОВАЯ ПЧЕЛА! 🐝",
-            `${data.name} нанят! +${data.hps} л/сек`,
-            "✨",
-            1500
-        );
-    } else { 
-        showFloatingNotification(
-            "❌ НЕ ХВАТАЕТ МЁДА ❌",
-            `Нужно ещё ${ClickerUtils.formatNumber(cost - state.honey)} л`,
-            "🍯",
-            2000
-        );
-    }
-};
+    spawnHoneyParticles(e) {
+        const count = Math.min(8, 3 + Math.floor(this.state.clickPower / 2));
+        const container = document.body;
+        for (let i = 0; i < count; i++) {
+            const particle = document.createElement("div");
+            particle.className = "honey-drop-particle";
+            particle.textContent = "✦";
+            
+            const rect = e.target.getBoundingClientRect();
+            const x = e.clientX || rect.left + rect.width / 2;
+            const y = e.clientY || rect.top + rect.height / 2;
+            
+            const angle = Math.random() * 2 * Math.PI;
+            const distance = 40 + Math.random() * 100;
+            const dx = Math.cos(angle) * distance;
+            const dy = Math.sin(angle) * distance - 50;
+            
+            particle.style.left = (x - 15) + "px";
+            particle.style.top = (y - 15) + "px";
+            particle.style.setProperty("--dx", dx + "px");
+            particle.style.setProperty("--dy", dy + "px");
+            
+            container.appendChild(particle);
+            setTimeout(() => {
+                if (particle.parentNode) particle.remove();
+            }, 700);
+        }
+    },
 
-function getBuildingCost(bId) {
-    const count = state.buildings[bId] || 0;
-    return Math.floor(CLICKER_CONFIG.buildingsData[bId].basePrice * Math.pow(CLICKER_CONFIG.buildingsData[bId].multiplier, count));
-}
+    runGameTick() {
+        this.state.honey += this.state.honeyPerSecond;
+        this.state.totalHoneyEarned += this.state.honeyPerSecond;
+        this.gainQueenExp(this.state.honeyPerSecond * 0.02);
+        this.updateUI();
+        CLICKER_ACHIEVEMENTS.checkAll(this.state);
+    },
 
-function renderBuildingsList() {
-    const box = cachedElements.shopBox || document.getElementById("clicker-shop-box");
-    if (!box) return; 
-    box.innerHTML = "";
-    
-    if (!state || !CLICKER_CONFIG.buildingsData) return;
-    
-    for (let bId in CLICKER_CONFIG.buildingsData) {
-        const data = CLICKER_CONFIG.buildingsData[bId];
-        const cost = getBuildingCost(bId);
-        const count = state.buildings[bId] || 0;
-        const card = document.createElement("div");
-        card.className = "shop-item-card";
-        card.innerHTML = `
-            <div class="shop-item-info">
-                <span class="shop-item-name">${data.name} (x${count})</span>
-                <span class="shop-item-desc">+${ClickerUtils.formatNumber(data.hps)} л/сек</span>
-            </div>
-            <button class="buy-bee-btn" onclick="window.buyBeeBuilding('${bId}')">🍯 ${ClickerUtils.formatNumber(cost)} л</button>
-        `;
-        box.appendChild(card);
-    }
-}
+    buyBuilding(key) {
+        const data = CLICKER_CONFIG.buildingsData[key];
+        if (!data) return false;
+        
+        const count = this.state.buildings[key] || 0;
+        const price = Math.floor(data.basePrice * Math.pow(data.multiplier, count));
+        
+        if (this.state.honey < price) return false;
+        
+        this.state.honey -= price;
+        this.state.buildings[key] = count + 1;
+        this.recalculateStats();
+        this.renderBuildingsList();
+        this.updateUI();
+        ClickerAudio.playBuy();
+        return true;
+    },
 
-// ========== ОБНОВЛЕНИЕ UI ==========
-function updateClickerUI() {
-    if (!state) return;
-    
-    let mult = lilyActive ? 3 : 1;
-    
-    if (cachedElements.honey) cachedElements.honey.innerText = ClickerUtils.formatNumber(state.honey);
-    if (cachedElements.hps) cachedElements.hps.innerText = ClickerUtils.formatNumber(state.honeyPerSecond * mult);
-    if (cachedElements.click) cachedElements.click.innerText = ClickerUtils.formatNumber(state.clickPower * mult);
-    if (cachedElements.queenLvl) cachedElements.queenLvl.innerText = state.queenLevel;
-    if (cachedElements.achCount) cachedElements.achCount.innerText = state.unlockedAchievements ? state.unlockedAchievements.length : 0;
-    
-    const reqExp = CLICKER_CONFIG.getRequiredExpForLevel(state.queenLevel);
-    if (cachedElements.currentExp) cachedElements.currentExp.innerText = ClickerUtils.formatNumber(state.queenExp || 0);
-    if (cachedElements.neededExp) cachedElements.neededExp.innerText = ClickerUtils.formatNumber(reqExp);
-    
-    if (cachedElements.progressBar) {
-        cachedElements.progressBar.style.width = `${state.queenLevel >= 500 ? 100 : ((state.queenExp || 0) / reqExp) * 100}%`;
-    }
-}
+    buyUpgrade(key) {
+        const data = CLICKER_CONFIG.upgradesData[key];
+        if (!data) return false;
+        if (this.state.purchasedUpgrades.includes(key)) return false;
+        if (this.state.honey < data.price) return false;
+        
+        this.state.honey -= data.price;
+        this.state.purchasedUpgrades.push(key);
+        this.recalculateStats();
+        this.renderUpgradesList();
+        this.updateUI();
+        ClickerAudio.playBuy();
+        return true;
+    },
 
-// ========== ДОСТИЖЕНИЯ ==========
-window.openAchievementsModal = function() {
-    const modal = document.getElementById("achievements-modal");
-    const listContainer = document.getElementById("modal-achievements-list");
-    if (!modal || !listContainer) return;
-    
-    if (document.getElementById("ui-modal-ach-count")) {
-        document.getElementById("ui-modal-ach-count").innerText = state.unlockedAchievements ? state.unlockedAchievements.length : 0;
-    }
-    
-    listContainer.innerHTML = "";
-    
-    if (typeof CLICKER_ACHIEVEMENTS !== "undefined" && CLICKER_ACHIEVEMENTS.db) {
-        CLICKER_ACHIEVEMENTS.db.forEach(ach => {
-            const isUnlocked = state.unlockedAchievements && state.unlockedAchievements.includes(ach.id);
+    renderBuildingsList() {
+        const container = document.getElementById("clicker-shop-box");
+        if (!container) return;
+        container.innerHTML = "";
+        
+        for (let key in CLICKER_CONFIG.buildingsData) {
+            const data = CLICKER_CONFIG.buildingsData[key];
+            const count = this.state.buildings[key] || 0;
+            const price = Math.floor(data.basePrice * Math.pow(data.multiplier, count));
+            
             const card = document.createElement("div");
-            card.className = `ach-list-card ${isUnlocked ? 'unlocked' : ''}`;
+            card.className = "shop-item-card";
             card.innerHTML = `
-                <div class="ach-list-title">${isUnlocked ? '🏆' : '🔒'} ${ach.title}</div>
-                <div class="ach-list-desc">${ach.desc}</div>
-                <div class="ach-list-reward">Награда: +${ach.reward} л мёда ${isUnlocked ? '(Получено)' : ''}</div>
+                <div class="shop-item-info">
+                    <div class="shop-item-name">${data.name} (${count})</div>
+                    <div class="shop-item-desc">💰 ${ClickerUtils.formatNumber(price)} л</div>
+                </div>
+                <button class="buy-bee-btn" data-building="${key}">🐝 Нанять</button>
             `;
-            listContainer.appendChild(card);
+            
+            const btn = card.querySelector("button");
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.buyBuilding(key);
+            });
+            
+            container.appendChild(card);
+        }
+    },
+
+    renderUpgradesList() {
+        const container = document.getElementById("clicker-upgrades-box");
+        if (!container) return;
+        container.innerHTML = "";
+        
+        for (let key in CLICKER_CONFIG.upgradesData) {
+            const data = CLICKER_CONFIG.upgradesData[key];
+            const owned = this.state.purchasedUpgrades.includes(key);
+            
+            const card = document.createElement("div");
+            card.className = "shop-item-card";
+            card.style.opacity = owned ? "0.6" : "1";
+            card.innerHTML = `
+                <div class="shop-item-info">
+                    <div class="shop-item-name">${data.name} ${owned ? "✅" : ""}</div>
+                    <div class="shop-item-desc">${data.desc}</div>
+                    <div class="shop-item-desc">💰 ${ClickerUtils.formatNumber(data.price)} л</div>
+                </div>
+                <button class="buy-bee-btn" data-upgrade="${key}" ${owned ? "disabled" : ""}>
+                    ${owned ? "Куплено" : "🔧 Улучшить"}
+                </button>
+            `;
+            
+            const btn = card.querySelector("button");
+            if (!owned) {
+                btn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    this.buyUpgrade(key);
+                });
+            }
+            
+            container.appendChild(card);
+        }
+    },
+
+    updateUI() {
+        const state = this.state;
+        document.getElementById("ui-queen-lvl").textContent = state.queenLevel;
+        document.getElementById("ui-honey").textContent = ClickerUtils.formatNumber(Math.floor(state.honey));
+        document.getElementById("ui-hps").textContent = ClickerUtils.formatNumber(state.honeyPerSecond);
+        document.getElementById("ui-click").textContent = ClickerUtils.formatNumber(state.clickPower);
+        
+        const needed = CLICKER_CONFIG.getRequiredExpForLevel(state.queenLevel);
+        document.getElementById("ui-current-exp").textContent = ClickerUtils.formatNumber(state.queenExp);
+        document.getElementById("ui-needed-exp").textContent = needed === Infinity ? "∞" : ClickerUtils.formatNumber(needed);
+        
+        const progress = needed === Infinity ? 100 : Math.min(100, (state.queenExp / needed) * 100);
+        document.getElementById("ui-queen-progress").style.width = progress + "%";
+        
+        const achCount = state.unlockedAchievements ? state.unlockedAchievements.length : 0;
+        document.getElementById("ui-ach-count").textContent = achCount;
+        document.getElementById("ui-modal-ach-count").textContent = achCount;
+    },
+
+    openAchievementsModal() {
+        const modal = document.getElementById("achievements-modal");
+        if (!modal) return;
+        modal.style.display = "flex";
+        this.renderAchievementsList();
+    },
+
+    closeAchievementsModal() {
+        document.getElementById("achievements-modal").style.display = "none";
+    },
+
+    renderAchievementsList() {
+        const container = document.getElementById("modal-achievements-list");
+        if (!container) return;
+        container.innerHTML = "";
+        
+        const unlocked = this.state.unlockedAchievements || [];
+        CLICKER_ACHIEVEMENTS.db.forEach(ach => {
+            const isUnlocked = unlocked.includes(ach.id);
+            const card = document.createElement("div");
+            card.className = "ach-list-card" + (isUnlocked ? " unlocked" : "");
+            card.innerHTML = `
+                <div class="ach-list-title">${isUnlocked ? "✅ " : "🔒 "} ${ach.title}</div>
+                <div class="ach-list-desc">${ach.desc}</div>
+                <div class="ach-list-reward">+${ach.reward} мёда</div>
+            `;
+            container.appendChild(card);
         });
+    },
+
+    startGameplayLayout() {
+        document.getElementById("app-main-menu").style.display = "none";
+        document.getElementById("app-game-layout").style.display = "grid";
+        
+        const slider = document.getElementById("music-volume-slider");
+        if (slider) {
+            ClickerAudio.setVolume(parseInt(slider.value));
+        }
+        ClickerAudio.startMusicLoop();
+        
+        this.renderBuildingsList();
+        this.renderUpgradesList();
+        this.updateUI();
+    },
+
+    exitToMainMenu() {
+        this.saveGameProgress();
+        ClickerAudio.stopMusicLoop();
+        document.getElementById("app-game-layout").style.display = "none";
+        document.getElementById("app-main-menu").style.display = "flex";
     }
-    modal.style.display = "flex";
 };
 
-window.closeAchievementsModal = function() { 
-    document.getElementById("achievements-modal").style.display = "none"; 
+window.startGameplayLayout = () => clickerGame.startGameplayLayout();
+window.exitToMainMenu = () => clickerGame.exitToMainMenu();
+window.resetClickerGame = () => clickerGame.resetGame();
+window.openAchievementsModal = () => clickerGame.openAchievementsModal();
+window.closeAchievementsModal = () => clickerGame.closeAchievementsModal();
+window.nextMusicTrack = () => ClickerAudio.nextTrack();
+window.updateMusicVolume = () => {
+    const slider = document.getElementById("music-volume-slider");
+    if (slider) ClickerAudio.setVolume(parseInt(slider.value));
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+    clickerGame.init();
+});
