@@ -1,4 +1,3 @@
-// Конфигурация игры
 export const FRUITS = ["🍒","🍋","🍊","🍉","🍎","🍓","🍑"];
 export const STAR = "⭐";
 
