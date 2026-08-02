@@ -1,5 +1,3 @@
-// Аудио система
-
 let currentMusic = null;
 let audioEnabled = false;
 let musicVolume = 70;
