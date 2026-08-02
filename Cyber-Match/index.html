@@ -144,13 +144,38 @@
         </div>
     </div>
 
+    <!-- УНИВЕРСАЛЬНОЕ МОДАЛЬНОЕ ОКНО ДЛЯ УВЕДОМЛЕНИЙ -->
+    <div id="notificationModal" class="modal-overlay">
+        <div class="modal notification-modal">
+            <div id="notificationIcon" style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+            <div id="notificationTitle" class="modal-title" style="color: var(--neon-cyan); font-size: 0.9rem;">УВЕДОМЛЕНИЕ</div>
+            <div id="notificationMessage" style="color: #fff; font-size: 0.65rem; margin: 15px 0; line-height: 1.8; padding: 0 10px;"></div>
+            <button id="notificationOkBtn" class="btn" style="background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); color: #000; border: none; font-size: 0.65rem; padding: 10px 35px; margin-top: 10px;">✅ ОК</button>
+        </div>
+    </div>
+
+    <!-- КРАСИВОЕ МОДАЛЬНОЕ ОКНО ДЛЯ ОТКРЫТИЯ МИРА -->
+    <div id="worldUnlockModal" class="modal-overlay">
+        <div class="modal world-unlock-modal">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🌍</div>
+            <div class="modal-title" style="color: #ffd700; font-size: 1.1rem;">ПОЗДРАВЛЯЮ!</div>
+            <div style="color: #fff; font-size: 0.7rem; margin: 15px 0; line-height: 1.8;">
+                Мир "<span id="unlockCompletedWorld" style="color: var(--neon-cyan);">ЛЕСНОЙ</span>" полностью пройден!
+            </div>
+            <div style="color: #ffcc00; font-size: 0.9rem; margin: 10px 0; padding: 8px; background: rgba(255,204,0,0.15); border: 2px solid #ffcc00; border-radius: 4px;">
+                🔥 ОТКРЫТ НОВЫЙ МИР: <span id="unlockNewWorld" style="color: #ff6600;">СТИМПАНК</span>!
+            </div>
+            <button id="unlockModalOkBtn" class="btn" style="background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink)); color: #000; border: none; font-size: 0.7rem; padding: 12px 40px; margin-top: 15px;">✨ ОТЛИЧНО!</button>
+        </div>
+    </div>
+
     <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
 
-   <script src="js/config.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/shop.js"></script>
-<script src="js/game.js"></script>
-<script src="js/main.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/shop.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
