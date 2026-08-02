@@ -1,4 +1,3 @@
-// События уровней
 import { player } from './utils.js';
 import { updateUI, saveGame } from './game.js';
 import { checkAchievements } from './achievements.js';
@@ -102,6 +101,7 @@ export function showLevelUpEvent(newLevel) {
     const modalText = document.getElementById("modalText");
     const modalChoices = document.getElementById("modalChoices");
     isModalOpen = true;
+    window.isModalOpen = true;
     modalText.innerHTML = `<h3>${event.title}</h3><p>${event.text}</p>`;
     modalChoices.innerHTML = "";
     event.choices.forEach((choice) => {
@@ -115,6 +115,7 @@ export function showLevelUpEvent(newLevel) {
             document.getElementById("closeEventModalBtn").onclick = () => {
                 modal.style.display = "none";
                 isModalOpen = false;
+                window.isModalOpen = false;
                 updateUI();
                 saveGame();
                 checkAchievements();
@@ -131,5 +132,6 @@ export function checkAndShowPendingEvent() {
     if (pendingLevelUpEvent && !isModalOpen) { 
         showLevelUpEvent(pendingLevelUpEvent); 
         pendingLevelUpEvent = null; 
+        window.pendingLevelUpEvent = null;
     }
 }
