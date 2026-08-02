@@ -1,4 +1,3 @@
-// ОБЪЕКТНО-ОРИЕНТИРОВАННЫЙ ДВИЖОК ЭКОНОМИКИ И СУДОВ
 class MarketEngine {
     constructor(state) {
         this.state = state;
@@ -6,11 +5,11 @@ class MarketEngine {
 
     applyMarketing() {
         if (this.state.money < 500) {
-            addMailMessage("system", "❌ Не хватает 500 💎 на рекламную кампанию!", true);
+            showAlert("❌ Не хватает 500 💎 на рекламную кампанию!");
             return false;
         }
         this.state.money -= 500;
-        this.state.marketingBonus = 1.4; // +40% к силе продаж
+        this.state.marketingBonus = 1.4;
         addMailMessage("system", "📢 Реклама успешно запущена на всем Спавне! Покупатели повалят завтра!", true);
         return true;
     }
@@ -24,9 +23,9 @@ class MarketEngine {
             const markup = prod.userPrice / prod.basePrice;
             let priceFactor = 1.0;
             
-            if (markup > 1.4) priceFactor = 0.3;        // Грабеж, клиенты недовольны
-            else if (markup < 0.8) priceFactor = 1.6;   // Отличная скидка
-            else if (markup < 1.1) priceFactor = 1.1;   // Хорошая цена
+            if (markup > 1.4) priceFactor = 0.3;
+            else if (markup < 0.8) priceFactor = 1.6;
+            else if (markup < 1.1) priceFactor = 1.1;
 
             const repFactor = 0.4 + (this.state.reputation / 100);
             let potentialSales = Math.floor(Math.random() * 3) + 1;
@@ -48,9 +47,8 @@ class MarketEngine {
 
         updateMoney(Math.floor(report.revenue));
         addExp(report.exp);
-        this.state.marketingBonus = 1.0; // Сброс баффа рекламы
+        this.state.marketingBonus = 1.0;
 
-        // Генерация случайных отзывов от VIP-ов на основе продаж
         const reviewCount = Math.min(3, report.itemsSold);
         for (let i = 0; i < reviewCount; i++) {
             generateRandomReview();
@@ -62,18 +60,16 @@ class MarketEngine {
     rivalSabotage() {
         if (this.state.defeatedRival) return;
 
-        // Рейд ботов Карася и Старлика
         if (Math.random() < 0.40) {
             let loss = Math.floor(Math.random() * 250) + 50;
             this.state.money = Math.max(0, this.state.money - loss);
             updateReputation(-4);
             
-            addMailMessage("starlik", `😈 Ха-ха! Мои кибер-боты обрушили тебе рейтинг! Убытки составили: -${loss} 💎!`, true);
+            addMailMessage("starlik", `😈 Ха-ха! Мои кибер-боты обрушили тебе рейтинг! Убытки: -${loss} 💎!`, true);
             
-            // Шанс перехватить компромат при атаке
             if (Math.random() < 0.50) {
                 addCompromat(15);
-                addMailMessage("system", "🔍 Внимание! Перехвачены логи бот-атаки Карася! Компромат на Старлика +15%!", true);
+                addMailMessage("system", "🔍 Перехвачены логи бот-атаки Карася! Компромат +15%!", true);
             }
         }
     }
@@ -81,7 +77,7 @@ class MarketEngine {
     sueRival() {
         if (this.state.defeatedRival) return false;
         if (this.state.compromat < GAME_CONFIG.compromatNeeded) {
-            alert("⚖️ Недостаточно улик! Накопи 100% компромата, перехватывая набеги Карася!");
+            showAlert("⚖️ Недостаточно улик! Накопи 100% компромата, перехватывая набеги Карася!");
             return false;
         }
 
@@ -89,7 +85,7 @@ class MarketEngine {
         this.state.rivalPower = 0;
         this.state.compromat = 100;
         
-        updateMoney(8000); // Грант от со-создателей
+        updateMoney(8000);
         updateReputation(40);
         
         const courtWindow = document.getElementById("court-window");
@@ -104,12 +100,11 @@ class MarketEngine {
             `;
         }
         
-        alert("🎉 ФИНАЛЬНАЯ МИССИЯ ВЫПОЛНЕНА! Папка с компроматом передана высшей инстанции. Старлик забанен!");
+        showAlert("🎉 ФИНАЛЬНАЯ МИССИЯ ВЫПОЛНЕНА! Папка с компроматом передана. Старлик забанен!");
         return true;
     }
 }
 
-// ИНИЦИАЛИЗАЦИЯ И СТАРТОВОЕ СОСТОЯНИЕ ХАТЫ BBM
 let gameState = {
     money: GAME_CONFIG.startMoney,
     level: 1,
@@ -182,7 +177,16 @@ function changeProductPrice(id, newPrice) {
     if (item && newPrice > 0) item.userPrice = parseInt(newPrice);
 }
 
-// СИСТЕМА ОТПРАВКИ И ОБРАБОТКИ ОТВЕТОВ ИИ
+function addMailMessage(contact, text, incoming) {
+    if (!gameState.chats[contact]) {
+        gameState.chats[contact] = [];
+    }
+    gameState.chats[contact].push({ text: text, time: "Только что", incoming: incoming });
+    if (gameState.activeContact === contact) {
+        renderChatMessages();
+    }
+}
+
 function sendMailMessage() {
     const input = document.getElementById("mail-input-field");
     if (!input || input.value.trim() === "") return;
@@ -195,39 +199,15 @@ function sendMailMessage() {
     renderChatMessages();
 
     setTimeout(() => {
-        const responseType = AIDirector.getMailResponse(contact, userText);
-        let replyText = "";
-
-        if (responseType === "discount") replyText = "Ладно, твоя взяла! По старой дружбе оформляю накладные со скидкой 10% на сырье! 🚚";
-        else if (responseType === "expensive") replyText = "Ценники ломают LOR Ваниллы! Сбавь кристаллы, или эти спутники улетят обратно на металлолом! 🛰️";
-        else if (responseType === "threat") replyText = "Ты мне угрожаешь? Мои боты завалят твою витрину спамом единиц, а базы взорвем динамитом! 😈🔥";
-        else if (responseType === "discount_pepto") replyText = "Скииидка! Обожаю халяву! Буду закупаться у тебя медовыми конфетами вагонами! 💰";
-        else if (responseType === "joke") {
-            const pool = MAIL_RESPONSES.nahida.joke;
-            replyText = pool[Math.floor(Math.random() * pool.length)];
-        }
-        else if (responseType === "market_good") replyText = MAIL_RESPONSES.nahida.market_good;
-        else if (responseType === "market_bad") replyText = MAIL_RESPONSES.nahida.market_bad;
-        else if (responseType === "default_nahida") replyText = MAIL_RESPONSES.nahida.default;
-        
-        else if (responseType === "пасхалка") {
-            if (contact === "pepto") replyText = "Сам иди нафиг! Я вообще-то VIP-покупатель и единственный, кто твои ржавые спутники Пепто за кристаллы оценивал! 😡";
-            if (contact === "mushroom") replyText = "Ассимиляция березовым 5G завершена. Я ухожу в изолятор, с токсинами на коленях общаться не намерен. 🕦";
-            if (contact === "karas") replyText = "ЧЁ СКАЗАЛ?! Всё, твоему улью хана! Мой клан Антегрия уже заходит на server со стаками динамита и X-Ray! 💥💀";
-            if (contact === "starlik") replyText = "Удалить этот магазин со Спавна немедленно! Бан по айпи и железу за жесткое неуважение к администрации проекта! ⛓️❌";
-            if (contact === "nahida") replyText = "Ахахаха! Хорош! Напиши это Старлику в ЛС, у него вся серверная консоль синим пламенем сгорит! 😂🔥";
-            if (contact === "supplier") replyText = "Ну и разгружай свои мешки сам! Отменяю поставку красителей и пирогов. Прощай!";
-        }
-        else replyText = "Понял тебя. Ну, будет повод — спишемся на сервере. 👌";
-
-        gameState.chats[contact].push({ text: replyText, time: "Только что", incoming: true });
+        const response = AIDirector.getMailResponse(contact, userText);
+        gameState.chats[contact].push({ text: response.reply, time: "Только что", incoming: true });
         renderChatMessages();
     }, 800);
 }
 
 function clearCurrentChat() {
     const contact = gameState.activeContact;
-    if (confirm(`Вы уверены, что хотите стереть логи переписки с [${contact.toUpperCase()}]?`)) {
+    showConfirm(`Вы уверены, что хотите стереть логи переписки с [${contact.toUpperCase()}]?`, () => {
         gameState.chats[contact] = [];
         gameState.chats[contact].push({ 
             text: "🧹 Логи BBM успешно стерты. Хакерская защита активна, Старлик ничего не узнает!", 
@@ -235,7 +215,7 @@ function clearCurrentChat() {
             incoming: true 
         });
         renderChatMessages();
-    }
+    });
 }
 
 function renderChatMessages() {
@@ -253,15 +233,15 @@ function renderChatMessages() {
     box.scrollTop = box.scrollHeight;
 }
 
-function selectContact(slug) {
+function selectContact(slug, element) {
     gameState.activeContact = slug;
     document.getElementById("current-contact-title").innerText = slug.toUpperCase();
     
     const nodes = document.querySelectorAll(".mail-contact");
     nodes.forEach(n => n.classList.remove("active"));
     
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
+    if (element) {
+        element.classList.add("active");
     }
     renderChatMessages();
 }
@@ -273,9 +253,11 @@ function switchTab(tab) {
     contents.forEach(c => c.classList.remove("active"));
     tabs.forEach(t => t.classList.remove("active"));
 
-    document.getElementById(`${tab}-window`).classList.add("active");
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add("active");
+    const target = document.getElementById(`${tab}-window`);
+    if (target) target.classList.add("active");
+    
+    if (window.event && window.event.currentTarget) {
+        window.event.currentTarget.classList.add("active");
     }
 }
 
@@ -290,37 +272,57 @@ function triggerNextDay() {
         renderShowcaseProducts();
         
         document.getElementById("day-loading-screen").style.display = "none";
-        alert(`Новый день настал!\nВыручка: +${Math.floor(report.revenue)} 💎\nОпыт: +${report.exp}`);
+        showAlert(`Новый день настал!\nВыручка: +${Math.floor(report.revenue)} 💎\nОпыт: +${report.exp}`);
     }, 600);
 }
 
-function triggerMarketing() { if (engine.applyMarketing()) updateUI(); }
-function triggerLawsuit() { engine.sueRival(); updateUI(); }
+function triggerMarketing() { 
+    if (engine.applyMarketing()) updateUI(); 
+}
 
-function updateMoney(amount) { gameState.money += amount; }
+function triggerLawsuit() { 
+    engine.sueRival(); 
+    updateUI(); 
+}
+
+function updateMoney(amount) { 
+    gameState.money += amount; 
+}
+
 function updateReputation(amount) { 
     gameState.reputation = Math.max(0, Math.min(100, gameState.reputation + amount)); 
 }
+
 function addExp(amount) {
     gameState.exp += amount;
-    if (gameState.exp >= 1000 * gameState.level && gameState.level < 4) {
+    const required = 1000 * gameState.level;
+    if (gameState.exp >= required && gameState.level < 4) {
         gameState.exp = 0;
         gameState.level++;
         loadLevelProducts();
-        alert(`Поздравляем! Уровень улья повышен до ${gameState.level}! Открыты новые товары от поставщиков!`);
+        showAlert(`Поздравляем! Уровень улья повышен до ${gameState.level}! Открыты новые товары!`);
     }
     if (gameState.exp >= 1000 * gameState.level) gameState.exp = 1000 * gameState.level;
 }
-function addCompromat(amount) { gameState.compromat = Math.min(100, gameState.compromat + amount); }
+
+function addCompromat(amount) { 
+    gameState.compromat = Math.min(100, gameState.compromat + amount); 
+}
 
 function generateRandomReview() {
-    const authors = ["Пепто", "Гриб", "Карась"];
-    const author = authors[Math.floor(Math.random() * authors.length)];
+    const authorMap = {
+        "Пепто": "pepto",
+        "Гриб": "mushroom",
+        "Карась": "karas"
+    };
+    const authorNames = Object.keys(authorMap);
+    const authorName = authorNames[Math.floor(Math.random() * authorNames.length)];
+    const slug = authorMap[authorName];
     const prod = gameState.products[Math.floor(Math.random() * gameState.products.length)];
     
     if (!prod) return;
     const isPositive = (prod.userPrice / prod.basePrice) <= 1.35;
-    const txt = AIDirector.generateReviewText(author, prod.name, isPositive, prod.userPrice);
+    const txt = AIDirector.generateReviewText(slug, prod.name, isPositive, prod.userPrice);
 
     const box = document.getElementById("reviews-container-box");
     if (!box) return;
@@ -329,19 +331,17 @@ function generateRandomReview() {
     card.className = "review-item";
     card.style.borderLeft = isPositive ? "5px solid #4caf50" : "5px solid #f44336";
     card.innerHTML = `
-        <div class="review-author">👤 ${author} <span class="review-rating">${isPositive?'⭐⭐⭐⭐⭐':'⭐'}</span></div>
+        <div class="review-author">👤 ${authorName} <span class="review-rating">${isPositive?'⭐⭐⭐⭐⭐':'⭐'}</span></div>
         <p class="review-text"><b>[${prod.name}]:</b> ${txt}</p>
         <div class="review-time">Только что на Спавне</div>
     `;
     box.insertBefore(card, box.firstChild);
 }
 
-// ИНТЕРАКТИВНАЯ ПОШТУЧНАЯ ЗАКУПКА (1 К 1)
 function openRestockModal(id) {
     const p = gameState.products.find(item => item.id === id);
     const box = document.getElementById("supplier-items-list");
     
-    // Переписали логику: теперь вводим "Штуки", а базовая стоимость идет за 1 единицу!
     box.innerHTML = `
         <div class="purchase-item">
             <div class="purchase-info">
@@ -361,7 +361,6 @@ function openRestockModal(id) {
     document.getElementById("supplier-modal").classList.add("active");
 }
 
-// ПЕРЕСЧЕТ СТРОГО 1 К 1
 function recalculateRestockCost(id) {
     const p = gameState.products.find(item => item.id === id);
     const input = document.getElementById("restock-items-count");
@@ -369,11 +368,10 @@ function recalculateRestockCost(id) {
     
     if (isNaN(count) || count < 1) count = 1;
     
-    const totalCost = p.cost * count; // Никаких скрытых умножений на 5!
+    const totalCost = p.cost * count;
     document.getElementById("restock-total-cost").innerText = totalCost;
 }
 
-// ЗАКУПКА СТРОГО ПОШТУЧНО
 function buyCustomItems(id) {
     const p = gameState.products.find(item => item.id === id);
     const input = document.getElementById("restock-items-count");
@@ -385,19 +383,64 @@ function buyCustomItems(id) {
 
     if (gameState.money >= totalCost) {
         gameState.money -= totalCost;
-        p.quantity += count; // Прибавляем ровно столько, сколько ввел игрок
+        p.quantity += count;
         
         updateUI();
         renderShowcaseProducts();
         closeSupplierModal();
         
-        alert(`Успешно доставлено ${count} шт. товара со склада Вали! 🚚`);
+        showAlert(`Успешно доставлено ${count} шт. товара со склада Вали! 🚚`);
     } else {
-        alert("Не хватает кристаллов на закупку такого количества товара!");
+        showAlert("Не хватает кристаллов на закупку такого количества товара!");
     }
 }
 
-function closeSupplierModal() { document.getElementById("supplier-modal").classList.remove("active"); }
+function closeSupplierModal() { 
+    document.getElementById("supplier-modal").classList.remove("active"); 
+}
+
+function showAlert(message) {
+    const modal = document.getElementById("alert-modal");
+    const title = document.getElementById("alert-title");
+    const msg = document.getElementById("alert-message");
+    const btn = document.querySelector("#alert-modal .action-btn");
+    
+    title.innerHTML = "🐝 Внимание!";
+    msg.innerText = message;
+    btn.innerText = "✅ Понятно";
+    btn.onclick = function() {
+        closeAlertModal();
+    };
+    modal.style.display = "flex";
+}
+
+function closeAlertModal() {
+    document.getElementById("alert-modal").style.display = "none";
+}
+
+let confirmCallback = null;
+
+function showConfirm(message, callback) {
+    const modal = document.getElementById("alert-modal");
+    const title = document.getElementById("alert-title");
+    const msg = document.getElementById("alert-message");
+    const btn = document.querySelector("#alert-modal .action-btn");
+    
+    title.innerHTML = "❓ Подтверждение";
+    msg.innerText = message;
+    btn.innerText = "✅ Да, уверен";
+    confirmCallback = callback;
+    
+    btn.onclick = function() {
+        closeAlertModal();
+        if (confirmCallback) {
+            confirmCallback();
+            confirmCallback = null;
+        }
+        btn.innerText = "✅ Понятно";
+    };
+    modal.style.display = "flex";
+}
 
 function startGameEngine() {
     console.log("Движок Mustache Bee успешно запущен!");
@@ -405,6 +448,54 @@ function startGameEngine() {
     updateUI();
     renderShowcaseProducts();
     renderChatMessages();
+}
+
+function triggerResetGame() {
+    showConfirm("Вы уверены, что хотите сбросить игру? Всё прогресс будет потерян!", () => {
+        gameState.money = GAME_CONFIG.startMoney;
+        gameState.level = 1;
+        gameState.exp = 0;
+        gameState.reputation = GAME_CONFIG.startReputation;
+        gameState.compromat = 0;
+        gameState.rivalPower = 50;
+        gameState.defeatedRival = false;
+        gameState.marketingBonus = 1.0;
+        
+        gameState.chats = {
+            system: [{ text: "📢 Добро пожаловать в мессенджер BBM! Управляй ульем, закупай товары и развивай свой медовый бизнес без чужой диктатуры! 🛠️🐝", time: "Система", incoming: true }],
+            nahida: [{ text: "👋 Здарова! Я тут чекаю рынок Спавна. Если скучно — пиши 'анекдот' или 'что по рынку'!", time: "Нахида", incoming: true }],
+            pepto: [{ text: "👀 Эй, хозяин! Цены кусаются... Скинь кристаллы за спутник Пепто!", time: "Пепто", incoming: true }],
+            mushroom: [{ text: "🍄 Привет-привет! Как там пчёлы? Почкуются у алтаря?", time: "Гриб", incoming: true }],
+            karas: [{ text: "🐟 Чё по чем? Дороговато у тебя... Мой клан Антегрия следит за витриной.", time: "Карась", incoming: true }],
+            starlik: [{ text: "😈 Ха-ха! Твой магазин скоро закроется, мой киберпанк-спавн сожрет этот улей!", time: "Старлик", incoming: true }]
+        };
+        
+        const courtWindow = document.getElementById("court-window");
+        if (courtWindow) {
+            courtWindow.innerHTML = `
+                <div class="rival-header">
+                    <div class="rival-avatar">⛓️👨‍💼</div>
+                    <div class="rival-info">
+                        <h3>Старлик (Киберпанк-Диктатор)</h3>
+                        <p>Статус: пытается удалить твой бизнес со Спавна</p>
+                    </div>
+                </div>
+                <div class="rival-stats">
+                    <div class="rival-power-bar"><span>Наглость:</span><progress id="rival-progress" value="30" max="100"></progress></div>
+                    <div class="compromat-bar"><span>Компромат:</span><progress id="compromat-progress" value="0" max="100"></progress></div>
+                </div>
+                <div class="rival-actions">
+                    <button class="action-btn reset-btn" onclick="triggerLawsuit()">⚖️ ПЕРЕДАТЬ ДЕЛО В СУД</button>
+                </div>
+            `;
+        }
+        
+        loadLevelProducts();
+        updateUI();
+        renderShowcaseProducts();
+        renderChatMessages();
+        showAlert("🔄 Игра успешно сброшена! Начинай заново!");
+    });
 }
 
 if (document.readyState === "loading") {
