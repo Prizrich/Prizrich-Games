@@ -1,6 +1,3 @@
-/* ===================================================================
-   1. ОБЩИЕ СТИЛИ И ОРИГИНАЛЬНЫЙ МЕДОВЫЙ ФОН (УВЕЛИЧЕННЫЙ КОНТЕЙНЕР)
-   =================================================================== */
 body {
     margin: 0;
     padding: 0;
@@ -15,7 +12,7 @@ h1, h2, h3, h4 {
 }
 
 .game-container {
-    max-width: 1400px !important; /* УВЕЛИЧЕНО С 1200px ДО 1400px ДЛЯ ИДЕАЛЬНОЙ СЕТКИ */
+    max-width: 1400px !important;
     margin: 20px auto;
     padding: 20px;
     background: #ffebaa;
@@ -25,9 +22,6 @@ h1, h2, h3, h4 {
     box-sizing: border-box;
 }
 
-/* ===================================================================
-   2. ШАПКА МАГАЗИНА И ОБЪЕДИНЕННЫЙ ЛОГОТИП ПЧЕЛЫ
-   =================================================================== */
 .signboard {
     text-align: center;
     padding: 15px 0 25px 0;
@@ -42,48 +36,44 @@ h1, h2, h3, h4 {
 
 .bee-logo {
     position: relative;
-    display: inline-block; 
+    display: inline-block;
     background: #ffd966;
     padding: 15px 40px;
     border-radius: 100px;
     box-shadow: 0 5px 0 #b97f10;
-    width: 60px;          
-    height: 60px;         
+    width: 60px;
+    height: 60px;
 }
 
-.bee-emoji { 
-    font-size: 55px; 
-    line-height: 60px;    
+.bee-emoji {
+    font-size: 55px;
+    line-height: 60px;
     display: block;
     text-align: center;
-    position: relative; 
-    z-index: 2; 
+    position: relative;
+    z-index: 2;
 }
 
-/* ЗАЛОЧЕННЫЕ СТАБИЛЬНЫЕ КООРДИНАТЫ ИЗ ТВОЕГО БЭКАПА */
-.mustache { 
-    position: absolute; 
-    font-size: 28px; 
-    bottom: 15px; 
-    left: 38%;    
-    transform: translateX(-50%); 
-    color: #3d2b1a; 
-    z-index: 3; 
-    white-space: nowrap; 
+.mustache {
+    position: absolute;
+    font-size: 28px;
+    bottom: 15px;
+    left: 38%;
+    transform: translateX(-50%);
+    color: #3d2b1a;
+    z-index: 3;
+    white-space: nowrap;
 }
 
-.top-hat { 
-    position: absolute; 
-    font-size: 26px; 
-    top: 2px;     
-    right: 65px;  
+.top-hat {
+    position: absolute;
+    font-size: 26px;
+    top: 2px;
+    right: 65px;
     transform: none !important;
-    z-index: 3; 
+    z-index: 3;
 }
 
-/* ===================================================================
-   3. ВЕРХНЯЯ СТАТИСТИКА
-   =================================================================== */
 .stats-bar {
     background: linear-gradient(135deg, #ffbc6e, #ff9f1c);
     padding: 12px;
@@ -104,12 +94,9 @@ h1, h2, h3, h4 {
     text-align: center;
 }
 
-/* ===================================================================
-   4. ДВУХКОЛОННАЯ СЕТКА ИНТЕРФЕЙСА (ПРОПОРЦИИ ДЛЯ ШИРОКОГО ОКНА)
-   =================================================================== */
 .game-main {
     display: grid !important;
-    grid-template-columns: 1fr 1.3fr !important; /* Ровный баланс сторон без сжатий */
+    grid-template-columns: 1fr 1.3fr !important;
     gap: 20px;
     height: 650px !important;
     align-items: stretch !important;
@@ -163,9 +150,6 @@ h1, h2, h3, h4 {
     outline: none !important;
 }
 
-/* ===================================================================
-   5. ВКЛАДКИ И СЕТКА ОКНА ПОЧТЫ
-   =================================================================== */
 .window-tabs {
     display: flex;
     gap: 8px;
@@ -242,7 +226,7 @@ h1, h2, h3, h4 {
     flex-direction: column !important;
     justify-content: space-between !important;
     height: 100% !important;
-    max-height: 520px !important; 
+    max-height: 520px !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
 }
@@ -265,7 +249,7 @@ h1, h2, h3, h4 {
     flex-direction: column !important;
     gap: 8px !important;
     box-sizing: border-box !important;
-    max-height: 390px !important; 
+    max-height: 390px !important;
 }
 
 .mail-message {
@@ -283,21 +267,17 @@ h1, h2, h3, h4 {
 .message-text { font-size: 0.85rem; word-break: break-word; white-space: pre-line; }
 .message-time { font-size: 0.7rem; color: #a1885f; text-align: right; margin-top: 4px; }
 
-/* ===================================================================
-   6. ПАНЕЛЬ ВВОДА КЛАССИЧЕСКОГО ТИПА (ДИСКОРД / ВК СТИЛЬ)
-   =================================================================== */
 .mail-input-area {
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important; 
-    background: #ffebaa !important; 
+    gap: 10px !important;
+    background: #ffebaa !important;
     padding: 8px 12px !important;
-    border-radius: 8px !important; 
-    border: 2px solid #ffbc6e !important; 
+    border-radius: 8px !important;
+    border: 2px solid #ffbc6e !important;
     box-shadow: inset 0 2px 4px rgba(92, 58, 0, 0.1) !important;
-    
-    width: calc(100% - 20px) !important; 
-    margin: auto 10px 10px 10px !important; 
+    width: calc(100% - 20px) !important;
+    margin: auto 10px 10px 10px !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
 }
@@ -305,10 +285,10 @@ h1, h2, h3, h4 {
 .clear-chat-btn {
     background: #ffd966 !important;
     border: none !important;
-    width: 34px !important;   
+    width: 34px !important;
     height: 34px !important;
     min-width: 34px !important;
-    border-radius: 6px !important; 
+    border-radius: 6px !important;
     cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
@@ -317,7 +297,7 @@ h1, h2, h3, h4 {
 }
 
 #mail-input-field {
-    flex-grow: 1 !important; 
+    flex-grow: 1 !important;
     flex-shrink: 1 !important;
     border: 1px solid #ffbc6e !important;
     background: #ffffff !important;
@@ -338,9 +318,6 @@ h1, h2, h3, h4 {
     margin: 0 !important;
 }
 
-/* ===================================================================
-   7. ЖЕСТКИЙ ФИКС ВЕРХНИХ КНОПОК ДЕЙСТВИЙ (ЧТОБЫ НЕ ЖЕВАТЬ ТЕКСТ)
-   =================================================================== */
 button, .action-btn, .small-btn {
     background: linear-gradient(135deg, #ffaa33 0%, #ff8c00 100%) !important;
     color: white !important;
@@ -358,25 +335,25 @@ button, .action-btn, .small-btn {
 .actions {
     display: flex !important;
     flex-direction: row !important;
-    gap: 8px !important; /* Компактный зазор */
+    gap: 8px !important;
     margin-bottom: 20px !important;
     width: 100% !important;
     flex-shrink: 0;
 }
 
-.actions .action-btn { 
-    flex: 1 !important; 
-    font-size: 0.8rem !important; /* УМЕНЬШИЛИ ШРИФТ ДЛЯ 100% ВМЕСТИМОСТИ РЕКЛАМЫ И СБРОСА */
-    padding: 10px 4px !important; /* Уменьшили боковые внутренние отступы плашек */
-    white-space: nowrap !important; 
+.actions .action-btn {
+    flex: 1 !important;
+    font-size: 0.8rem !important;
+    padding: 10px 4px !important;
+    white-space: nowrap !important;
     text-align: center !important;
 }
 
 .products-area {
     display: block !important;
-    max-height: 480px !important; 
-    overflow-y: auto !important;  
-    padding-right: 8px !important; 
+    max-height: 480px !important;
+    overflow-y: auto !important;
+    padding-right: 8px !important;
     box-sizing: border-box !important;
 }
 
@@ -387,9 +364,6 @@ button, .action-btn, .small-btn {
 .reviews-list { overflow-y: auto; height: 100%; }
 .review-item { background: #fffae8; padding: 12px; margin-bottom: 10px; border-radius: 8px; }
 
-/* ===================================================================
-   8. МОДАЛКА ВАЛИ И АДАПТИВ
-   =================================================================== */
 .modal-overlay {
     position: fixed !important;
     top: 0 !important; left: 0 !important;
@@ -409,6 +383,10 @@ button, .action-btn, .small-btn {
     max-width: 520px !important; width: 95% !important;
     box-sizing: border-box !important;
 }
+
+.modal-alert .modal-content { max-width: 420px !important; text-align: center; }
+.modal-alert .modal-content .action-btn { margin-top: 15px; }
+
 .purchase-item {
     display: flex !important; flex-direction: column !important;
     background: #fffae8 !important; padding: 16px !important;
@@ -426,6 +404,16 @@ button, .action-btn, .small-btn {
 .rival-stats { margin-bottom: 25px; }
 .rival-power-bar, .compromat-bar { margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
 progress { width: 60%; height: 15px; border-radius: 8px; }
+
+.loading-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+}
+.loading-content {
+    background: #fffdf5; padding: 40px; border-radius: 20px;
+    border: 3px solid #ffbc6e; text-align: center; max-width: 400px;
+}
 
 @media (max-width: 850px) {
     .actions { flex-wrap: wrap !important; }
