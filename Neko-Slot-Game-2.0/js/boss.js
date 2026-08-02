@@ -1,4 +1,3 @@
-// Босс-файт система
 import { ALL_MODIFIERS } from './config.js';
 import { player, gameCompleted, activeModifiers, setGameCompleted } from './utils.js';
 import { updateUI, saveGame } from './game.js';
